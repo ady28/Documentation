@@ -1,0 +1,38 @@
+﻿#Specify the header names in a more object friendly way
+$Header="Host",
+        "OSName",
+        "OSVersion",
+        "OSManufacturer",
+        "OSConfiguration",
+        "OSBuildType",
+        "Owner",
+        "Organization",
+        "ProductID",
+        "InstallDate",
+        "BootTime",
+        "Manufacturer",
+        "Model",
+        "SystemType",
+        "Processor",
+        "BIOSVersion",
+        "WindowsDirectory",
+        "SystemDirectory",
+        "BootDevice",
+        "SystemLocale",
+        "InputLocale",
+        "TimeZone",
+        "TotalPhysicalMemory",
+        "AvailablePhysicalMemory",
+        "VirtualMemoryMax",
+        "VirtualMemoryAvailable",
+        "VirtualMemoryInUse",
+        "PageFile",
+        "Domain",
+        "LogonServer",
+        "Hotfix",
+        "NIC",
+        "HyperV"
+
+$Info=SystemInfo.exe /FO CSV /NH | ConvertFrom-Csv -Header $Header
+
+$Info

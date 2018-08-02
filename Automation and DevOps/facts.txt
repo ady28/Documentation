@@ -1,0 +1,21 @@
+Terms:
+Continuous integration
+Continuous testing
+Continuous delivery
+Continuous monitoring
+Continuous security
+
+Tools:
+Visual Studio Team Services
+Visual Studio Team Foundation Server
+DSc
+Powershell
+Ansible
+Chef
+Docker
+Jenkins
+Octopus Deploy
+Chocolatey
+
+Process:
+Shift left

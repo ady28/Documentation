@@ -1,0 +1,47 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<PowerShellMetadata xmlns="http://schemas.microsoft.com/cmdlets-over-objects/2009/11">
+    <Class ClassName="ROOT\cimv2\StdRegProv">
+        <Version>1.0.0</Version>
+        <DefaultNoun>Registry</DefaultNoun>
+
+        <StaticCmdlets>
+            <Cmdlet>
+                <CmdletMetadata Verb="Get" Noun="RegistrySTRING" ConfirmImpact="Low"/>
+                <Method MethodName="GetSTRINGvalue">
+                    <Parameters>
+                        <Parameter ParameterName="hDefKey" >
+                            <Type PSType="ADICORP.Registry.Hive" />
+                            <CmdletParameterMetadata IsMandatory="true" PSName="Hive">
+                            </CmdletParameterMetadata>
+                        </Parameter>
+                        <Parameter ParameterName="sSubKeyName" >
+                            <Type PSType="System.String" />
+                            <CmdletParameterMetadata PSName="SubKey">
+                            </CmdletParameterMetadata>
+                        </Parameter>
+                        <Parameter ParameterName="sValueName" >
+                            <Type PSType="System.String" />
+                            <CmdletParameterMetadata PSName="ValueName">
+                                <ValidateNotNullOrEmpty />
+                            </CmdletParameterMetadata>
+                        </Parameter>
+                        <Parameter ParameterName="sValue">
+                            <Type PSType="System.String" />
+                            <CmdletOutputMetadata />
+                        </Parameter>
+                    </Parameters>
+                </Method>
+            </Cmdlet>
+        </StaticCmdlets>
+
+    </Class>
+    <Enums>
+        <Enum EnumName="ADICORP.Registry.Hive" UnderlyingType="System.UInt32">
+            <Value Name="HKCR" Value="2147483648" />
+            <Value Name="HKCU" Value="2147483649" />
+            <Value Name="HKLM" Value="2147483650" />
+            <Value Name="HKUS" Value="2147483651" />
+            <Value Name="HKCC" Value="2147483653" />
+        </Enum>
+    </Enums>
+</PowerShellMetadata>

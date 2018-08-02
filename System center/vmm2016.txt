@@ -1,0 +1,3 @@
+vmm 2016:
+cluster rolling upgrade (2012 r2 to 2016 server by server)
+Nano Server management

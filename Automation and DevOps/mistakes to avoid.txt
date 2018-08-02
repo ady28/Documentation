@@ -1,0 +1,7 @@
+Using email that is used for cloud admin on other sites with same password - haveibeenpwned.com
+Not disabling RDP,PS Remoting or SSH for any IP address on IaaS machines
+Service account with password never expires
+One service account for all services
+one password for all service accounts
+service account set by default in administrators
+Admin passwords that never expire

@@ -1,0 +1,4 @@
+Install-WindowsFeature Windows-Server-Backup
+
+#After that you can check the PS commands
+Get-Command -Module WindowsServerBackup

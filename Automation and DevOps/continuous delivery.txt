@@ -1,0 +1,15 @@
+You are doing Continuous Delivery if:
+ - software is deployable throughout its lifecycle
+ - prioritize keeping software deployable over working on new features
+ - fast automated feedback on any change made
+ - push button deployment of any software version any time
+
+Continuous delivery != Continuous deployment
+C Deployment automatically deploys code after a change while delivery has it ready to be deployed at the push of a button
+
+-Version control
+-Tests
+-Config management
+-Monitoring
+
+

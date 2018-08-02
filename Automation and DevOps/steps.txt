@@ -1,0 +1,14 @@
+How to automate:
+  Plan and design
+  Develop
+  Build
+  Test!
+  Documentation
+
+Plan and design:
+  Error handling
+  Logging
+  Job concurrency
+  Integration
+  Trigger
+  Security (who will run, who is admin, service accounts, firewall ports)

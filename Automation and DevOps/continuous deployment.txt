@@ -1,0 +1,13 @@
+Three ways:
+1st way: automate
+2nd way: collaborate (feedback loop)
+3rd way: ship
+
+Deployment pipeline:
+Team -> checking to version control -> trigger build and unit tests (send feedback to team) -> trigger automated tests (send feedback) -> user acceptance tests (send feedback) -> release
+
+Tools:
+CI tools (jenkins)
+config management (dsc)
+app deployment (chocolatey)
+monitoring/metrics (splunk,logstash,nagios)

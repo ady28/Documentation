@@ -1,0 +1,41 @@
+<LayoutModificationTemplate
+  xmlns="http://schemas.microsoft.com/Start/2014/LayoutModification"
+  xmlns:defaultlayout="http://schemas.microsoft.com/Start/2014/FullDefaultLayout" 
+  xmlns:start="http://schemas.microsoft.com/Start/2014/StartLayout"  
+  xmlns:taskbar="http://schemas.microsoft.com/Start/2014/TaskbarLayout"
+  Version="1">
+  <LayoutOptions StartTileGroupCellWidth="6" />
+  <DefaultLayoutOverride>
+    <StartLayoutCollection>
+      <defaultlayout:StartLayout GroupCellWidth="6">
+        <start:Group Name="Create">
+          <start:Tile Size="2x2" Column="0" Row="0" AppUserModelID="microsoft.windowscommunicationsapps_8wekyb3d8bbwe!Microsoft.WindowsLive.Calendar" />
+          <start:DesktopApplicationTile Size="2x2" Column="4" Row="2" DesktopApplicationID="{1AC14E77-02E7-4E5D-B744-2EB1AE5198B7}\WindowsPowerShell\v1.0\powershell.exe" />
+          <start:Tile Size="4x2" Column="2" Row="0" AppUserModelID="microsoft.windowscommunicationsapps_8wekyb3d8bbwe!Microsoft.WindowsLive.Mail" />
+          <start:Tile Size="2x2" Column="0" Row="2" AppUserModelID="Microsoft.Office.OneNote_8wekyb3d8bbwe!microsoft.onenoteim" />
+          <start:DesktopApplicationTile Size="2x2" Column="2" Row="2" DesktopApplicationID="{1AC14E77-02E7-4E5D-B744-2EB1AE5198B7}\WindowsPowerShell\v1.0\PowerShell_ISE.exe" />
+        </start:Group>
+        <start:Group Name="Tools">
+          <start:DesktopApplicationTile Size="2x2" Column="0" Row="0" DesktopApplicationID="{1AC14E77-02E7-4E5D-B744-2EB1AE5198B7}\cmd.exe" />
+          <start:DesktopApplicationTile Size="2x2" Column="4" Row="0" DesktopApplicationID="{1AC14E77-02E7-4E5D-B744-2EB1AE5198B7}\devmgmt.msc" />
+          <start:DesktopApplicationTile Size="2x2" Column="2" Row="0" DesktopApplicationLinkPath="%ALLUSERSPROFILE%\Microsoft\Windows\Start Menu\Programs\certmgr.lnk" />
+        </start:Group>
+        <start:Group Name="Explore">
+          <start:Tile Size="4x2" Column="0" Row="0" AppUserModelID="Microsoft.WindowsStore_8wekyb3d8bbwe!App" />
+          <start:Tile Size="2x2" Column="4" Row="0" AppUserModelID="Microsoft.MicrosoftEdge_8wekyb3d8bbwe!MicrosoftEdge" />
+          <start:Tile Size="2x2" Column="0" Row="2" AppUserModelID="Microsoft.SkypeApp_kzf8qxf38zg5c!App" />
+          <start:SecondaryTile AppUserModelID="Microsoft.MicrosoftEdge_8wekyb3d8bbwe!MicrosoftEdge" TileID="24192013200" DisplayName="Test site" Size="2x2" Column="2" Row="2" Arguments="-contentTile -formatVersion 0x00000003 -pinnedTimeLow 0x214948cf -pinnedTimeHigh 0x01d35d70 -securityFlags 0x00000000 -tileType 0x00000000 -url 0x0000002e https://go.microsoft.com/fwlink/?LinkId=525773" Square150x150LogoUri="ms-appx:///Assets/MicrosoftEdgeSquare150x150.png" Wide310x150LogoUri="ms-appx:///" ShowNameOnSquare150x150Logo="true" ShowNameOnWide310x150Logo="false" BackgroundColor="#ff2672ec" ForegroundText="light" />
+          <start:DesktopApplicationTile Size="2x2" Column="4" Row="2" DesktopApplicationID="http://www.google.ro/" />
+        </start:Group>
+      </defaultlayout:StartLayout>
+    </StartLayoutCollection>
+  </DefaultLayoutOverride>
+  <CustomTaskbarLayoutCollection PinListPlacement="Replace">
+    <defaultlayout:TaskbarLayout>
+      <taskbar:TaskbarPinList>
+        <taskbar:UWA AppUserModelID="Microsoft.SkypeApp_kzf8qxf38zg5c!App" />
+	<taskbar:DesktopApp DesktopApplicationLinkPath="%APPDATA%\Microsoft\Windows\Start Menu\Programs\System Tools\Command Prompt.lnk" />
+      </taskbar:TaskbarPinList>
+    </defaultlayout:TaskbarLayout>
+  </CustomTaskbarLayoutCollection>
+</LayoutModificationTemplate>
