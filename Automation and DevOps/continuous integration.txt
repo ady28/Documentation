@@ -1,0 +1,1 @@
+All teams work on the same version of the code that is permanently automatically integrated, compiled and tested.

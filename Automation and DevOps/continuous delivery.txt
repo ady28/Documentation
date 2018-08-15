@@ -12,4 +12,27 @@ C Deployment automatically deploys code after a change while delivery has it rea
 -Config management
 -Monitoring
 
+Continuous Delivery fits with the Kanban approach of software delivery (for delivering small features when they are ready)
+
+Vagrant - good tool for building environments on local machines for testing new app versions
+Docker is very good for continuous delivery as you can start applications fast
+Docker machine is a tool like Vagrant meant only to create VMs for docker containers (works with hypervisers and clouds)
+Docker cluster solutions:
+	Apache Mesos
+	Kubernetes
+	Docker machine + compose + swarm
+A test driven infrastructure is mandatory. Pester is one of the choices for Windows
+
+PaaS solutions:
+	Cloud foundry (public and private cloud)
+	Heroku (public cloud)
+	Google App Engine (public cloud)
+	Amazon Elastic Beanstalk (public cloud)
+	Azure App Service (public cloud)
+	Open Shift (public and private cloud)
+	Flynn and Dokku (small PaaS services for docker)
+
+Unit tests should test a function/method or at most a class/script
+
+
 
