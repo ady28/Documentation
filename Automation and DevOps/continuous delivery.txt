@@ -34,5 +34,9 @@ PaaS solutions:
 
 Unit tests should test a function/method or at most a class/script
 
+Code quality must be checked:
+	SonarQube (mainly for java but has plugins for other languages including ps through scriptanalyzer)
+	Powershell ScriptAnalyzer
+
 
 

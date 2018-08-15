@@ -1,1 +1,8 @@
 All teams work on the same version of the code that is permanently automatically integrated, compiled and tested.
+
+Build server assures that the latest version is integrated, compiled and tested
+
+Build servers:
+	Jenkins
+	Bamboo
+	TeamCity
