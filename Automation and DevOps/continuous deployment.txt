@@ -11,3 +11,8 @@ CI tools (jenkins)
 config management (dsc)
 app deployment (chocolatey)
 monitoring/metrics (splunk,logstash,nagios)
+
+For deployment a plan for rollback has to be discussed. The most problematic is if there were any database schema or data changes.
+Another option is roll forward (quickly implement a patch to fix whatever is not working)
+Blue/green deployment is a strategy to deploy the new version on a new system and switch it to the active one after testing that everything works.
+Canary release is a strategy to deploy the new version on a new node in a cluster or on a server and have only a couple of clients use it. As tests go, more servers get the version so more clients use the new one. In case on the first step something happens, deployment will not continue to the others.
