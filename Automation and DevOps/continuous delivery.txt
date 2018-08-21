@@ -39,4 +39,8 @@ Code quality must be checked:
 	Powershell ScriptAnalyzer
 
 
-
+Logging is very important. Tools for analyzing logs:
+	ElasticSearch
+	LogStash
+	Kibana
+	Combined (ELK stack)
