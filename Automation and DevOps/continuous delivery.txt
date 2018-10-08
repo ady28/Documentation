@@ -12,6 +12,11 @@ C Deployment automatically deploys code after a change while delivery has it rea
 -Config management
 -Monitoring
 
+Code is repeatable
+Code is sharable
+Code is promotable
+Code is testable
+
 Continuous Delivery fits with the Kanban approach of software delivery (for delivering small features when they are ready)
 
 Vagrant - good tool for building environments on local machines for testing new app versions
