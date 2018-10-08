@@ -8,7 +8,7 @@ Continuous security
 Tools:
 Visual Studio Team Services
 Visual Studio Team Foundation Server
-DSc
+DSC
 Powershell
 Ansible
 Chef
