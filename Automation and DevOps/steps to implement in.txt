@@ -1,0 +1,10 @@
+Stage 0:
+  Monitoring
+  Reuse deployment and testing patterns
+  Config management tools
+Stage 1:
+  Normalize technology stack
+  Standardize (improve step 1)
+  Expand DevOps practices
+  Automate infrastructure delivery
+  Provide self service
