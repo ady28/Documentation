@@ -2,7 +2,9 @@ Function Get-MDTLog
 {
     [CmdletBinding()]
     param(
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory=$true,
+                   Position=0,
+                   HelpMessage="Full path to the log file")]
         [string]$FilePath,
         [switch]$ErrorOnly
     )
