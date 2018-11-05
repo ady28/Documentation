@@ -1,3 +1,21 @@
+<#
+    .SYNOPSIS
+      Parses an MDT log file and transforms each line and its metadata in an object
+    .DESCRIPTION
+      This function reads a standard MDT log file line by line and transforms each line
+    and its metadata into an object. This function does not work for the Panther logs 
+    and NetSetup log
+    .PARAMETER FilePath
+      Specify the full path to the file (Eg: C:\MDTLogs\BDD.log) or the relative path
+    depending on where you are on the filesystem with the Powershell console
+    (Eg: .\BDD.log)
+    .PARAMETER ErrorOnly
+      Use this switch if you want to get only lines that are categorized as errors
+    .EXAMPLE
+      Get-MDTLog -FilePath D:\MDTLogs\TESTPC\BDD.log
+    .EXAMPLE
+      Get-MDTLog -FilePath .\LiteTouch.log -ErrorOnly
+#>
 Function Get-MDTLog
 {
     [CmdletBinding()]
@@ -9,16 +27,21 @@ Function Get-MDTLog
         [switch]$ErrorOnly
     )
 
+    if(!(Test-Path -Path $FilePath))
+    {
+        Write-Error -Message 'Path not found' -RecommendedAction 'Check that the file path is correct'
+    }
+
     if($ErrorOnly)
     {
-        Write-Verbose "Only errors will be shown."
+        Write-Verbose "Only errors will be shown"
     }
 
     $Lines=Get-Content -Path $FilePath
-    Write-Verbose "File has $($Lines.Count) lines. Iterating through each one."
+    Write-Verbose "File has $($Lines.Count) lines. Iterating through each one"
     foreach($Line in $Lines)
     {
-        #In case a line continues to the next line just save the text and concatenate it next iteration
+        #In case a line continues to the next line just save the text and concatenate it in the next iteration
         if($Line.EndsWith('>'))
         {
             if($GetNextLine -eq $true)
@@ -78,6 +101,11 @@ Function Get-MDTLogPanther
         [string]$FilePath
     )
 
+    if(!(Test-Path -Path $FilePath))
+    {
+        Write-Error -Message 'Path not found' -RecommendedAction 'Check that the file path is correct'
+    }
+
     $Lines=Get-Content -Path $FilePath
     Write-Verbose "File has $($Lines.Count) lines. Iterating through each one."
 
@@ -95,6 +123,11 @@ Function Get-MDTLogNetSetup
         [Parameter(Mandatory=$true)]
         [string]$FilePath
     )
+
+    if(!(Test-Path -Path $FilePath))
+    {
+        Write-Error -Message 'Path not found' -RecommendedAction 'Check that the file path is correct'
+    }
 
     $Lines=Get-Content -Path $FilePath
     Write-Verbose "File has $($Lines.Count) lines. Iterating through each one."
