@@ -1,6 +1,6 @@
 <#
     .SYNOPSIS
-      Parses an MDT log file and transforms each line and its metadata in an object
+      Parses an MDT log file and transforms each line and its metadata into objects
     .DESCRIPTION
       This function reads a standard MDT log file line by line and transforms each line
     and its metadata into an object. This function does not work for the Panther logs 
@@ -13,8 +13,10 @@
       Use this switch if you want to get only lines that are categorized as errors
     .EXAMPLE
       Get-MDTLog -FilePath D:\MDTLogs\TESTPC\BDD.log
+
     .EXAMPLE
       Get-MDTLog -FilePath .\LiteTouch.log -ErrorOnly
+
 #>
 Function Get-MDTLog
 {
@@ -29,7 +31,8 @@ Function Get-MDTLog
 
     if(!(Test-Path -Path $FilePath))
     {
-        Write-Error -Message 'Path not found' -RecommendedAction 'Check that the file path is correct'
+        Write-Error -Message 'Path not found' -RecommendedAction 'Check that the file path is correct' -Category ObjectNotFound
+        Exit
     }
 
     if($ErrorOnly)
