@@ -148,6 +148,7 @@ Function Get-MDTLogNetSetup
         }
         else
         {
+            Write-Verbose "Found a line without date."
             $Properties=@{
                 DateTime = $null
                 Message = $Line
