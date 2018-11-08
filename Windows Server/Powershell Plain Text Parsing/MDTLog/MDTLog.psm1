@@ -137,6 +137,23 @@ Function Get-MDTLogNetSetup
 
     foreach($Line in $Lines)
     {
-        
+        $Matches.Clear()
+        $Line -match "(?<Date>\d\d/\d\d/\d\d\d\d) (?<Time>\d\d:\d\d:\d\d):\d\d\d\s+(?<Message>.+)" | Out-Null
+        if($Matches.Count -gt 0)
+        {
+            $Properties=@{
+                DateTime = [datetime]"$($Matches.Date)  $($Matches.Time)"
+                Message = $Matches.Message
+            }
+        }
+        else
+        {
+            $Properties=@{
+                DateTime = $null
+                Message = $Line
+            }
+        }
+        $Obj=New-Object PSObject -Property $Properties
+        Write-Output $Obj
     }
 }
