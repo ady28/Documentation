@@ -1,0 +1,2 @@
+Azure Key Vault SQL TDE Extension - encrypt dbs
+Use MSI to talk to AKV
