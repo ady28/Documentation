@@ -1,5 +1,5 @@
 Use HTTP verbs to signal the action your URL will do: GET, DELETE, POST(create), PUT(update)
-Use nouns in links and rural nouns are preffered: link/users/324
+Use nouns in links and prural nouns are preffered: link/users/324
 Make a list with the routes and make functions for actions in the routes
 
 Some HTTP status codes that can be used:
@@ -18,4 +18,10 @@ Some HTTP status codes that can be used:
 Each request should get only 1 error no matter of what has happened and errors should be only on 4xx and 5xx codes
 
 Tests are very important. Try and test all your routes with correct and incorrect scenarios
+
+Authentication:
+  -  Basic (insecure on HTTP and HTTPS)
+  -  Digest (uses MD5 to encrypt the password)
+  -  OAuth 1.0a (was used by Google,Twitter,Flicker etc)
+  -  OAuth 2.0 (improved over 1.0a)
 
