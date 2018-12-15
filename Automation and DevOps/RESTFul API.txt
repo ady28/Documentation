@@ -25,3 +25,7 @@ Authentication:
   -  OAuth 1.0a (was used by Google,Twitter,Flicker etc)
   -  OAuth 2.0 (improved over 1.0a)
 
+Consider using pagination if a lot of data can be returned in one request
+
+Write a documentation with as much data as possible
+
