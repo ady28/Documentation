@@ -1,0 +1,18 @@
+Compute: 
+	new options for deep learning with nvidia tesla
+	virtual desktop with nvidia
+Storage:
+	ultra ssd
+Network:
+	express route direct (use 100Gbps connection)
+SAP HANA
+Containers:
+	Azure container instances (serverless containers)
+	AKS (new: virtual node - quick burst capacity)
+	Azure service fabric (.net in containers)
+	Azure app service (web site deployment in containers)
+Windows Server 2019:
+	Run also linux containers
+	Azure network adapter to connect directly to azure
+Azure security center
+Azure blueprints - plan governance
