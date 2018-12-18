@@ -1,0 +1,52 @@
+In a git repo the .git folder stores repository objects
+The only ones somewhat safe to edit are:
+  description file
+  config file
+  hooks folder (script to be executed during git actions)
+
+git init (new repo)
+git clone (clone repo)
+git clone <folder_name> (clone repo but change project folder name)
+
+git add -a (add all new or modified files to the staged list)
+git add <file>
+git add <folder>
+
+git commit (commits all files in staged list)
+git commit -a (also runs git add-a then commit)
+git commit -m (adds a commit message)
+
+git status
+git reset (removes files from the staged list)
+git diff (shows changed made to commited files)
+git log (list commits in reverse chronological order)
+
+To exclude files from getting commited make a .gitignore file
+	*.log (ignore files that end with .log)
+	output\ (ignore files in a directory named output)
+	out (ignore files or folders with out in name)
+	# is for comments
+It is also possible to createa global ignore file:
+	git config --global core.excludeFiles <path>
+git add -f <filename> (force to add an ignored file)
+git check-ignore -v <filename>  (debug why a file is ignored)
+
+
+HEAD - reference to the most recent commit in current branch
+
+git reset (removes files added to staged list) - use on private branch
+git reset HEAD`2 (moves back 2 commits)
+	--soft (reverts commit metadata and is used to change commit messages)
+	--mixed (updates only staged list - leaves uncommited changes)
+	--hard (deletes also uncommited changes)
+git reset <filename> (opposite to git add)
+
+git revert - undo a commit by making a new commit (safe way to undo changes)
+git revert HEAD`2
+git revert -n (do not commit automatically after revert)
+
+git checkout - updates files in working tree
+git checkout <filename>
+
+
+
