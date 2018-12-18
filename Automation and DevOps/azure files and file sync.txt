@@ -1,0 +1,6 @@
+Azure files: file share (smb) - 3 data copies in one region
+			      - can be available in multiple availability zones each with 3 copies
+			      - an availability zone can be in w eu and one in e eu opr other region
+Can use multiple partitions to get one share to 100TB
+
+Azure File Sync - link an azure share to a file server share and can use tiering for cold data and multi-site sync
