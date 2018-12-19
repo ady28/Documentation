@@ -48,5 +48,31 @@ git revert -n (do not commit automatically after revert)
 git checkout - updates files in working tree
 git checkout <filename>
 
+git branch <options> (create a branch from the current parent)
+
+git checkout -b <branch> (create branch and switches to it)
+git checkout <existing_branch> (switches to branch)
+git branch -v (shows branches and last commit for each)
+git branch <branch> <existing> (branch from a branch that is not the parent)
+git branch -d <branch> (delete branch)
+
+git checkout -b -orphan <branch> (create branch from parent and starts brand new history)
+
+Branching 
+	Master -> Development -> Feature 1
+				 Bug fix
+git merge <branch>
+
+
+git clone (remote_repo_address) (clone a remote repo)
+git pull origin <branch> (incorporate changes from the remote repo branch into yours)
+git push origin <branch> (push branch to the origin repo)
+git push origin --delete <branch> (delete branch on remote repo)
+
+
+
+
+
+
 
 
