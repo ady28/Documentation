@@ -1,0 +1,10 @@
+process template for project:
+	SCRUM
+	AGILE
+	CMMI
+Team: web dev, server, c programers etc
+Project area: web developers area with their work items, server ops area with their work items etc
+Iterations: the time to work until releasing a version (each area can have an iteration)
+
+Work items like bugs and new features can be linked with git commits by using #
+
