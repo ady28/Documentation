@@ -1,0 +1,13 @@
+attach to cloud - m365, intune
+
+office click to run apps (deploy and manage office from intune)
+
+mobile apps (install from intune and manage from sccm)
+
+device configuration 
+
+cloud distribution point
+
+desktop analytics
+
+cmpivot
