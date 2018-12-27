@@ -69,6 +69,12 @@ git pull origin <branch> (incorporate changes from the remote repo branch into y
 git push origin <branch> (push branch to the origin repo)
 git push origin --delete <branch> (delete branch on remote repo)
 
+git fetch - shows what files are different on the remote repo from your local one but does not pull them
+
+rebase - add changes from master to current branch in cases when you made a branch, made changes and other people changed master; the new master changes will be added after the old ones and your local changes go after those
+
+azure devops- pull request: before merging a branch in master make a pull request (like a code review)
+
 
 
 
