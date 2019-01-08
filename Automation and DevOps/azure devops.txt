@@ -8,3 +8,7 @@ Iterations: the time to work until releasing a version (each area can have an it
 
 Work items like bugs and new features can be linked with git commits by using #
 
+Continuous integration - everytime code is checked in a build should occur with unit tests
+Continuous delivery - at every change, after build, deploy app to an environment to make sure it works
+Continuous deployment - at every change, put app through environments until it gets to prod
+
