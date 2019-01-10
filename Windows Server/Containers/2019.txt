@@ -1,0 +1,7 @@
+Run a container in interactive mode and open powershell.exe:
+	docker exec -it <imagename> powershell.exe
+
+os base images:
+nano server
+server core
+windows (most win os components)
