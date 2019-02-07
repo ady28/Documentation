@@ -1,0 +1,2 @@
+Use RDMA (iWarp recommended but RoCE works too)
+

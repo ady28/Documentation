@@ -1,0 +1,6 @@
+Azure Stack Development Kit:
+ - Signle node unit
+ - For development
+ Run on Azure
+  - VM to use E16 v3
+  - An ASDK ARM template exists already
