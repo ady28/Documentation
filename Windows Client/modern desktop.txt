@@ -1,0 +1,12 @@
+Steps:
+1 Device and app readiness
+	Analytics
+2 Directory and network readiness
+3 Office app delivery
+	Office Customization Toll
+4 User files and settings
+	One drive
+5 Security and compliance
+6 OS deployment and feature update
+
+More data:https://docs.microsoft.com/en-us/microsoft-365/enterprise/desktop-deployment-center-home
