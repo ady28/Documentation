@@ -1,0 +1,16 @@
+User = person that uses an IT service on a day to day basis
+Customer = Requests an IT service and pays for it (if it is the case). For IT internal to the company customer might be the guy that agrees to the SLAs
+Supplier = External company that provides goods or services in order for you to deliver an IT service
+
+Every part of a service is an asset. Assets can be resources and capabilities
+Resources: applications, infrastructure, financial capital, information,people
+Capability = ability to take a resource and turn it into something useful
+Capabilities: knowledge, people, processes, management, organisation
+
+Process = structured set of activities designed to accomplish a task
+Function = a team of people and the tools they use to carry out one or more processes
+Role = a set of responsabilities given to a person or team; it is defined in a process
+
+Service owner: responsible for a service. does not know everything about it but knows someone who does
+Process owner: responsible for a process
+Process practitioner: does the work
