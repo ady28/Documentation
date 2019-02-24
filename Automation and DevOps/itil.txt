@@ -14,3 +14,48 @@ Role = a set of responsabilities given to a person or team; it is defined in a p
 Service owner: responsible for a service. does not know everything about it but knows someone who does
 Process owner: responsible for a process
 Process practitioner: does the work
+
+Service lifecycle:
+ Parts:
+  - Service strategy
+  - Service Transition
+  - Service Design
+  - Service Operation
+  - Continual Service Improvement
+ Service strategy:
+  - Decide who customers are and what services to give to them based on the business requirements
+ Service design:
+  - Based on the bussines requirements, you plan, design and estimate resources needed for the service
+ Service transition:
+  - Plan and manage changes to services and deploy releases
+  - Activities: build, test, implement
+ Service operation:
+  - Deliver the services to customers at the agreed levels from service design
+
+Example:
+ - Service desk = function
+ - incident management, access management - processes
+
+Types of service desk:
+ Local service desk:
+  - If you have 3 locations there will be a service desk in each one
+ Centralised service desk:
+  - One location for service desk but they support the whole company
+ Virtual service desk:
+  - Service desk appears to be only one to the end user but there may be more offices
+  - Users may be routed by: language,problem type, time of day etc
+ Follow the sun service desk:
+  - Virtual service desk where calls are routed by time of day. If a user calls at night he will be forwarded to a service desk office where it is day (easier to employ people only for day jobs)
+
+IT operations management consists of the staff that do the day-to-day tasks that keep the IT infrastructure and the IT services going.
+
+The technical management function has a dual role as:
+ -  Custodian of technical knowledge and expertise related to managing the IT infrastructure
+ -  Provider of the resources to support the service lifecycle
+Teams for technical management function:
+ - Server
+ - Database
+ - Network
+ - Storage
+
+The application management function is similar to the technical management function
