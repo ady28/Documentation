@@ -59,3 +59,19 @@ Teams for technical management function:
  - Storage
 
 The application management function is similar to the technical management function
+
+Service strategy:
+ A strategy is a plan that outlines how an organisation will meet a defined set of objectives
+ The set of services offered is called service portfolio
+ Value proposition helps you understand how customers get value from each IT service
+ Value=utility+warranty
+ Utility refers to what the service does. Warranty refers to an assurance that the customer receives the appropriate levels of availability, capacity, security and continuity for the service
+ IT service provider types:
+  - Internal service provider: IT department especially for a bussines unit of the company
+  - Shared services unit: IT department that provides services to the whole company
+  - External service provider: organization that provides services to outside companies
+ Service portfolio management is the process that manages the portfolio
+ Service portfolio includes 3 categories of service:
+  - Service pipeline: services that are not yet approved so they are in the service strategy or design stage
+  - Service catalog: services that are in use or will be in use shortly
+  - Retired services: not in use anymore but kept in case data is needed
