@@ -75,3 +75,7 @@ Service strategy:
   - Service pipeline: services that are not yet approved so they are in the service strategy or design stage
   - Service catalog: services that are in use or will be in use shortly
   - Retired services: not in use anymore but kept in case data is needed
+
+Service design:
+ Important: people, processes, products, partners
+ A service design package (SDP) is a package of documents that define all aspects of the design and requirements
