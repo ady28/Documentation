@@ -79,3 +79,17 @@ Service strategy:
 Service design:
  Important: people, processes, products, partners
  A service design package (SDP) is a package of documents that define all aspects of the design and requirements
+
+Service transition:
+ Service transition is the stage in which you build, test and implement the new service or changed service
+ Change management:
+  - Change management ensures that IT changes are recorded, assessed and authorised, and then implemented into the live environment in a controlled manner
+  - Change types:
+     - Normal
+     - Standard (pre-authorized; usually they are service requests put by the service desk)
+     - Emergency (must be implemented as soon as possible)
+ Service Asset and Configuration Management:
+  - Described simply, service asset and configuration management (SACM) is the process that ensures you maintain up-to-date information about all your assets and the component parts of the IT services you manage
+  - Some terms:
+     - CI: Configuration item (everything that is part of an IT service and we need to store data about like computers, locations, people, servers etc)
+     - CMS: Software that corelates data from multiple CMDBs also with changes, incidents, problems, releases and so on
