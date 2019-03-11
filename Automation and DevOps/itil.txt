@@ -93,3 +93,29 @@ Service transition:
   - Some terms:
      - CI: Configuration item (everything that is part of an IT service and we need to store data about like computers, locations, people, servers etc)
      - CMS: Software that corelates data from multiple CMDBs also with changes, incidents, problems, releases and so on
+ Release and deployment management:
+  Group changes for release
+  Release is the thing (the noum) and deployment is the action
+ Knowledge management:
+  
+Service operation:
+ At this stage the service is live (in production)
+ Event management:
+  Monitor events in order to keep the service running as expected
+  Event: 
+   - A change of state that has significance to the management of the service
+   - Types:
+      - Information
+      - Warning
+      - Exception
+  Alert:
+   - Notification that threshhold is reached or error occured
+ Incident management:
+  Restore normal service operation as quickly as possible
+  Types:
+   - Incident: an unplanned interruption of a service
+   - Major incident: an incident that has a high impact on production and that is treated differently than a normal incident
+  Incidents can have priorities with different resolution times 
+ Request fulfilment
+ Problem management:
+  Get to the bottom of the problem that caused a specific incidents or incidents and solving it so no more incidents of that type will be recorded
