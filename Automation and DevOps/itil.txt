@@ -119,3 +119,17 @@ Service operation:
  Request fulfilment
  Problem management:
   Get to the bottom of the problem that caused a specific incidents or incidents and solving it so no more incidents of that type will be recorded
+
+Continual service improvement:
+ Bussiness case for improvement:
+  - Improvement (what percent improvement will be made)
+  - Benefit (financial benefit)
+  - Return on investment: cost vs savings
+  - Value of investment: non-financial benefits
+
+RACI matrix:
+ - Responsible: people who perform activities
+ - Accountable: Person who takes ultimate ownership over the process
+ - Consulted: People whos advice or oppinions are sought
+ - Informed: People who should be told or kept informed about the process
+ 
