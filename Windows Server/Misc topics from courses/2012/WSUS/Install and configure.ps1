@@ -19,6 +19,8 @@ $wsusConfig.Save()
 $wsusConfig.AllUpdateLanguagesEnabled = $false
 $wsusConfig.SetEnabledUpdateLanguages(“en”)
 $wsusConfig.Save()
+$wsusConfig.TargetingMode='Client'
+$wsusConfig.Save()
 #Get WSUS Subscription and perform initial synchronization to get latest categories
 $subscription = $wsus.GetSubscription()
 $subscription.StartSynchronizationForCategoryOnly()
@@ -32,6 +34,10 @@ Get-WsusClassification | Where-Object { $_.Classification.Title -in 'Update Roll
 
 #Start a sync
 $subscription.StartSynchronization()
+$subscription.GetSynchronizationProgress()
+$subscription.GetSynchronizationStatus()
 
 #Other things that can be done are configure auto approval rules and sync times
 
+#Create wsus target groups
+#Create a GPO and set enable automatic updates, target groups and intranet wsus server
