@@ -39,6 +39,9 @@ Get-Command -Module FailoverClusters
 Test-Cluster -Node FS02A,FS02B
 New-Cluster -Name FS02 -Node FS02A,FS02B -StaticAddress 192.168.1.13
 
+#Set the cluster name to register a PTR record (recource has to be taken offline and online)
+Get-ClusterResource -Name 'Cluster Name' | Set-ClusterParameter -Name PublishPTRRecords -Value 1
+
 #Run the commands on one of the cluster nodes
 #Format the quorum disk
 Initialize-Disk -Number 1 -PartitionStyle GPT
@@ -77,3 +80,8 @@ Add-ClusterScaleOutFileServerRole -Name FS02SOFS
 New-Item C:\ClusterStorage\Volume2\TestSOFSShare -ItemType Directory
 #create the share
 New-SmbShare -Path C:\ClusterStorage\Volume2\TestSOFSShare -Name 'TestSOFSShare$' -ScopeName FS02SOFS
+
+
+###Notes
+#On the server or client from where you use the failover cluster manager mmc snapin (2012 or W8)
+#install Windows8-RT-KB2803748-x64 from: https://www.microsoft.com/en-us/download/details.aspx?id=36468
