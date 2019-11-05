@@ -47,3 +47,10 @@ $subscription.GetSynchronizationStatus()
 Install-WindowsFeature NET-Framework-Core -Source D:\sources\sxs
 #Install Microsoft report viewer redistributable 2008
 Start-Process -FilePath '.\ReportViewer 2008.exe' -ArgumentList '/q' -Wait
+
+#Fix WSUS AppPool stopping constantly
+https://www.urtech.ca/2018/06/solved-wsuspool-in-iis-stops-repeatedly/
+Click on APPLICATION POOLS
+Click on WSUSPOOL
+Click ADVANCED SETTINGS (action pane on right side)
+Scroll down and increase the PRIVATE MEMORY LIMIT and decrease the REGULAR TIME INTERVAL.
