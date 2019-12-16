@@ -16,6 +16,7 @@ Set-NetFirewallRule -Group "@firewallapi.dll,-36751" -Profile Domain -Enabled tr
 Test-CauSetup -ClusterName FS02
 
 #Make sure that a GPO is configure to point the cluster nodes to a WSUS server
+#Only the Specify intranet Microsoft update service location setting is needed
 #Scan for applicable updates
 Invoke-CauScan -ClusterName FS02
 #Start an update session with default values
