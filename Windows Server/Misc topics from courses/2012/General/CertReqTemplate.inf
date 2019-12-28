@@ -1,0 +1,28 @@
+[Version] 
+Signature="$Windows NT$"
+[NewRequest]
+;Modify the name to the site name and the domain parts to what apply to you
+Subject = "CN=test1.testcorp.com"
+;If you are using a SAN extension, the certificate Subject name can be empty.
+
+;Exportable = FALSE   ; TRUE = Private key is exportable
+;KeyLength = 2048     ; Valid key sizes: 1024, 2048, 4096, 8192, 16384
+KeySpec = 1          ; Key Exchange – Required for encryption
+KeyUsage = 0xA0      ; Digital Signature, Key Encipherment
+MachineKeySet = True
+ProviderName = "Microsoft RSA SChannel Cryptographic Provider"
+
+;Can also be CMC.
+RequestType = PKCS10
+
+;[Extensions]
+; If your client operating system is Windows Server 2008, Windows Server 2008 R2, Windows Vista, or Windows 7
+; SANs can be included in the Extensions section by using the following text format. Note 2.5.29.17 is the OID for a SAN extension.
+
+;Uncomment the [Extensions] line and the 2 lines if you want to use SAN and you can add as many dns lines as you want
+;2.5.29.17 = "{text}"
+;_continue_ = "dns=name.test.com&"
+
+;Modify for your environment by using the LDAP common name of the template.
+;Required only for enterprise CAs.
+CertificateTemplate = WebIntranet
