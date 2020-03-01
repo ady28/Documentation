@@ -23,3 +23,5 @@ New-ADDCCloneConfigFile -Static -IPv4Address 192.168.1.16 -IPv4DefaultGateway 19
 #Now we stop the DC03 VM and export it
 #Import VM and generate new ID
 #Start the 2 domain controllers; after 2-3 minutes DC04 should appear as a DC in AD
+
+Remove-ADGroupMember -Identity 'Cloneable Domain Controllers' -Members 'CN=DC03,OU=Domain Controllers,DC=testcorp,DC=com' -Confirm:$false

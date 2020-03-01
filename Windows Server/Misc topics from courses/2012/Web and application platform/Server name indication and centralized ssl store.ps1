@@ -16,6 +16,7 @@ dir Cert:\LocalMachine\My
 #youwill get a list of certificate names and thumbprints
 #For each thumbprint run the following
 certutil -store my "<thumbprint>" | Where-Object {$_ -like '*Key Container*'}
+certutil -delkey '<KeyContainerName>'
 #After this you can also remove the certificates from the store
 Remove-Item Cert:\LocalMachine\My\<thumbprint>
 

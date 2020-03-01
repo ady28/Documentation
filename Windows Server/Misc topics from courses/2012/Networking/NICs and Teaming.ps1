@@ -1,6 +1,10 @@
 #Get a list of all network adapters
 Get-NetAdapter
 
+#Disable DNS registration for a net adapter
+Set-DnsClient -InterfaceIndex 12 -RegisterThisConnectionsAddress 0
+Set-DnsClient -InterfaceIndex 12 -RegisterThisConnectionsAddress 1
+
 #Get a list of all teams
 Get-NetLbfoTeam
 #Create a new team with the NIC name Team1 and the team name PublicTeam
