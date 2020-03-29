@@ -11,10 +11,16 @@ Get-gpo -All | Sort-Object CreationTime,ModificationTime | Select-Object Display
 #Get the entities on whic a gpo is applied
 $a=Get-GPO -Name Test1
 $a.GetSecurityInfo() | where {$_.Permission -eq 'GPOApply'}
+#or
+Get-GPPermission -Name Test1 -All | Where {$_.Permission -eq 'GpoApply'}
 #Get and export an html gpo report
 Get-GPOReport -Name Test1 -ReportType Html -Path C:\Users\Administrator\Desktop\Test1.HTML
 #Get a gpo as an xml object
 [xml](Get-GPOReport -Name Test1 -ReportType Xml)
+#Backup a GPO
+Backup-GPO -Name Test1 -Path C:\Users\Administrator\Desktop
+#Restore gpo
+Restore-GPO -Path C:\Users\Administrator\Desktop -BackupId <folder name without {}>
 
 #Check is a GPO is empty
 [xml]$report=Get-GPOReport -Name Test8 -ReportType XML
@@ -95,6 +101,9 @@ foreach ($container in $dn)
     } #foreach item
     } #foreach linkdata
 } #foreach container
+#also
+Get-GPInheritance -Target 'ou=servers,ou=testcorp,dc=testcorp,dc=local' | select -ExpandProperty InheritedGpoLinks
+
 
 #Get unlinked GPOs
 #GUID regular expression pattern
