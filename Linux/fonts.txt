@@ -1,0 +1,4 @@
+#Change font on ubuntu
+Edit /etc/conf/console-setup and change FONTSIZE to 16x32 then restart
+#Change font on centos
+Edit /etc/vconsole.conf and change the FONT to latarcyrheb-sun32 then restart

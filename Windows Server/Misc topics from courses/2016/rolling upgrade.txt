@@ -1,0 +1,69 @@
+New-IscsiServerTarget -TargetName StorageForHVS04
+New-IscsiVirtualDisk -Path D:\iSCSI\Quorum4.VHDX -Size 1GB
+Add-IscsiVirtualDiskTargetMapping -TargetName 'StorageForHVS04' -Path D:\iSCSI\Quorum4.VHDX
+New-IscsiVirtualDisk -Path D:\iSCSI\Data4.VHDX -Size 5GB
+Add-IscsiVirtualDiskTargetMapping -TargetName 'StorageForHVS04' -Path D:\iSCSI\Data4.VHDX
+#Permit the 2 servers to mount the LUNs from the target by their iscsi initiator addresses
+set-IscsiServerTarget -TargetName 'StorageForHVS04' -InitiatorIds 'IQN:iqn.1991-05.com.microsoft:HVS04A.testcorp.local','IQN:iqn.1991-05.com.microsoft:HVS04B.testcorp.local','IQN:iqn.1991-05.com.microsoft:HVS04C.testcorp.local','IQN:iqn.1991-05.com.microsoft:HVS04D.testcorp.local'
+
+Invoke-Command -Scriptblock {Set-Service -Name MSiSCSI -StartupType Automatic;Start-Service MSiSCSI;Get-NetFirewallServiceFilter -Service msiscsi | Get-NetFirewallRule | Enable-NetFirewallRule;New-IscsiTargetPortal -TargetPortalAddress WDS01;Get-IscsiTarget | Connect-IscsiTarget;Get-IscsiSession | Register-IscsiSession} -ComputerName HVS04A,HVS04B,HVS04C,HVS04D
+
+Invoke-Command -ScriptBlock{Install-WindowsFeature Failover-Clustering -IncludeManagementTools} -ComputerName HVS04A,HVS04B,HVS04C,HVS04D
+
+#Run the commands directly on one of the cluster nodes (not through ps remoting)
+Test-Cluster -Node HVS04A,HVS04B
+New-Cluster -Name HVS04 -Node HVS04A,HVS04B -StaticAddress 192.168.10.27
+
+#Set the cluster name to register a PTR record (recource has to be taken offline and online)
+Get-ClusterResource -Name 'Cluster Name' | Set-ClusterParameter -Name PublishPTRRecords -Value 1
+Stop-ClusterResource -Name 'Cluster Name'
+Start-ClusterResource -Name 'Cluster Name'
+
+#Run the commands on one of the cluster nodes
+#Format the quorum disk
+Initialize-Disk -Number 1 -PartitionStyle GPT
+New-Partition -DiskNumber 1 -UseMaximumSize -AssignDriveLetter
+Format-Volume -DriveLetter E -FileSystem NTFS -Confirm:$false
+#add it to the cluster
+Get-Disk -Number 1 | Add-ClusterDisk
+Set-ClusterQuorum -NodeAndDiskMajority 'Cluster Disk 1'
+#Initialize the other disk
+Initialize-Disk -Number 2 -PartitionStyle GPT
+New-Partition -DiskNumber 2 -UseMaximumSize -AssignDriveLetter
+Format-Volume -DriveLetter F -FileSystem NTFS -Force -Confirm:$false
+Get-Disk -Number 2 | Add-ClusterDisk
+Add-ClusterSharedVolume -Name 'Cluster Disk 2'
+
+Invoke-Command -Scriptblock {Set-VMHost -VirtualHardDiskPath 'C:\ClusterStorage\Volume1\VMs' -VirtualMachinePath 'C:\ClusterStorage\Volume1\VMs' -EnableEnhancedSessionMode $true} -Computername 'HVS04A','HVS04B'
+
+New-VM -BootDevice CD -MemoryStartupBytes 64MB -Name 'TestVM10' -NewVHDSizeBytes 30MB -NewVHDPath 'C:\ClusterStorage\Volume1\VMs\Virtual Machines\TestVM10.vhdx'
+Add-ClusterVirtualMachineRole -VMName TestVM10 #Run this command directly on the server - no remoting
+New-VM -BootDevice CD -MemoryStartupBytes 64MB -Name 'TestVM11' -NewVHDSizeBytes 30MB -NewVHDPath 'C:\ClusterStorage\Volume1\VMs\Virtual Machines\TestVM11.vhdx'
+Add-ClusterVirtualMachineRole -VMName TestVM11 #Run this command directly on the server - no remoting
+
+Move-ClusterGroup TestVM11
+#############################
+
+#Pause the first node
+Suspend-ClusterNode -Name HVS04A -Confirm:$false -Drain
+#Remove node from the cluster
+Remove-ClusterNode -Name HVS04A -Force
+
+#Run on the 2016 node directly (no ps remoting)
+Add-ClusterNode -Name HVS04C -Cluster HVS04
+
+#Run on a 2016 node to see the cluster functional level
+Get-Cluster | Select ClusterFunctionalLevel
+
+#Pause the second node
+Suspend-ClusterNode -Name HVS04B -Confirm:$false -Drain
+#Remove node from the cluster
+Remove-ClusterNode -Name HVS04B -Force
+
+#Run on the 2016 node directly (no ps remoting)
+Add-ClusterNode -Name HVS04D -Cluster HVS04
+
+Update-ClusterFunctionalLevel -Force
+Get-Cluster | Select ClusterFunctionalLevel
+
+Invoke-Command -Scriptblock {Set-VMHost -VirtualHardDiskPath 'C:\ClusterStorage\Volume1\VMs' -VirtualMachinePath 'C:\ClusterStorage\Volume1\VMs' -EnableEnhancedSessionMode $true} -Computername 'HVS04C','HVS04D'

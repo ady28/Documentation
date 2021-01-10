@@ -1,0 +1,21 @@
+#create a collection vm group
+New-VMGroup -Name VMCGroup1 -GroupType VMCollectionType
+#create a management VM group
+New-VMGroup -Name VMCGroup1m -GroupType ManagementCollectionType
+
+#Add VMs to the collection group
+Add-VMGroupMember -Name 'VMCGroup1' -VM (Get-VM 'TestVM2')
+Add-VMGroupMember -Name 'VMCGroup1' -VM (Get-VM 'TestVM3')
+
+#Add the collection group to the management group
+Add-VMGroupMember -Name 'VMCGroup1m' -VMGroupMember (Get-VMGroup 'VMCGroup1')
+
+#Get the group
+Get-VMGroup -Name 'VMCGroup1'
+Get-VMGroup -Name 'VMCGroup1m'
+
+#Get info about VMs related to groups
+Get-VM | select Name,Groups
+
+Stop-VM -VM (Get-VMGroup 'VMCGroup1m').VMGroupMembers.VMMembers
+

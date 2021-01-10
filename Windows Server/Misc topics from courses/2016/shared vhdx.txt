@@ -1,0 +1,11 @@
+#Create test VMs
+New-VM -BootDevice CD -MemoryStartupBytes 64MB -Name 'TestVM5' -Generation 2
+New-VM -BootDevice CD -MemoryStartupBytes 64MB -Name 'TestVM6' -Generation 2
+
+New-VHD -Path C:\ClusterStorage\Volume1\new.vhds -SizeBytes 10MB -Dynamic
+Add-VMHardDiskDrive -VMName 'TestVM6' -Path 'C:\ClusterStorage\Volume1\new.vhds' -SupportPersistentReservations
+Add-VMHardDiskDrive -VMName 'TestVM5' -Path 'C:\ClusterStorage\Volume1\new.vhds' -SupportPersistentReservations
+
+https://docs.microsoft.com/en-us/previous-versions/windows/it-pro/windows-server-2012-r2-and-2012/dn281956(v=ws.11)
+https://docs.microsoft.com/en-us/windows-server/virtualization/hyper-v/manage/create-vhdset-file#:~:text=Click%20Start%2C%20point%20to%20Administrative,customize%20the%20virtual%20hard%20disk.
+http://woshub.com/vhd-set-shared-virtual-disks-on-hyper-v-2016/

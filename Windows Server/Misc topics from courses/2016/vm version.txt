@@ -1,0 +1,2 @@
+Update-VMVersion -Name TestVM10 -Force
+Get-VM
