@@ -1,0 +1,27 @@
+#Configure NIC on CentOS
+vi /etc/sysconfig/network-scripts/ifcfg-eth0
+
+file should be:
+DEVICE=eth0
+ONBOOT=yes
+IPADDR=192.168.1.10
+NETMASK=255.255.255.0
+GATEWAY=192.168.1.1
+
+ifdown eth0
+ifup eth0
+
+#Configure NIC on Ubuntu
+sudo nano /etc/netplan/*.yaml
+
+file should be like:
+network:
+    Version: 2
+    Renderer: NetworkManager/ networkd
+    ethernets:
+       DEVICE_NAME:
+          dhcp4: yes/no
+          addresses: [IP_ADDRESS/NETMASK]
+          gateway: GATEWAY
+          nameservers:
+             addresses: [NAMESERVER_1, NAMESERVER_2]

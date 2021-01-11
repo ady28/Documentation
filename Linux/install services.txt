@@ -1,0 +1,28 @@
+#Install apache on ubuntu
+sudo -i
+apt-get install apache2
+#Get status
+systemctl status apache2
+#Enable (not needed)
+systemctl enable apache2
+systemctl start apache2
+
+#Install apache on centos (for fedora just replace yum with dnf)
+yum install httpd
+#Get status
+systemctl status httpd
+#Enable
+systemctl enable httpd
+systemctl start httpd
+#Configure firewall
+firewall-cmd --add-service=http --permanent
+firewall-cmd --reload
+
+#See the default web page
+ls /var/www/html
+
+#Install a text weeb browser
+yum install lynx
+
+#Browse a site
+lynx http://192.168.1.2

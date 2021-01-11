@@ -1,0 +1,14 @@
+#Configure proxy only for yum on centos
+vi /etc/yum.conf
+
+Under main add
+proxy=http://192.168.1.254:80
+
+test with yum repolist
+
+#Configure proxy only for apt on ubuntu
+sudo touch /etc/apt/apt.conf.d/proxy.conf
+sudo vi /etc/apt/apt.conf.d/proxy.conf
+
+Add line:
+Acquire::http::Proxy "http://192.168.1.254:80";

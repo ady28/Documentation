@@ -1,0 +1,2 @@
+#Change hostname on centos and ubuntu (restart after)
+hostnamectl set-hostname centos01

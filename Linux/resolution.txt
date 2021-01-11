@@ -1,0 +1,14 @@
+#To change resolution for ubuntu
+Edit /etc/default/grub
+Change this line: GRUB_CMDLINE_LINUX_DEFAULT="" to GRUB_CMDLINE_LINUX_DEFAULT="nomodeset"
+Add this line at the end: GRUB_GFXPAYLOAD_LINUX=1280x1024
+Run:
+	sudo update-grub
+	sudo reboot
+
+#To change resolution for centos
+Edit /etc/default/grub
+Add vga=795 at the end of GRUB_CMDLINE_LINUX (after quiet)
+Run:
+	grub2-mkconfig -o /boot/grub2/grub.cfg
+	reboot

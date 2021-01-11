@@ -1,0 +1,40 @@
+#Go to home directory
+cd
+#See where you are in the file system
+pwd
+#Change to another directory
+cd /
+#Go lower one level
+cd ..
+#see what is in a directory
+ls
+#see where a symbolick link points to
+ls -l <file>
+#get info about a specific fs item
+file <file>
+#view file contents one page at a time (use enter to go one line at a time or space for one screen at a time; q to quit)
+more <file>
+#use pipe to send text into more
+ls | more
+#search for words inside more: inside more just type / followed by the search term and hit enter
+#search for text in files
+grep "text" <file>
+#search for files
+find /etc -name "passwd" -print #search for passwd in /etc
+#redirect errors to null
+find /etc -name "passwd" -print 2> /dev/null
+#find files with wildcards
+find /etc -name "pass*" -print
+
+#get date and time
+date
+#redirect text to file
+date > test.txt
+#get current user
+whoami
+append text to a file
+whoami >> test.txt
+#get machine uptime
+uptime
+#open file in vi
+vi test.txt
