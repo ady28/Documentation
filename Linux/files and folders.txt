@@ -8,6 +8,8 @@ cd /
 cd ..
 #see what is in a directory
 ls
+#See more details and hidden files
+ls -la
 #see where a symbolick link points to
 ls -l <file>
 #get info about a specific fs item

@@ -1,0 +1,28 @@
+sudo -i
+#Create a new user and also create a primary group for it and create skeleton files and set bash as the default shell
+useradd --user-group --home-dir /home/user101 --create-home --shell /bin/bash --skel /etc/skel user101
+#Set password
+passwd user101
+exit
+
+#Open shell as new user
+su user101
+#Go to home
+cd
+#Show default shell
+echo $SHELL
+exit
+sudo -i
+
+#Remove user and home directory (--remove does the directory deletion)
+userdel --remove user101
+
+#Check that user and group are removed
+grep "user101" /etc/passwd
+grep "user101" /etc/group
+
+#Change user settings
+#Change the default shell (if running as the user just leave out the username)
+chsh --shell /bin/sh user101
+#Change home directory (only root can do it) and move the current files to it
+usermod --home /user101-homedirectory -m user101
