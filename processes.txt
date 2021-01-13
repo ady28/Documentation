@@ -1,0 +1,9 @@
+#List your processes
+ps
+
+sleep 120 &
+ps
+kill 3579
+
+#See all processes on the system (process owner is the first column)
+ps aux
