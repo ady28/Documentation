@@ -1,0 +1,23 @@
+sudo -i
+#List services
+systemctl list-units --type=service --state=running
+#Stop service
+systemctl stop apache2
+#Check state
+systemctl is-active apache2
+#Check if service is enabled
+systemctl is-enabled apache2
+#Disable service
+systemctl disable apache2
+#Enable service
+systemctl enable apache2
+#Start service
+systemctl start apache2
+#Restart service
+systemctl restart apache2
+#Reload service (read the config file without restart)
+systemctl reload apache2
+#Reload or restart depending of the service support status
+systemctl reload-or-restart apache2
+#Get service status
+systemctl status apache2
