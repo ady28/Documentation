@@ -1,0 +1,33 @@
+#I have a service named test with which i am working in this file
+sudo -i
+#Journalctl logs
+#view all logs of systemd
+journalctl
+#View the logs live
+journalctl -f
+#View the logs live only for a service
+journalctl -f -u ssh
+#View all logs for ssh
+journalctl -u ssh
+#View last 3 log entries
+journalctl -u ssh -n 3
+#View logs filtered by user id
+journalctl _UID=1000
+#View logs in a time interval
+journalctl --since "2021-01-14 01:10:30" --until "2021-01-14 09:10:30"
+
+#Find user id
+id -u user102
+
+#Logs from /var/log
+cd /var/log
+ls
+#View lates 50 lines from the file
+tail -50 syslog
+#Tail can be used with -f like journalctl
+
+#See kernel messages from the last boot
+dmesg
+
+#See user logins
+last

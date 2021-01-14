@@ -21,3 +21,89 @@ systemctl reload apache2
 systemctl reload-or-restart apache2
 #Get service status
 systemctl status apache2
+
+#Create a service
+#View a unit file
+systemctl cat apache2
+#To edit a unit file (modify the description for example) - full modifies the original file
+systemctl edit apache2 --full
+systemctl status apache2
+#Start with an empty file
+systemctl edit apache2
+#Place the following text
+[Unit]
+Description=Test service
+systemctl status apache2
+systemctl cat apache2
+cd /etc/systemd/system/apache2.service.d
+rm override.conf
+systemctl status apache2
+systemctl daemon-reload
+#Create a new service
+cd /usr/sbin
+nano test.sh
+#Write text:
+#!/bin/bash
+PATH="/bin:/sbin:/usr/bin:/usr/sbin"
+while true
+do
+	echo "Current date and time $(date)"
+	sleep 3
+done
+
+chmod +x test.sh
+./test.sh
+#Exit
+cd /etc/systemd/system
+nano test.service
+#Enter the text
+[Unit]
+Description=My service for test
+[Service]
+ExecStart=/usr/sbin/test.sh
+[Install]
+WantedBy=multi-user.target
+
+systemctl enable test
+systemctl start test
+systemctl status test
+
+#Configuration files
+cd /etc
+#Create a file with a message to  be displayed at logon
+nano message.txt
+#Type something in the file
+cd ssh
+nano sshd_config
+#Find line #Banner none
+#Remove the # and replace none with /etc/message.txt
+#Peform a sanity check of the config file (no output means no errors)
+sshd -t
+systemctl restart ssh
+
+#Change apache configuration
+cd /var/www/html
+mkdir secret
+cp index.html secret/index.html
+#Edit the file
+#The config file will be placed depending on the linux distro:
+#For centos /etc/httpd/conf.d
+#For ubuntu /etc/apache2/conf-available
+#For ubuntu you also have to run a2enconf secret-dir
+cd /etc/apache2/conf-available
+nano secret-dir.conf
+#Write
+<Directory "/var/www/html/secret">
+	AuthType Basic
+	AuthName "Super secret directory"
+	AuthUserFile /etc/apache2/.htpasswd
+	Require valid-user
+</Directory>
+#For ubuntu
+a2enconf secret-dir
+cd ..
+#Create password file
+htpasswd -c .htpasswd user102
+#Check that the configuration files are ok
+apachectl configtest
+systemctl restart apache2
