@@ -1,0 +1,69 @@
+sudo -i
+#List services
+systemctl list-units --type=service --state=running
+#Stop service
+systemctl stop apache2
+#Check state
+systemctl is-active apache2
+#Check if service is enabled
+systemctl is-enabled apache2
+#Disable service
+systemctl disable apache2
+#Enable service
+systemctl enable apache2
+#Start service
+systemctl start apache2
+#Restart service
+systemctl restart apache2
+#Reload service (read the config file without restart)
+systemctl reload apache2
+#Reload or restart depending of the service support status
+systemctl reload-or-restart apache2
+#Get service status
+systemctl status apache2
+
+#Create a service
+#View a unit file
+systemctl cat apache2
+#To edit a unit file (modify the description for example) - full modifies the original file
+systemctl edit apache2 --full
+systemctl status apache2
+#Start with an empty file
+systemctl edit apache2
+#Place the following text
+[Unit]
+Description=Test service
+systemctl status apache2
+systemctl cat apache2
+cd /etc/systemd/system/apache2.service.d
+rm override.conf
+systemctl status apache2
+systemctl daemon-reload
+#Create a new service
+cd /usr/sbin
+nano test.sh
+#Write text:
+#!/bin/bash
+PATH="/bin:/sbin:/usr/bin:/usr/sbin"
+while true
+do
+	echo "Current date and time $(date)"
+	sleep 3
+done
+
+chmod +x test.sh
+./test.sh
+#Exit
+cd /etc/systemd/system
+nano test.service
+#Enter the text
+[Unit]
+Description=My service for test
+[Service]
+ExecStart=/usr/sbin/test.sh
+[Install]
+WantedBy=multi-user.target
+
+systemctl enable test
+systemctl start test
+systemctl status test
