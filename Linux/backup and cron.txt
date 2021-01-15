@@ -1,0 +1,18 @@
+#Using rsync for backups (not on red hat or centos. install using name rsync)
+rsync -av /home /mnt/backups
+#a is for archive and v is for verbose messages
+#if instead of /home i would put /home/ it would only backup what is in /home but not the actual /home folder
+
+#scheduled tasks
+#list tasks
+crontab -l
+#Create a file so the task can write to
+touch tasko.txt
+#Make a simple command to write
+echo "It is $(date --iso-8601=seconds)" >> tasko.txt
+#Create a task to run the command
+crontab -e
+#Write the text (run command every minute of 7 PM only on 15 january)
+* 19 15 1 * echo "It is $(date --iso-8601=seconds)" >> tasko.txt
+
+

@@ -1,0 +1,19 @@
+sudo -i 
+
+#CPU and memory
+top
+
+#Monitor IO
+apt-get install iotop
+iotop
+
+#Monitor network
+apt-get install iptraf
+iptraf-ng
+#select ip traffic monitor
+
+#list connections and listening ports
+#view all listening tcp and udp ports
+ss -tul
+#view established tcp and upd connections
+ss -tu

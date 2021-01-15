@@ -1,0 +1,21 @@
+#Examine storage
+#List block devices
+lsblk
+#Check partition space
+df -h
+
+#Examine memory
+free -h
+#See memory modules
+dmidecode -t memory
+
+#Examine cpu
+lscpu
+dmidecode -t processor
+
+
+#Examine usb devices (not installed by default on centos)
+lsusb
+
+#Examine pci (install on centos: pciutils)
+lspci
