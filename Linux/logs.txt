@@ -31,3 +31,17 @@ dmesg
 
 #See user logins
 last
+
+#See rsyslog config file
+ls /etc/rsyslog.conf
+#Generate syslog
+logger -p mail.info -t mailtest "Test message"
+#On centos view the mail log
+tail -1 /var/log/maillog
+#On ubuntu view the mail log
+tail -1 /var/log/mail.log
+
+#See the logrotate configuration file
+ls /etc/logrotate.conf
+#Test logrotate configuration before reloading the daemon
+logrotate -fv /etc/logrotate.conf

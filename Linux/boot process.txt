@@ -1,0 +1,24 @@
+#Get list of targets
+cd /lib/systemd/system
+ls -l runlevel*
+#Get default target
+systemctl get-default
+#also
+ls -l /etc/systemd/system/default.target
+#Change default target
+systemctl set-default rescue.target
+
+#Change current target (this will reboot the server)
+systemctl isolate reboot.target
+#A reboot can also be done with
+reboot
+shutdown -r now
+
+#A poweroff can be done with
+poweroff
+
+#To configure a kernel to give more info at boot phase (CentOS)
+#In the GRUB screen select the OS you want and press e
+#Near the end of the file there is the line that specifies the kernel to boot and remove quiet
+#Press Ctrl+X to boot with this setting
+#with dmesg you can now view the logs
