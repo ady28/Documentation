@@ -1,12 +1,17 @@
 #List block devices
 lsblk
+lsblk -f
 fdisk -l
+blkid
 
 #Initialize disk and create partition
 fdisk /dev/sdb
-#Press n, then p, then 1, leave default for sector data, then press w
+#Press g, then n, then p, then 1, leave default for sector data, then press w
+#To change a partition's type use t
 #Create a filesystem on device
 mkfs.ext4 /dev/sdb1
+#List possible filesystems for mkfs
+ls -l /sbin/mkfs*
 #Create a mountpoint
 cd /mnt
 mkdir backups
@@ -21,3 +26,14 @@ nano /etc/fstab
 df -h
 #Unmount a device
 umount /dev/sdb1
+
+#Create a swap (you need a swap type partition)
+mkswap /dev/sdb1
+swapon /dev/sdb1
+#List swap devices in use
+swapon -s
+#To persist the swap just add the line to /etc/fstab
+/dev/sdb1	swap	swap	defaults	0	0
+
+#Setting labels on ext filesystems
+e2label /dev/sdb2 data
