@@ -1,0 +1,71 @@
+#See storage devices that can be used with lvm
+lvmdiskscan
+#Use lsblk to see what disks are already used
+lsblk
+lsblk -p
+#Also df can be used
+df -h
+#fdisk can be also used
+fdisk -l
+
+#Create a pv
+pvcreate /dev/sdc
+#List PVs
+pvs
+#Create a vg named vg_data
+vgcreate vg_data /dev/sdc
+#List VGs
+vgs
+#Create logical volume that is 2GB and is named lv_data1
+lvcreate -L 2G -n lv_data1 vg_data
+#List LVs
+lvs
+lvdisplay
+#Create a fs on tha lv
+mkfs.ext4 /dev/vg_data/lv_data1
+#Mount the new fs
+mkdir /data
+mount /dev/vg_data/lv_data1 /data
+#Create another LV
+lvcreate -L 1.5G -n lv_data2 vg_data
+mkfs.ext4 /dev/vg_data/lv_data2
+mkdir /data2
+mount /dev/vg_data/lv_data2 /data2
+#Create a third LV with all the remaining size of the VG
+lvcreate --extents 100%FREE -n lv_data4 vg_data
+
+#Extend volume group
+pvcreate /dev/sdd
+vgextend vg_data /dev/sdd
+#Extend logical volume and use -r to extend the fs
+lvextend -L +1G -r /dev/vg_data/lv_data1
+#Extend a logical volume and extend the fs separately
+lvextend -L +1G /dev/vg_data/lv_data2
+resize2fs /dev/vg_data/lv_data2
+
+#Mirroring LVs
+pvcreate /dev/sde /dev/sdf
+vgcreate vg_mir /dev/sde /dev/sdf
+# -m 1 tells it to make an extra copy like raid 1
+lvcreate -m 1 -L 2G -n lv_important vg_mir
+#Get extended info for when you have mirrored LVs
+lvs -a
+
+#Removing LVs, VGs and PVs
+lvremove /dev/vg_mir/lv_important
+#Remove a PV from a VG
+vgreduce vg_mir /dev/sdf
+#Remove a PV from LVM
+pvremove /dev/sdf
+#Remove a vg
+vgremove vg_mir
+#Remove the other PV from LVM
+pvremove /dev/sde
+
+#Migrate data to another storage device
+#Initialize the new device
+pvcreate /dev/sde
+#Extend the VG in which you will do the migration
+vgextend vg_data /dev/sde
+#move data from /dev/sdc to /dev/sde
+pvmove /dev/sdc /dev/sde
