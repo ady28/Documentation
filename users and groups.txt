@@ -1,0 +1,63 @@
+sudo -i
+#Create a new user and also create a primary group for it and create skeleton files and set bash as the default shell; use -G to add the user to additional groups; use -u to specify a UID
+useradd --user-group --home-dir /home/user101 --create-home --shell /bin/bash --skel /etc/skel user101
+#Set password
+passwd user101
+exit
+
+#Open shell as new user
+su user101
+#Go to home
+cd
+#Show default shell
+echo $SHELL
+exit
+sudo -i
+
+#Remove user and home directory (--remove does the directory deletion)
+userdel --remove user101
+
+#Check that user and group are removed
+grep "user101" /etc/passwd
+grep "user101" /etc/group
+
+#Change user settings
+#Change the default shell (if running as the user just leave out the username)
+chsh --shell /bin/sh user101
+#Change home directory (only root can do it) and move the current files to it
+usermod --home /user101-homedirectory -m user101
+
+#Create a new group; -g will specify a GID
+groupadd devops
+#Check that group has been created
+grep devops /etc/group
+#Add user to group
+usermod --groups devops -a user102
+#See what groups a user is part of (first command shows only the primary group where the group is the 4th token separated by :)
+grep user102 /etc/passwd
+#Check what the primary group is called
+grep 1001 /etc/group
+#Check what other groups the user is part of
+grep user102 /etc/group
+
+#See what groups the current user is part of
+groups
+#See what groups another user is part of
+groups user100
+
+#File permissions
+ls -l
+
+#Assign permissions and change owner
+#Change owner
+chown root test.txt
+#Change group
+chgrp devops test.txt
+#Change both in one command
+chown user100:user100 test.txt
+#Change permissions (add execute for owner)
+chmod u+x test.txt
+chmod ug=rwx test.txt
+chmod 750 test.txt
+
+
