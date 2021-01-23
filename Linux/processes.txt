@@ -1,9 +1,30 @@
 #List your processes
 ps
 
+#The & puts the process in the background
 sleep 120 &
 ps
 kill 3579
 
 #See all processes on the system (process owner is the first column)
 ps aux
+
+#Full display
+ps -f
+
+#Get info about a pid
+ps -p pid
+
+#Get processes for a user
+ps -u username
+
+#Display processes in a tree format (not installed on centos)
+pstree
+
+#Dysplai a list of kill signls
+kill -l
+
+#bring a background job to the foreground
+fg %jobnumber
+#list jobs
+jobs

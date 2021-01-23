@@ -1,5 +1,5 @@
 sudo -i
-#Create a new user and also create a primary group for it and create skeleton files and set bash as the default shell
+#Create a new user and also create a primary group for it and create skeleton files and set bash as the default shell; use -G to add the user to additional groups; use -u to specify a UID
 useradd --user-group --home-dir /home/user101 --create-home --shell /bin/bash --skel /etc/skel user101
 #Set password
 passwd user101
@@ -27,7 +27,7 @@ chsh --shell /bin/sh user101
 #Change home directory (only root can do it) and move the current files to it
 usermod --home /user101-homedirectory -m user101
 
-#Create a new group
+#Create a new group; -g will specify a GID
 groupadd devops
 #Check that group has been created
 grep devops /etc/group
@@ -39,6 +39,11 @@ grep user102 /etc/passwd
 grep 1001 /etc/group
 #Check what other groups the user is part of
 grep user102 /etc/group
+
+#See what groups the current user is part of
+groups
+#See what groups another user is part of
+groups user100
 
 #File permissions
 ls -l

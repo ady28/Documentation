@@ -25,3 +25,30 @@ network:
           gateway: GATEWAY
           nameservers:
              addresses: [NAMESERVER_1, NAMESERVER_2]
+
+#or edit /etc/network/interfaces
+auto eth0
+iface eth0 inet static
+address 192.168.1.2
+netmask 255.255.255.0
+gateway 192.168.1.254
+
+#Show ip address
+ip a
+#Change hostname
+nano /etc/hostname
+# put in the new name
+#Local name resolution is done in /etc/hosts
+# /etc/nsswitch.conf contains the order in which name resolution is done; hosts:...
+cat /etc/nsswitch.conf | grep hosts:
+
+#/etc/services contains a list with services and ports
+#start or stop nics
+ip link set eth0 up
+ip link set eth0 down
+
+#Ping a host 3 times
+ping -c 2 host
+#Tracepath is like tracert on windows
+tracepath name
+tracepath -n ip
