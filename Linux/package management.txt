@@ -12,6 +12,12 @@ apt-get install mc
 apt-get remove mc
 #Remove unneeded dependencies
 apt-get auto-remove
+#Remove software while also deleting coniguration
+apt-get purge mc
+#Get info about a package
+apt-cache show mc
+#List installed packages
+dpkg -l
 
 #CentOS/RHEL yum
 sudo -i
@@ -25,3 +31,7 @@ yum install mc
 yum remove mc
 #Remove unneeded dependencies
 yum autoremove
+#Get info about a package
+yum info mc
+#List all installed packages
+rpm -qa
