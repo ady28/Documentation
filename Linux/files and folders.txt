@@ -28,6 +28,8 @@ find /etc -name "passwd" -print 2> /dev/null
 #find files with wildcards
 find /etc -name "pass*" -print
 
+#Locate is faster than find; it queries an index that is built from time to time
+
 #get date and time
 date
 #redirect text to file
@@ -40,3 +42,32 @@ whoami >> test.txt
 uptime
 #open file in vi
 vi test.txt
+
+#Remove a directory with all contents
+rm -rf directory
+#Remove an empty directory
+rmdir directory
+#Create a directory with parents also
+mkdir -p /dir1/dir2/dir3
+
+##See what an object is (name ends with / if it is a folder, in @ if it is a link or in * if it is an executable)
+ls -F <file or folder>
+
+#List files recursively
+ls -R
+
+#See a tree view (tree has to be installed first)
+tree folder
+
+#work with archives
+#Create archive
+tar cf test.tar test
+#See what is in the archive
+tar tf test.tar
+#Extract the tar file in current directory
+tar xf /root/test.tar
+
+#Use du to get space usage
+du -h folder or file
+
+#Use gzip and gunzip for compression
