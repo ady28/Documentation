@@ -28,6 +28,8 @@ find /etc -name "passwd" -print 2> /dev/null
 #find files with wildcards
 find /etc -name "pass*" -print
 
+#Locate is faster than find; it queries an index that is built from time to time
+
 #get date and time
 date
 #redirect text to file
@@ -40,3 +42,75 @@ whoami >> test.txt
 uptime
 #open file in vi
 vi test.txt
+
+#Remove a directory with all contents
+rm -rf directory
+#Remove an empty directory
+rmdir directory
+#Create a directory with parents also
+mkdir -p /dir1/dir2/dir3
+
+##See what an object is (name ends with / if it is a folder, in @ if it is a link or in * if it is an executable)
+ls -F <file or folder>
+
+#List files recursively
+ls -R
+
+#See a tree view (tree has to be installed first)
+tree folder
+
+#work with archives
+#Create archive
+tar cf test.tar test
+#See what is in the archive
+tar tf test.tar
+#Extract the tar file in current directory
+tar xf /root/test.tar
+
+#Use du to get space usage
+du -h folder or file
+
+#Use gzip and gunzip for compression
+
+
+#wildcards
+# * matches 0 or more characters
+# ? matches one character	
+# [] with characters inside matches one of the characters
+# [!] with characters after ! matches one character except for the ones in it
+# [c1-c2] matches one character that is between these 2 including them
+# Predefined character classes:
+# [[:alpha:]]
+# [[:alnum:]]
+# [[:digit:]]
+# [[:lower:]]
+# [[:space:]]
+# [[:upper:]]
+# \ is the escape character
+
+
+#Redirect stdout and stderr to different files
+ls test.txt notexist.txt 1>out.log 2>out.err
+#Redirect stdout and stderr to the same file
+ls test.txt notexist.txt > out.log 2>&1
+#Redirect errors to null
+ls test.txt notexist.txt 2>/dev/null
+
+#Compare file content with diff, sdiff, vimdiff
+command file1 file2
+#quit vimdiff with :qa
+
+#Get users whose username starts with user10, then delimit output by : and return only fields 1 and 5 and transform the remaining : into space and display result into a table format
+cat /etc/passwd | grep user10* | cut -d: -f1,5 | tr ":" " " | column -t
+
+#To copy files over the network use scp or sftp
+
+#Print all env variables
+printenv
+#Print an env variable
+printenv HOME
+#Create a variable
+export TEST="test string"
+#Delete a var
+unset TEST
+#If you want to have a persistent variable across sessions just put the export command in the .bash_profile file
