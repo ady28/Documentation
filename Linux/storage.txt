@@ -24,6 +24,8 @@ nano /etc/fstab
 
 #List mounted devices
 df -h
+#List only ext4 partitions
+df -h -t ext4
 #Unmount a device
 umount /dev/sdb1
 

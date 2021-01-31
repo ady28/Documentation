@@ -12,3 +12,7 @@ sudo vi /etc/apt/apt.conf.d/proxy.conf
 
 Add line:
 Acquire::http::Proxy "http://192.168.1.254:80";
+
+#Configure proxy for ubuntu
+#To make it persistent just put the command in your profile
+export HTTP_PROXY=192.168.1.254:80

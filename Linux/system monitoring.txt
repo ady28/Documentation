@@ -17,3 +17,11 @@ iptraf-ng
 ss -tul
 #view established tcp and upd connections
 ss -tu
+
+#Go to place where a lot of dynamic files with system info are created
+cd /proc
+cat meminfo
+cat cpuinfo
+
+#See ram
+free -h

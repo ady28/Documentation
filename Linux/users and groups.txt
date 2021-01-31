@@ -60,4 +60,9 @@ chmod u+x test.txt
 chmod ug=rwx test.txt
 chmod 750 test.txt
 
-
+#See who is logged on
+who
+w
+#See all logins
+last
+# /etc/skel contains skeleton files used for new user creations

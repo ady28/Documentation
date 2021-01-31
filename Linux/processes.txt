@@ -28,3 +28,13 @@ kill -l
 fg %jobnumber
 #list jobs
 jobs
+
+#Process priorities
+#Run a background job for testing
+yes > /dev/null &
+#View the priority with top in the NI column
+kill 1501
+#Start the job again with a different priority (19 is the nicest, -20 is the most resource intensive and 0 is neutral)
+nice -19 yes > /dev/null &
+#Change priority
+renice 12 -p 1509
