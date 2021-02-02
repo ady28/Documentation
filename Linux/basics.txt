@@ -1,0 +1,18 @@
+#See history of ran commands
+history
+#Run a command from your history
+!number
+
+#Getting help on commands
+man command
+
+#Intro to Linux (not on centos)
+man intro
+
+#Show calendar
+cal
+
+#Show a small description of command
+whatis command
+#Search the whatis db for keywords
+apropos word
