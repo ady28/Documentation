@@ -16,3 +16,8 @@ cal
 whatis command
 #Search the whatis db for keywords
 apropos word
+
+#List command aliases
+alias
+#Create new  temporary alias (make it permanent by putting it in the user profile script)
+alias shortName="your custom command here"

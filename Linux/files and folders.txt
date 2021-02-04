@@ -12,6 +12,10 @@ ls
 ls -la
 #see where a symbolick link points to
 ls -l <file>
+#See last access time of a file
+ls -lu file
+#See creation time
+ls -lc file
 #get info about a specific fs item
 file <file>
 #view file contents one page at a time (use enter to go one line at a time or space for one screen at a time; q to quit)
@@ -87,6 +91,8 @@ du -h folder or file
 # [[:space:]]
 # [[:upper:]]
 # \ is the escape character
+# ^ is used in front of the search term to say the string you are searching through has to start with this pattern
+# $ is used at the end of the search term to say the string you are searching through has to end with this pattern
 
 
 #Redirect stdout and stderr to different files
@@ -114,3 +120,9 @@ export TEST="test string"
 #Delete a var
 unset TEST
 #If you want to have a persistent variable across sessions just put the export command in the .bash_profile file
+
+#Copy files/folders and preserve dates/times and permissions
+cp -p /home/jsmith/myfile /home/jsmith/yourfile
+
+#Create a soft link (remove -s for hard link)
+ln -s /home/jsmith/myfile
