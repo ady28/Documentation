@@ -66,3 +66,24 @@ w
 #See all logins
 last
 # /etc/skel contains skeleton files used for new user creations
+
+#Set password expiration age to 30 days for a user
+chage -M 30 user
+#Show user password settings
+chage -l user
+
+#Set password expiration setting defaults for all users
+vim /etc/login.defs
+
+#Lock a user account (prevents login to host using password; still possible with certificates)
+passwd -l user
+#Unlock a user account
+passwd -u user
+
+#Disable a user (set the expire date to 1 january 1970)
+usermod --expiredate 1
+
+#Disable user shell access on ubuntu
+usermod -s /bin/false
+#Disable user shell access on centos
+usermod -s /sbin/nologin
