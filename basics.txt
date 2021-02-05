@@ -1,0 +1,32 @@
+#See history of ran commands
+history
+#Run a command from your history
+!number
+
+#Getting help on commands
+man command
+
+#Intro to Linux (not on centos)
+man intro
+
+#Show calendar
+cal
+
+#Show a small description of command
+whatis command
+#Search the whatis db for keywords
+apropos word
+
+#List command aliases
+alias
+#Create new  temporary alias (make it permanent by putting it in the user profile script)
+alias shortName="your custom command here"
+
+#Show the number os seconds since 1 january 1970 (unix epoch time)
+date +%s
+
+#List all env variables
+env
+
+#Add a directory at the beginning of the path
+PATH=/home/user/scripts:$PATH
