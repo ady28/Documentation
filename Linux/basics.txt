@@ -24,3 +24,12 @@ alias shortName="your custom command here"
 
 #Show the number os seconds since 1 january 1970 (unix epoch time)
 date +%s
+
+#List all env variables
+env
+
+#Add a directory at the beginning of the path
+PATH=/home/user/scripts:$PATH
+
+#List all commands the current user is able to run with sudo
+sudo -l
