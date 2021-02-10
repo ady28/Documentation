@@ -52,3 +52,9 @@ ping -c 2 host
 #Tracepath is like tracert on windows
 tracepath name
 tracepath -n ip
+
+#Get more info about an interface
+ethtool eth0
+
+#Kernel startup parameters like ip forwarding are in /etc/sysctl.conf
+#After changing the file run sysctl -p to load in the current kernel
