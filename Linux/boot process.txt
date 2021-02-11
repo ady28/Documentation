@@ -1,6 +1,6 @@
 #Get list of targets
 cd /lib/systemd/system
-ls -l runlevel*
+ls -l /lib/systemd/system/runlevel*.target
 #Get default target
 systemctl get-default
 #also
