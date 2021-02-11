@@ -18,6 +18,18 @@ apt-get purge mc
 apt-cache show mc
 #List installed packages
 dpkg -l
+#List linux kernels
+dpkg -l '*linux-image*'
+#Get the package contents
+dpkg -L apt
+#Find package that provides this file
+dpkg -S /bin/bash
+#Download a DEB package
+curl http://ftp.ro.debian.org/debian/pool/main/a/as31/as31_2.3.1-7_amd64.deb -o asm.deb -x 192.168.1.254:80
+#Install a DEB package
+dpkg -i asm.deb
+#Remove package along with all its files
+dpkg --purge as31
 
 #CentOS/RHEL yum
 sudo -i
@@ -29,9 +41,27 @@ yum search midnight
 yum install mc
 #Remove software
 yum remove mc
+#Remove software and also remove config files and other files left behind
+yum erase mc
 #Remove unneeded dependencies
 yum autoremove
 #Get info about a package
 yum info mc
 #List all installed packages
 rpm -qa
+#Refresh repository cache data
+yum check-update
+#Check what packages can be updated
+yum list updates
+#See what package provides a specific file
+yum provides /bin/bash
+#see what versions of the kernel exist
+rpm -q kernel
+#Get info about a package
+rpm -qi kernel-3.10.0-1160.el7.x86_64
+#Get a list of files present in the bash package
+rpm -ql bash
+#Download a RPM package
+curl http://mirror.centos.org/centos/7/os/x86_64/Packages/MySQL-python-1.2.5-1.el7.x86_64.rpm --output mysqlpython.rpm -x 192.168.1.254:80
+#Install a RPM package
+rpm -ivh mysqlpython.rpm
