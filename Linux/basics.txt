@@ -33,3 +33,8 @@ PATH=/home/user/scripts:$PATH
 
 #List all commands the current user is able to run with sudo
 sudo -l
+
+#Install build tools for centos
+yum install gcc make -y
+#Install build tools for ubuntu
+apt install build-essential

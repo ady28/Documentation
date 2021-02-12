@@ -39,3 +39,12 @@ swapon -s
 
 #Setting labels on ext filesystems
 e2label /dev/sdb2 data
+
+#Redetect partitions
+partprobe
+
+#Get info about a partition settings
+tune2fs -l /dev/sdb2
+
+#List open files (yum install lsof for centos)
+lsof /bin
