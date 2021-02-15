@@ -1,0 +1,60 @@
+#2 disk raid 1 with a spare
+
+#first format and partition the disks
+echo -e "n\np\n1\n\n\nt\nda\nw" | fdisk /dev/sdc
+echo -e "n\np\n1\n\n\nt\nda\nw" | fdisk /dev/sdd
+echo -e "n\np\n1\n\n\nt\nda\nw" | fdisk /dev/sde
+
+#Install RAID tools (for CentOS as it is already on Ubuntu)
+yum install -y mdadm
+
+#Configure RAID
+mdadm --create /dev/md0 --level=raid1 --raid-devices=2 /dev/sdc1 /dev/sdd1 --spare-devices=1 /dev/sde1
+
+#see logs
+dmesg
+
+#Get details about the raid device
+mdadm --query --detail /dev/md0
+
+#Config file on ubuntu is /etc/mdadm/mdadm.conf
+#Config file on centos is /etc/mdadm.conf (not created by default)
+
+#Check state of all raid arrays
+cat /proc/mdstat
+
+#Release all devices from a raid array
+mdadm --manage /dev/md0 --stop
+
+#Create a raid 5
+mdadm --create /dev/md0 --level=raid5 --raid-devices=3 /dev/sdc1 /dev/sdd1 /dev/sde1
+
+#Adding an extra disk to the array (it will be set as a spare)
+echo -e "n\np\n1\n\n\nt\nda\nw" | fdisk /dev/sdf
+mdadm --manage /dev/md0 --add /dev/sdf1
+#use cat /proc/mdstat to see the new disk
+#Expand the array by making the spare disk an active disk and backup the raid config
+mdadm --grow /dev/md0 --raid-disks=4 --backup-file=/root/raidbk
+#Run the cat command automatically every 5 seconds
+watch -n 5 cat /proc/mdstat
+
+#Use lvm on the raid 5 array
+pvcreate /dev/md0 
+vgcreate raid-volume /dev/md0
+lvcreate --name www --size 2G raid-volume
+mkfs.ext4 /dev/raid-volume/www
+#Add this line to /etc/fstab (also create the www folder in /srv)
+/dev/raid-volume/www       /srv/www       ext4    defaults        0       0
+
+#Extend the size of the lvm
+lvextend --size +2G /dev/raid-volume/www
+#Resize the filesystem
+resize2fs /dev/raid-volume/www
+
+#Testing a disk failure
+mdadm --manage /dev/md0 --fail /dev/sde1
+cat /proc/mdstat
+#Remove disk from the array
+mdadm --manage /dev/md0 --remove /dev/sde1
+#Add a new disk to the array
+mdadm --manage /dev/md0 --add /dev/sde1
