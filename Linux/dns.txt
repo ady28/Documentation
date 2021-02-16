@@ -1,0 +1,40 @@
+#system wide dns servers are stored in /etc/resolv.conf
+
+#using host command to query dns servers manually
+#Install command
+apt-get install -y dnsutils
+yum install -y bind-utils
+#if you leave out the last param, dns servers from resolv.conf will be used
+host www.google.com 192.168.1.254
+#search for A records
+host -v -t A www.google.com 192.168.1.254
+
+#populate resolv.conf
+nameserver 192.168.1.254
+
+#the dig command can also be used for name resolution but also for more advanced dns troubleshooting
+dig www.google.com
+#use a specific dns server
+dig @192.168.1.254 www.google.com
+#search only for A records
+dig www.google.com A
+
+#Install DNS server BIND
+yum install -y bind caching-nameserver system-config-bind
+apt-get install -y bind9
+#The service is called named
+#Add the server ip address to the v4 listening list: localhost; 192.168.1.1; 
+#Add the network range that allowed clients are on 192.168.1.0/24;
+#For forwarding add:
+forwarders {
+                192.168.1.254;
+        };
+forward first;
+#Set dnssec validation to no
+#The config file on centos is /etc/named.conf while on ubuntu it is /etc/bind/named.conf
+systemctl enable named
+systemctl start named
+firewall-cmd --permanent --add-port=53/tcp
+firewall-cmd --permanent --add-port=53/udp
+firewall-cmd --reload
+

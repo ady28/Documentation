@@ -1,0 +1,12 @@
+#Sync time of a client with a server once per command execution
+#First install utility
+yum install -y ntpdate
+apt-get install -y ntpdate
+#Sync
+ntpdate <ntpserver>
+
+#Install ntp server
+yum install -y ntp
+apt-get install -y ntp
+#Config file is in /etc/ntp.conf
+

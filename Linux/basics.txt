@@ -38,3 +38,6 @@ sudo -l
 yum install gcc make -y
 #Install build tools for ubuntu
 apt install build-essential
+
+#Control udev
+udevadm
