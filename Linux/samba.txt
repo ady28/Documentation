@@ -1,0 +1,14 @@
+#Install
+yum install -y samba
+apt-get install -y samba
+
+#ubuntu
+systemctl status smbd
+#centos
+systemctl enable smb
+systemctl start smb
+systemctl status smb
+firewall-cmd --permanent --zone=public --add-service=samba
+firewall-cmd --reload
+
+
