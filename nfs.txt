@@ -1,0 +1,30 @@
+#Install
+yum install -y nfs-utils
+apt-get install -y nfs-kernel-server
+
+#Firewall centos
+firewall-cmd --permanent --zone=public --add-service=nfs
+firewall-cmd --permanent --zone=public --add-service=mountd
+firewall-cmd --permanent --zone=public --add-service=rpc-bind
+firewall-cmd --reload
+#Firewall ubuntu
+ufw allow from any to any port nfs
+
+#Write in /etc/exports; rw,root_squash means the share will be writable and the root user on the remote host looses the root powers on the share; subtree_check should be turned off for read-only shares;
+/data/nfs1 192.168.1.2/255.255.255.255(rw,root_squash,subtree_check,fsid=0)
+
+#centos
+systemctl enable nfs
+systemctl start nfs
+
+#Activate nfs settings
+exportfs -a
+#Show list of exported shares
+showmount -e localhost
+
+#On an ubuntu client mount share
+mount -t nfs4 -o rw,intr,hard 192.168.1.1:/data/nfs1 /data/remote1
+#On a centos client mount the share
+mount -t nfs4 -o rw,intr,hard 192.168.1.2:/ /data/remote1
+#Add tp fstab file for permanent mount
+192.168.1.1:/data/nfs1 /data/remote1 nfs4 rw,hard,intr,_netdev 0 0
