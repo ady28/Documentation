@@ -1,0 +1,47 @@
+#on the master view salt keys
+sudo salt-key -L
+#on master output the master fingerprint
+sudo salt-key -F smaster
+
+#On the minions configure the public key of the master
+sudo nano /etc/salt/minion
+#Set the master_finger value to the master .pub key
+#Restart the salt minion service
+sudo systemctl restart salt-minion
+
+#On the minion view its public key (it should be the same as the public key seen on the master for the minion)
+sudo salt-call --local key.finger
+
+#On master accept all keys
+sudo salt-key -A
+
+#The master configuration file is /etc/salt/master
+sudo nano /etc/salt/master
+
+#Create grains file for the minions
+sudo nano /etc/salt/minion.d/grains.conf
+#Add the role of the server to the file (this is for the master server)
+grains:
+  roles:
+    - master
+#Restart minion service
+sudo systemctl restart salt-minion
+#For the other 2 servers set the grain as follows:
+grains:
+  roles:
+    - dev
+    - webserver
+    - database
+
+#Set up a salt mine on all minions
+sudo nano /etc/salt/minion.d/mine.conf
+#Add the following
+mine_functions:
+  network.ip_addrs: []
+#Restart the minion service
+sudo systemctl restart salt-minion
+#On the master update the mine data
+sudo salt '*' mine.update
+#On the master query mine data
+sudo salt '*' mine.get '*' network.ip_addrs
+

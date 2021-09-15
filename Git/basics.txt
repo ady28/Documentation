@@ -1,0 +1,188 @@
+#List git config files
+git config --list --show-origin
+
+#Initialize a new local repository
+git init
+#List empty folders
+dir -Force
+
+#Get current status of repo
+git status
+
+#Set author name and email and check current values
+git config --list
+git config --global user.name <name>
+git config --global user.email <email>
+
+#Set default text editor
+git config --global core.editor "'C:\Users\dumit_000\AppData\Local\Programs\Microsoft VS Code\Code.exe' -w"
+
+#Add files to the staging area
+git add --all
+#Commit changes to git repository
+git commit -m "First version"
+
+#Get history of changes or commits
+git log
+
+#Checkout commit or branch
+git checkout
+
+#Un-stage or un-track a file (file should not be commited)
+git rm --cached .\file2.txt
+
+#Switch to another branch
+git checkout <branch>
+#Switch to a specific commit
+git checkout <hash>
+
+#List local branches
+git branch
+
+#Create a branch
+git branch <branch>
+#Create branch and check it out
+git checkout -b <branch
+
+#Delete branch
+git branch -d <name>
+
+#Rename a branch
+git branch -m <old> <new>
+
+
+#Clone a remote repository
+git clone <url>
+
+#Merge commits in a branch with the current branch
+git merge <branch>
+
+#See commits that conflict at a merge
+git log --merge
+
+#Remote commands
+#Push changes from local repository to remote repository
+git push
+#Get updates from remote repository to local repository (working dir and staging area not modified; just updates local list of remote branches)
+git fetch
+#Merge changes from remote repository into working directory
+git pull
+
+#List remote repository names
+git remote
+#Show origin for push and for fetch
+git remote -v
+
+#See all local and remote branches
+git branch -a
+#See all remote branches
+git branch -r
+
+#Push local branch to remote repository and bind them
+git push --set-upstream origin feature5
+
+#Get list of tracking branches in repository (branches that track a remote repository)
+git branch -vv
+
+#Checkout local branch that tracks remote
+git checkout <branch>
+
+#Get more info about tracking branches
+git remote show origin
+
+#Remove local branches that are not available anymore in the remote repository
+git remoteprune origin
+git branch -d <branch>
+
+#git pull actually does 2 commands
+git fetch
+git merge FETCH_HEAD
+
+#Delete remote branch
+git push origin -d <branch>
+
+#Tag a commit with a lightweight tag
+git tag v1.0
+#Tag a commit with an annotated tag
+git tag -a v1.0 -m "Stable 1.0 version"
+
+#See lightweight tags
+git tag
+#See a annotated tag
+git tag -v <tag>
+
+#Push tag to remote
+git push --tags
+
+#Rebase steps
+git checkout feature
+git rebase master
+git checkout master
+git merge feature
+
+#log
+git log --oneline
+git log --graph
+git log --oneline --graph
+git log --stat
+git log -p
+#see 4 last commits
+git log -4
+
+#see commits sorted by author
+git shortlog
+#see commits by author but sorted by author with the most commits
+git shortlog -n
+#see authors and number of commits
+git shortlog -n -s
+
+#Filter log by author
+git log --author="user100"
+#Filter by commit message
+git log --grep="feature4"
+
+#See only hashes
+git log --pretty=format:"%H"
+#See only users and hashes
+git log --pretty=format:"%cn %H"
+#See only users, dates and hashes
+git log --pretty=format:"%cn %cd %H"
+
+#see only merge commits
+git log --merges --oneline
+
+#see only non merge commits
+git log --no-merges --oneline
+
+#git reset
+git reset <hash>
+git reset --soft <hash>
+git reset --hard <hash>
+
+#use revert
+git revert <hash>
+
+#modify last commit
+git commit --amend -m "New commit message"
+
+#modify a previous commit; this gets the last 4 commits and you can choose which to modify
+git rebase -i HEAD~4
+
+#merge a specifyc commit into current branch
+git cherry-pick <hash>
+#merge a specifyc commit into current branch but not commit
+git cherry-pick --no-commit <hash>
+
+#stash changes
+git add --all
+git stash
+#list stashes
+git stash list
+#apply stash changes
+git stash pop
+
+#debug ignored files
+git check-ignore -v <filename>
+
+#run git garbage collection
+git gc

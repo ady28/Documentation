@@ -1,0 +1,5 @@
+#you can write directly a file name to ignore exactly that file
+#you can specify a folder name to ignore that folder and everything in it
+# * is used as a wildcard
+
+# # is used to write comments

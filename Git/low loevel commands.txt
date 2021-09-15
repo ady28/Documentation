@@ -1,0 +1,42 @@
+#Create a new git object (run from cmd)
+echo 'Hello, Git' | git hash-object --stdin -w
+#In objects you will get a folder with the name as the first 2 characters of the hash and a file in the folder with the name as the remaining characters of the hash
+
+#Show contents of git object
+git cat-file -p 11637e3792f20c7d8e280229ee6640d7a0c341fe
+#Show size in bytes of git object
+git cat-file -s 11637e3792f20c7d8e280229ee6640d7a0c341fe
+#show type of git object
+git cat-file -t 11637e3792f20c7d8e280229ee6640d7a0c341fe
+
+#Create a file somewhere on the computer
+#Create a new git object based on the file
+git hash-object C:\Repos\User100\test.txt -w
+#You can use git cat-file with the new hash to see contents
+
+#Create a tree object with 2 blob files in it
+#First create a simple text file with info that the tree will have:
+
+100644 blob 11637e3792f20c7d8e280229ee6640d7a0c341fe	file1.txt
+100644 blob 38baa7dcfbfa7fef469a63e46e5ea0101f735df1	file2.txt
+
+#Create tree
+Get-Content C:\Repos\User100\tree.txt -Raw |git mktree
+#You can use the previous commands to see contents of the new file
+
+#See files in the git staging area
+git ls-files
+#The 0 in the next command means that the files in the staging area are the same as the ones in the git repository
+git ls-files -s
+
+#Put files from a tree in the staging area
+git read-tree 7c5eb22f7036682cd299a09a2bd53f1201b48922
+
+#Take files from staging area and put them in the working directory
+git checkout-index -a
+
+#See info about a commit
+git cat-file -p d38ea49
+
+#See all references
+git show-ref
