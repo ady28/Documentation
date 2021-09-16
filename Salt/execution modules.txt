@@ -1,0 +1,34 @@
+#Install htop on all minions
+sudo salt '*' pkg.install htop
+
+#Targeting via name
+sudo salt 'smaster' test.ping
+sudo salt 'smi*' test.ping
+sudo salt 'sminion0?' test.ping
+sudo salt 'sminion0[1-2]' test.ping
+sudo salt -L 'smaster,sminion01' test.ping
+#Targeting via grains
+sudo salt -G 'os:Ubuntu' test.ping
+sudo salt -G 'roles:webserver' test.ping
+#Targeting via node groups (groups must be created on the master)
+#Create a node group on master
+sudo nano /etc/salt/master.d/nodegroups.conf
+#Add text (G@ is used to call grains; L@ would be used for a list)
+nodegroups:
+  centos-dev: 'G@os:CentOS and G@roles:dev'
+sudo salt -N centos-dev test.ping
+#Targeting via piller (use -I and same syntax as with grains)
+#Targeting via IP or subnet
+sudo salt -S 192.168.1.251 test.ping
+sudo salt -S 192.168.1.0/24 test.ping
+#Combining targeting methods
+sudo salt -C 'G@os:CentOS and sminion*' test.ping
+
+#Batching can say how many servers are targeted at a time (throttling)
+sudo salt '*' -b 2 test.ping
+
+#Run execution modules directly on minions without the master sending the command
+sudo salt-call --local key.finger
+sudo salt-call --local test.ping
+sudo salt-call --local pkg.list_upgrades
+sudo salt-call --local pkg.list_upgrades refresh=True
