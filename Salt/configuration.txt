@@ -4,12 +4,14 @@ sudo salt-key -L
 sudo salt-key -F smaster
 
 #On the minions configure the public key of the master
+#On windows the path is C:\salt\conf\minion
 sudo nano /etc/salt/minion
 #Set the master_finger value to the master .pub key
 #Restart the salt minion service
 sudo systemctl restart salt-minion
 
 #On the minion view its public key (it should be the same as the public key seen on the master for the minion)
+#On windows run C:\salt\salt-call.bat --local key.finger
 sudo salt-call --local key.finger
 
 #On master accept all keys
@@ -20,6 +22,7 @@ sudo nano /etc/salt/master
 
 #Create grains file for the minions
 sudo nano /etc/salt/minion.d/grains.conf
+New-Item -ItemType File -Path C:\salt\conf\minion.d -Name grains.conf
 #Add the role of the server to the file (this is for the master server)
 grains:
   roles:
@@ -35,6 +38,7 @@ grains:
 
 #Set up a salt mine on all minions
 sudo nano /etc/salt/minion.d/mine.conf
+New-Item -ItemType File -Path C:\salt\conf\minion.d -Name mine.conf
 #Add the following
 mine_functions:
   network.ip_addrs: []

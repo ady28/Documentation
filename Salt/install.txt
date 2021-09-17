@@ -27,6 +27,13 @@ sudo nano /etc/salt/minion
 #Restart salt minion
 sudo systemctl restart salt-minion
 
+#Install salt minion on Windows (manual install)
+#Get the salt minion installer
+Invoke-WebRequest -Uri 'https://repo.saltproject.io/windows/Salt-Minion-3003.3-Py3-AMD64-Setup.exe' -Proxy http://192.168.1.254:80 -UseBasicParsing -OutFile C:\Data\Minion.exe
+#Install the exe
+Start-Process -FilePath 'C:\Data\Minion.exe' -ArgumentList '/S','/master=smaster' -Wait
+Start-Service -Name 'salt-minion'
+
 
 
 
