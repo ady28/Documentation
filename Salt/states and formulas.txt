@@ -119,3 +119,52 @@ sudo nano top.sls
 #Add to the file under base
   'smaster':
     - hostname
+
+#Create a windows formula
+sudo mkdir winfile
+cd winfile
+sudo nano folder.sls
+#Write the following
+files_folder_create:
+  file.directory:
+    - name: C:\Files
+    - makedirs: True
+#test state
+sudo salt 'SMinion03' state.sls winfile.folder test=true
+#Create test files
+sudo mkdir files
+cd files
+sudo nano test.txt
+#Add the following
+#This file is managed by salt. No manual editing please
+Just a test
+#Navigate back
+cd ..
+sudo nano file.sls
+#Write in this state file
+test_file:
+  file.managed:
+    - name: C:\Files\test.txt
+    - source: salt://winfile/files/test.txt
+    - require:
+      - file: C:\Files
+#Test state
+sudo salt 'SMinion03' state.sls winfile.file test=true
+sudo salt 'SMinion03' state.sls winfile.folder,winfile.file test=true
+#Each formula should have an init.sls file
+#It includes all default states that we want executed when running the formula
+sudo nano init.sls
+#Write the following
+include:
+  - winfile.folder
+  - winfile.file
+#Test the formula
+sudo salt 'SMinion03' state.sls winfile test=true
+#Edit the top.sls file
+cd /srv/salt
+sudo nano top.sls
+#Add under base
+  'SMinion03':
+    - winfile
+#Add a highstate
+sudo salt -L 'smaster,sminion01,sminion02,SMinion03' state.highstate test=true
