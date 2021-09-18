@@ -147,7 +147,7 @@ test_file:
     - name: C:\Files\test.txt
     - source: salt://winfile/files/test.txt
     - require:
-      - file: C:\Files
+      - file: files_folder_create
 #Test state
 sudo salt 'SMinion03' state.sls winfile.file test=true
 sudo salt 'SMinion03' state.sls winfile.folder,winfile.file test=true
