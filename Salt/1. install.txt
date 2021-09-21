@@ -1,0 +1,39 @@
+#Edit hosts file to use the server's name
+nano /etc/hosts
+#Add the server name to localhost (keep localhost)
+#Also add the minion addresses on the master and the master address on the minions
+
+## Install salt master and minion on Ubuntu (manual install)
+#Download key
+sudo curl -fsSL -o /usr/share/keyrings/salt-archive-keyring.gpg https://repo.saltproject.io/py3/ubuntu/20.04/amd64/latest/salt-archive-keyring.gpg -x 192.168.1.254:80
+#Create apt sources list file
+echo "deb [signed-by=/usr/share/keyrings/salt-archive-keyring.gpg arch=amd64] https://repo.saltproject.io/py3/ubuntu/20.04/amd64/latest focal main" | sudo tee /etc/apt/sources.list.d/salt.list
+#Refresh repository info
+sudo apt update
+#Install Salt
+sudo apt install salt-master salt-minion -y
+#If the salt master does not use the name salt then put the name in the minion configuration file
+sudo nano /etc/salt/minion
+#Restart salt minion
+sudo systemctl restart salt-minion
+
+## Install salt minion on Ubuntu or CentOS (bootstrap)
+#Download the bootstrap script
+curl -fsSL https://bootstrap.saltproject.io -o install_salt.sh -x 192.168.1.254:80
+#Install salt minion; use pip in case some elements are not available to be installed with the package manager and use a proxy
+sudo sh install_salt.sh -P -H http://192.168.1.254:80
+#If the salt master does not use the name salt then put the name in the minion configuration file
+sudo nano /etc/salt/minion
+#Restart salt minion
+sudo systemctl restart salt-minion
+
+#Install salt minion on Windows (manual install)
+#Get the salt minion installer
+Invoke-WebRequest -Uri 'https://repo.saltproject.io/windows/Salt-Minion-3003.3-Py3-AMD64-Setup.exe' -Proxy http://192.168.1.254:80 -UseBasicParsing -OutFile C:\Data\Minion.exe
+#Install the exe
+Start-Process -FilePath 'C:\Data\Minion.exe' -ArgumentList '/S','/master=smaster' -Wait
+Start-Service -Name 'salt-minion'
+
+
+
+

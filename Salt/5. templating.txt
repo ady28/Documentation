@@ -1,0 +1,128 @@
+#Continues from states and formulas
+#Open the server.sls file from the mysql formula
+sudo nano /srv/salt/mysql/server.sls
+#The file should now look like this
+{% if grains['os_family'] == 'Debian' %}
+
+mysql_debconf_install:
+  pkg.installed:
+    - name: debconf
+
+mysql_debconf_settings:
+  debconf.set:
+    - name: mysql-server
+    - data: 
+        'mysql-server/root_password': {'type': 'password', 'value': 'temppass'}
+        'mysql-server/root_password_again': {'type': 'password', 'value': 'temppass'}
+    - require:
+      - pkg: mysql_debconf_install
+    - require_in:
+      - mysql_server_install
+
+{% endif %}
+
+mysql_server_install:
+  pkg.installed:
+    - name: mysql-server
+#Test against an Ubuntu or Debian machine
+sudo salt 'sminion01' state.sls mysql.server test=true
+#Run the state
+sudo salt 'sminion01' state.sls mysql.server
+
+#Create a map.jinja file to parameterize the state
+sudo nano map.jinja
+#Set the following
+{% set mysql = salt['grains.filter_by']({
+
+  'RedHat': {
+    'server': 'mariadb-server',
+    'client': 'mariadb',
+    'server_conf': '/etc/my.cnf.d/server.cnf',
+    'server_conf_source': 'salt://mysql/files/rh_server.cnf',
+    'service': 'mariadb',
+  },
+  'Debian': {
+    'server': 'mysql-server',
+    'client': 'mysql-client',
+    'server_conf': '/etc/mysql/mysql.conf.d/mysqld.cnf',
+    'server_conf_source': 'salt://mysql/files/deb_mysqld.cnf',
+    'service': 'mysql',
+  },
+
+})%}
+#Import map file in server.sls
+sudo nano /srv/salt/mysql/server.sls
+#At the top of the file write
+{% from "mysql/map.jinja" import mysql with context %}
+#Call variable in the state
+#Delete mysql-server at the end of the file after name: and place
+{{ mysql.server }}
+#Test the state on all minions
+sudo salt -L 'sminion01,sminion02' state.sls mysql.server test=true
+
+#Add a debian bsed mysql config file to /files
+sudo nano files/deb_mysqld.cnf
+#Add the following text
+[mysqld_safe]
+socket      = /var/run/mysqld/mysqld.sock
+nice        = 0
+[mysqld]
+user        = mysql
+pid-file    = /var/run/mysqld/mysqld.pid
+socket      = /var/run/mysqld/mysqld.sock
+port        = 3306
+basedir     = /usr
+datadir     = /var/lib/mysql
+tmpdir      = /tmp
+lc-messages-dir = /usr/share/mysql
+skip-external-locking
+key_buffer_size     = 16M
+max_allowed_packet  = 16M
+thread_stack        = 192K
+thread_cache_size       = 8
+myisam-recover-options  = BACKUP
+log_error = /var/log/mysql/error.log
+expire_logs_days    = 10
+max_binlog_size   = 100M
+#Rename the existing server.cnf
+sudo mv files/server.cnf files/rh_server.cnf
+#Update the client.sls file
+sudo nano client.sls
+#Set it to
+{% from "mysql/map.jinja" import mysql with context %}
+
+mysql_client_install:
+  pkg.installed:
+    - name: {{ mysql.client }}
+#Test the state on all minions
+sudo salt -L 'sminion01,sminion02' state.sls mysql.client test=true
+
+#Modify the config.sls file
+sudo nano config.sls
+#Place the following text
+{% from "mysql/map.jinja" import mysql with context %}
+
+include:
+  - mysql.restart
+mysql_server_config:
+  file.managed:
+    - name: {{ mysql.server_conf }}
+    - source: {{ mysql.server_conf_source }}
+    - require:
+      - pkg: mysql_server_install
+#Test the state on all minions
+sudo salt -L 'sminion01,sminion02' state.sls mysql.server,mysql.config test=true
+
+#Update the restart.sls state
+sudo nano restart.sls
+#Set the following text
+{% from "mysql/map.jinja" import mysql with context %}
+
+mysql_restart:
+  module.wait:
+    - name: service.restart
+    - m_name: {{ mysql.service }}
+    - watch:
+      - mysql_server_config
+#Test the state on all minions
+sudo salt -L 'sminion01,sminion02' state.sls mysql.server,mysql.config,mysql.restart test=true

@@ -1,0 +1,71 @@
+#Install htop on all minions
+sudo salt '*' pkg.install htop
+
+#Targeting via name
+sudo salt 'smaster' test.ping
+sudo salt 'smi*' test.ping
+sudo salt 'sminion0?' test.ping
+sudo salt 'sminion0[1-2]' test.ping
+sudo salt -L 'smaster,sminion01' test.ping
+#Targeting via grains
+sudo salt -G 'os:Ubuntu' test.ping
+sudo salt -G 'roles:webserver' test.ping
+#Targeting via node groups (groups must be created on the master)
+#Create a node group on master
+sudo nano /etc/salt/master.d/nodegroups.conf
+#Add text (G@ is used to call grains; L@ would be used for a list)
+nodegroups:
+  centos-dev: 'G@os:CentOS and G@roles:dev'
+sudo salt -N centos-dev test.ping
+#Targeting via piller (use -I and same syntax as with grains)
+#Targeting via IP or subnet
+sudo salt -S 192.168.1.251 test.ping
+sudo salt -S 192.168.1.0/24 test.ping
+#Combining targeting methods
+sudo salt -C 'G@os:CentOS and sminion*' test.ping
+
+#Batching can say how many servers are targeted at a time (throttling)
+sudo salt '*' -b 2 test.ping
+
+#Run execution modules directly on minions without the master sending the command
+sudo salt-call --local key.finger
+sudo salt-call --local test.ping
+sudo salt-call --local pkg.list_upgrades
+sudo salt-call --local pkg.list_upgrades refresh=True
+
+#The sys module
+sudo salt 'smaster' sys.list_functions pkg
+sudo salt 'smaster' sys.argspec pkg.*
+sudo salt 'smaster' sys.doc sys.doc
+
+#The test module
+sudo salt 'smaster' test.ping
+sudo salt 'smaster' test.outputter "Test"
+sudo salt 'smaster' test.stack
+sudo salt 'smaster' test.versions_information
+
+#The pkg module
+sudo salt 'smaster' pkg.install iotop
+sudo salt 'smaster' pkg.remove iotop
+sudo salt 'smaster' pkg.upgrade
+
+#The user and hroup modules
+sudo salt 'smaster' group.add testg
+sudo salt 'smaster' group.adduser testg user100
+sudo salt 'smaster' user.add testu groups=testg,sudo home=/home/testu shell=/bin/bash fullname="Test User"
+sudo salt 'smaster' shadow.gen_password 'paassword'
+sudo salt 'smaster' shadow.set_password testu '$6$Pe/fvMiZmX3/56BK$jb67Qbx9xyKQHFd1698hve98jd5YJiYvRLQgd4XFt0DYOBNUBO94HNDxT1NN5yRzjQn75q9j/dEbyoBQRgigQ1'
+
+#The grains module
+sudo salt 'smaster' grains.ls
+sudo salt 'smaster' grains.fetch disks
+sudo salt 'smaster' grains.items
+sudo salt 'smaster' grains.set 'sites' eski
+sudo salt 'smaster' grains.append sites internal convert=True
+sudo salt 'smaster' grains.remove sites internal
+sudo salt 'smaster' grains.delkey sites force=True
+
+#The cmd module
+sudo salt 'smaster' cmd.run 'ls /'
+sudo salt 'smaster' cmd.run_all 'ls /'
+sudo salt '*' cmd.which ls

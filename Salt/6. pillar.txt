@@ -1,0 +1,100 @@
+#Create pillar_roots directory
+sudo mkdir /srv/pillar
+#Set permissions
+sudo chgrp testg /srv/pillar
+sudo chmod 775 /srv/pillar
+sudo chmod g+s /srv/pillar
+#Log out and log in or run bash
+#We will extend the previous formula to also let salt create mysql databases
+#In map.jinja add the following to Bedian and Redhat at the end of each section
+#Debian
+    'python': 'python3-mysqldb',
+#RedHat
+    'python': 'python3-mysql',
+#Create a python.sls file
+sudo nano python.sls
+#Add the following text
+{% from "mysql/map.jinja" import mysql with context %}
+
+mysql_python_install:
+  pkg.installed:
+    - name: {{ mysql.python }}
+#Add the python state to init.sls
+sudo nano init.sls
+#At the end add
+  - mysql.python
+#Test formula
+sudo salt -L 'sminion01,sminion02' state.sls mysql test=true
+#Run formula
+sudo salt -L 'sminion01,sminion02' state.sls mysql
+
+#Create a root.sls state
+sudo nano root.sls
+#Set the file to
+{% if grains['os_family'] == 'RedHat' %}
+
+mysql_root_password_set:
+  cmd.run:
+    - name: mysqladmin --host localhost --user root password 'temppass'
+    - unless: mysql --host localhost --user root --password="temppass" --execute="SELECT 1;"
+
+{% endif %}
+
+mysql_root_user:
+  mysql_user.present:
+    - name: root
+    - password: temppass
+    - host: localhost
+
+#Create a mysql.sls pillar file
+cd /srv/pillar
+nano mysql.sls
+#Add
+mysql:
+  root:
+    name: root
+    password: temppass
+#Create a top.sls pillar file
+nano top.sls
+#Add
+base:
+  'sminion01':
+    - mysql
+  'sminion02':
+    - mysql
+#Update pillar data
+sudo salt '*' saltutil.refresh_pillar
+#List pillars
+sudo salt '*' pillar.items
+
+#Move back to the formula
+cd /srv/salt/mysql
+#open root.sls
+sudo nano root.sls
+#Replace root and temppass with
+{{ pillar['mysql']['root']['name'] }}
+#For the password keep the quotes in place and place the pillar inside them
+{{ pillar['mysql']['root']['password'] }}
+#Add root.sls to init.sls
+sudo nano init.sls
+#Add
+  - mysql.root
+#Test
+sudo salt -L 'sminion01,sminion02' state.sls mysql test=true
+
+#Add a service.sls file to check that mysql is running before configuring it
+sudo nano service.sls
+#Add text
+{% from "mysql/map.jinja" import mysql with context %}
+
+mysql_service_enable:
+  service.running:
+    - name: {{ mysql.service }}
+#Add to init file
+sudo nano init.sls
+#Add under mysql.server
+  - mysql.service
+#Test
+sudo salt -L 'sminion01,sminion02' state.sls mysql test=true
+#Run
+sudo salt -L 'sminion01,sminion02' state.sls mysql
