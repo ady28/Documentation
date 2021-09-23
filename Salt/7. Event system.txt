@@ -1,0 +1,4 @@
+#Check event bus (it will block the console)
+sudo salt-run state.event pretty-True
+#In a new session make an event happen
+sudo salt 'smaster' test.ping
