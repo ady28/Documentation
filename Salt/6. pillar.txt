@@ -98,3 +98,64 @@ sudo nano init.sls
 sudo salt -L 'sminion01,sminion02' state.sls mysql test=true
 #Run
 sudo salt -L 'sminion01,sminion02' state.sls mysql
+
+#Exercise: set the pillar data also in server.sls
+
+#Set up gpg renderer on master
+#Create directory
+sudo mkdir /etc/salt/gpgkeys
+#set security
+sudo chmod 0700 /etc/salt/gpgkeys
+#Create entropy
+sudo apt install -y rng-tools
+sudo rngd -r /dev/urandom
+#Create master key with defaults and Full Name Saltstack
+#Do not use a passphrase
+sudo gpg --gen-key --homedir /etc/salt/gpgkeys
+#Export the keys
+sudo gpg --homedir /etc/salt/gpgkeys --armor --export Saltstack > exported_pubkey.gpg
+#Import the key
+gpg --import exported_pubkey.gpg
+#Encrypt the temppass password
+echo -n "temppass" | gpg --armor --trust-model always --encrypt -r Saltstack
+#You will need all output including the ---BEGIN... and ---END parts
+#Open mysal pillar
+nano /srv/pillar/mysql.sls
+#Add #!yaml|gpg at the top of the file
+#Instead of temppass after password: write:
+|
+#Then add the encrypted string with 6 spaces on each line (it is a yaml file after all)
+#Refresh pillar data
+sudo salt '*' saltutil.refresh_pillar
+#Check pillars
+sudo salt '*' pillar.items
+
+#Create database.sls
+sudo nano database.sls
+#Set the following text
+{% for database, arg in salt['pillar.get']('mysql:database',{}).items() %}
+
+mysql_db_create_{{ database }}:
+  mysql_database.present:
+    - name: {{ database }}
+    - host: {{ arg.host }}
+    - connection_user: {{ pillar['mysql']['root']['name'] }}
+    - connection_pass: {{ pillar['mysql']['root']['password'] }}
+    - connection_charset: utf8
+
+{% endfor %}
+#Open the mysql pillar file
+nano /srv/pillar/mysql.sls
+#At the level of root: create a new entry
+  database:
+    eski:
+      host: localhost
+    internal:
+      host: localhost
+#Test
+sudo salt -L 'sminion01,sminion02' state.sls mysql.database test=true
+#Add database to the init.sls file
+#Test formula
+sudo salt -L 'sminion01,sminion02' state.sls mysql test=true
+#Run
+sudo salt -L 'sminion01,sminion02' state.sls mysql
