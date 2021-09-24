@@ -1,0 +1,73 @@
+#Install inotify on minions
+sudo salt 'sminion01' pkg.install python-pyinotify
+sudo salt 'sminion02' pkg.install python3-inotify
+
+#Create beacons.sls in the pillar root directory
+cd /srv/pillar
+nano beacons.sls
+#Set the following text (will configure event when config file is changed)
+beacons:
+  inotify:
+    - files:
+{% if grains['os_family']=="RedHat" %}
+        /etc/my.cnf.d/server.cnf:
+{% endif %}
+{% if grains['os_family']=="Debian" %}
+        /etc/mysql/mysql.conf.d/mysqld.cnf:
+{% endif %}
+          mask:
+            - modify
+    - disable_during_state_run: True
+#Add beacons to the top file from pillar
+#Refresh pillar
+sudo salt '*' saltutil.refresh_pillar
+
+#Connect to event bus on master
+sudo salt-run state.event pretty=True
+#Make a change on one of the minions' config file
+
+#Create reactor directory
+sudo mkdir /srv/reactor
+sudo chgrp testg /srv/reactor
+sudo chmod 775 /srv/reactor
+sudo chmod g+s /srv/reactor
+cd /srv/reactor
+#Run bash
+#Create a reactor files for mysql
+mkdir mysql
+cd mysql
+nano deb_config.sls
+#Set the following
+restore_deb_mysql_server_config:
+  local.state.single:
+    - tgt: 'E@sminion0* and G@os_family:Debian'
+    - tgt_type: compound
+    - args:
+      - fun: file.managed
+      - name: /etc/mysql/mysql.conf.d/mysqld.cnf
+      - source: salt://mysql/files/deb_mysqld.cnf
+#Create also for red hat
+nano rh_config.sls
+#Add the following
+restore_rh_mysql_server_config:
+  local.state.single:
+    - tgt: 'E@sminion0* and G@os_family:RedHat'
+    - tgt_type: compound
+    - args:
+      - fun: file.managed
+      - name: /etc/my.cnf.d/server.cnf
+      - source: salt://mysql/files/rh_server.cnf
+
+#Create a master config file for reactor
+sudo nano /etc/salt/master.d/reactor.conf
+#Add the following
+reactor:
+  - 'salt/beacon/*/inotify//etc/mysql/mysql.conf.d/mysqld.cnf':
+    - /srv/reactor/mysql/deb_config.sls
+  - 'salt/beacon/*/inotify//etc/my.cnf.d/server.cnf':
+    - /srv/reactor/mysql/rh_config.sls
+#Restart salt master service
+sudo systemctl restart salt-master
+#Connect to event bus on master
+sudo salt-run state.event pretty=True
+#Change files on the minions
