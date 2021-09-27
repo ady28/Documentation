@@ -1,0 +1,64 @@
+#View state runner documentation
+sudo salt-run -d state
+sudo salt-run -d state.event
+
+#View list of minions
+sudo salt-run manage.present
+#View mine information
+sudo salt-run mine.get 'sminion0*' network.ip_addrs
+#View pillar top file
+sudo salt-run pillar.show_top
+
+#Add a reactor
+sudo salt-run reactor.add 'salt/beacon/*/inotify//etc/my.cnf.d/server.cnf' reactors='/srv/reactor/mysql/rh_config.sls'
+
+#View list of jobs
+sudo salt-run jobs.list_jobs
+#View running jobs
+sudo salt-run jobs.active
+#View a job by job id
+sudo salt-run jobs.lookup_jid 20210927192004607269
+
+#Schedule a highstate via execution module
+sudo salt 'sminion01' schedule.add highstate1 function='state.highstate' seconds=60
+#Connect to event bus and wait for events
+sudo salt-run state.event pretty=true
+#Remove thr schedule
+sudo salt 'sminion01' schedule.delete highstate1
+
+#Schedule a highstate via config/pillar data
+nano /srv/pillar/schedule.sls
+#Write the following
+schedule:
+  highstate:
+    function: state.highstate
+    minutes: 30
+#Update pillar top.sls
+nano /srv/pillar/top.sls
+#Add - schedule to sminion01
+
+#Create orchestration
+cd /srv/salt
+sudo mkdir orch
+cd orch
+sudo nano setup.sls
+#Write
+set_hostname:
+  salt.function:
+    - name: network.mod_hostname
+    - tgt: 'sminion01'
+    - arg:
+      - sminion01
+
+configure_db_minion:
+  salt.state:
+    - tgt: 'sminion02'
+    - highstate: True
+
+configure_web_minion:
+  salt.state:
+    - tgt: 'sminion01'
+    - sls:
+      - mysql.client
+#Run orchestration
+sudo salt-run state.orch orch.setup

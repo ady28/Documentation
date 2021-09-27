@@ -1,0 +1,43 @@
+#On the server that will be maanged via ssh enable passwordless sudo for the user named testu (user that is located on the master which the master will use to run commands through ssh)
+sudo su -
+visudo
+#Add the following at the bottom
+testu    ALL=(ALL)       NOPASSWD: ALL
+#Create the testu user on the new server
+#Install python3 (on the master salt uses python 3 and it must match also on the ssh client)
+yum install -y python3
+
+#Install salt ssh on master
+sudo apt install salt-ssh
+
+#Edit the salt roster file to put in the servers salt can ssh into
+sudo nano /etc/salt/roster
+#Write the following
+sminion04:
+  host: 192.168.1.249
+  user: testu
+  sudo: True
+
+#Generate ssh key for salt
+#To do it just run a random command (you will get an error or the command will hang; either way it did what it was supposed to do if you get the cert file in the command below)
+sudo salt-ssh '*' test.ping
+#Copy the generated ssh key to the ssh client server
+sudo ssh-copy-id -i /etc/salt/pki/master/ssh/salt-ssh.rsa.pub testu@192.168.1.249
+#Run salt-ssh again
+sudo salt-ssh '*' test.ping
+
+#Run the hostname command
+sudo salt-ssh 'sminion04' network.mod_hostname sminion04
+
+#Add the ssh minion to pillar
+sudo nano /srv/pillar/top.sls
+#Add the following text
+  'sminion04':
+    - mysql
+#Run state
+sudo salt-ssh sminion04 state.sls mysql
+sudo salt-ssh sminion04 state.sls mysql.client
+
+#run bash command
+sudo salt-ssh -r 'sminion04' hostname
+sudo salt-ssh -r 'sminion04' which nano
