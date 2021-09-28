@@ -49,3 +49,18 @@ sudo salt '*' mine.update
 #On the master query mine data
 sudo salt '*' mine.get '*' network.ip_addrs
 
+#Minion name change
+#On minion
+sudo nano /etc/salt/minion_id
+#Change the name with what you need
+#Remove and regenerate salt keys
+sudo su -
+cd /etc/salt/pki/minion
+rm minion.pem minion.pub
+exit
+#On master
+sudo salt-key -d 'minionid'
+#On minion
+sudo systemctl restart salt-minion
+#On master
+sudo salt-key -a 'minionname'
