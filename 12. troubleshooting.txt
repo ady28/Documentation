@@ -1,0 +1,9 @@
+#master ran out of memory
+#Create a swap file
+sudo fallocate -l 1GB /swapfile
+sudo chmod 0600 /swapfile
+sudo mkswap /swapfile
+sudo swapon /swapfile
+sudo vim /etc/fstab
+#Write
+/swapfile none swap sw 0 0

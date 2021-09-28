@@ -1,0 +1,68 @@
+#Install
+sudo apt install salt-cloud
+
+#Create a key pair in AWS and download it on the master server
+#Move key to a secure location
+sudo su -
+cd /etc/salt/pki/master
+mv /home/user/salt-cloud.pem .
+chmod 400 salt-cloud.pem
+exit
+
+#Create and open a provider file
+sudo nano /etc/salt/cloud.providers.d/ec2.conf
+#Add the following text
+ec2-web:
+  driver: ec2
+  id: 'aws access id'
+  key: 'aws access key'
+  private_key: /etc/salt/pki/master/salt-cloud.pem
+  keyname: salt-cloud
+  securitygroup: default
+
+#Create a profile file
+sudo nano /etc/salt/cloud.profiles.d/ec2.conf
+#Add the following
+tiny-server:
+  provider: ec2-web
+  image: ami-a4dc46db
+  ssh_username: ubuntu
+  size: t1.micro
+  minion:
+    master: 'master public hostname or ip'
+#Provision a server
+sudo salt-cloud -p tiny-server web-test
+
+#Remove server
+sudo salt-cloud -d web-test
+
+#Use salt cloud and orchestration
+#Create a lamp.sls orch state
+nano /srv/salt/orch/lamp.sls
+#Write the following
+deploy_vms:
+  salt.runner:
+    - name: cloud.profile
+    - prof: tiny-server
+    - instances:
+      - web1
+      - db1
+configure_web_minion:
+  salt.state:
+    - tgt: 'web1'
+    - sls:
+      - apache
+      - php
+      - mysql.client
+configure_db_minion:
+  salt.state:
+    - tgt: 'db1'
+    - sls:
+      - mysql
+#Add web1 and db1 to the pillar top file to get the secrets
+#Run state
+sudo salt-run state.orch orch.lamp
+#Add tags
+sudo salt-cloud -a set_tags web1 db1 project='Internal Website'
+#Confirm tags are set
+sudo salt-cloud -a get_tags web1 db1
