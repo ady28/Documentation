@@ -1,0 +1,19 @@
+#Create inventory file (it will be placed in the current directory)
+nano hosts-dev
+#Write (we also set aliases like app1 to the servers)
+# hosts-dev
+
+[webservers]
+app1 ansible_host=sminion02
+app2 ansible_host=sminion04
+
+[loadbalancers]
+lb1 ansible_host=sminion01
+
+[windows]
+win ansible_host=SMinion04 ansible_connection=winrm ansible_winrm_cert_pem=/home/user100/.ssh/win_cert.pem ansible_winrm_cert_key_pem=/home/user100/.ssh/cert_key.pem ansible_winrm_transport=certificate
+
+[local]
+control ansible_host=smaster ansible_connection=local
+#Test inventory
+ansible -i hosts-dev --list-hosts all

@@ -1,0 +1,11 @@
+#Install pip (ubuntu * python3)
+sudo add-apt-repository universe
+sudo apt install python3-pip
+#Install ansible
+sudo pip install --proxy=http:192.168.1.254:80 ansible
+#Install winrm module if managing windows
+sudo pip install --proxy=http:192.168.1.254:80 pywinrm
+
+#Check version
+ansible --version
+

@@ -1,0 +1,5 @@
+#Run the ansible ping command on all hosts
+ansible -m ping all
+
+#Run the shell function with the uname parameter
+ansible -m shell -a "uname" webservers

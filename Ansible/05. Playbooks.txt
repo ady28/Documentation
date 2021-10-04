@@ -1,0 +1,97 @@
+#Create a test playbook
+nano ping.yml
+#Write
+# ping.yml
+---
+  - hosts: all
+    tasks:
+    - name: Ping all servers
+      action: ping
+#Test playbook
+ansible-playbook ping.yml
+
+#Create a test playbook
+nano uname.yml
+#Write
+# uname.yml
+---
+  - hosts: webservers
+    tasks:
+      - name: Get OS type
+        shell: uname
+
+mkdir playbooks
+#Create a playbook
+nano playbooks/yum-update.yml
+#Write
+# yum-update.yml
+---
+  - hosts: webservers
+    become: true
+    tasks:
+      - name: Update yum packages
+        yum: name=* state=latest
+#Run
+ansible-playbook playbooks/yum-update.yml
+
+#Create another playbook
+nano playbooks/install-services.yml
+#Write
+# install-services.yml
+---
+  - hosts: loadbalancers
+    become: true
+    tasks:
+      - name: Install apache
+        apt: name=apache2 state=present
+      - name: Ensure Apache starts
+        service: name=apache2 state=started enabled=yes
+
+  - hosts: webservers
+    become: true
+    tasks:
+      - name: Install services
+        yum:
+          name:
+            - httpd
+            - php
+          state: present
+      - name: Ensure Apache starts
+        service: name=httpd state=started enabled=yes
+      - name: Enable firewall rule for HTTP
+        firewalld:
+          zone: public
+          port: 80/tcp
+          permanent: true
+          state: enabled
+          immediate: true
+
+#Create a php file
+nano index.php
+#Write
+<?
+ echo "<h1>This is a main page</h1>";
+?>
+
+nano playbooks/setup-app.yml
+#Write
+# setup-app.yml
+
+---
+  - hosts: webservers
+    become: true
+    tasks:
+      - name: Upload application file
+        copy:
+          src: ../index.php
+          dest: /var/www/html
+          mode: 0755
+      - name: Configure php.ini
+        lineinfile:
+          path: /etc/php.ini
+          regexp: ^short_open_tag
+          line: 'short_open_tag=On'
+      - name: Restart apache
+        service: name=httpd state=restarted
+#Run
+ansible-playbook playbooks/setup-app.yml
