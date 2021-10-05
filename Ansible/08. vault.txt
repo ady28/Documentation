@@ -1,0 +1,16 @@
+#Create a new file in vault
+ansible-vault create secret-variables.yml
+#It will open vim
+type in
+pass: "secret"
+ansible-vault edit secret-variables.yml
+
+#Use the file in check-status.yml
+#Before tasks put
+vars_files:
+  - ../secret-variables.yml
+#Place a debug task in the file
+      - name: Debug vault contents
+        debug:
+          msg: "{{ pass }}"
+#Run the playbook with --ask-vault-pass

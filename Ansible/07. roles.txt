@@ -1,0 +1,18 @@
+mkdir roles
+#Create a role
+ansible-galaxy init roles/webservers
+
+#In the tasks/main.yml copy all the tasks from the setup-app.yml file without the tasks: line
+#In the vars/main.yml copy all the vars from the setup-app.yml file without the vars: line
+#The same for the handlers
+#Copy the index.php file in the files folder
+#In the tasks in main.yml change the src line to src: ../files/index.php
+
+#The setup-app.yml file should now be
+# setup-app.yml
+---
+  - hosts: webservers
+    become: true
+    roles:
+      - webservers
+#Copy the setup-app.yml file outside the roles directory

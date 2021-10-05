@@ -1,0 +1,2 @@
+#See all facts about a host
+ansible -m setup app1

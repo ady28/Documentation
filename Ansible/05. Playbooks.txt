@@ -80,18 +80,142 @@ nano playbooks/setup-app.yml
 ---
   - hosts: webservers
     become: true
+
+    vars:
+      path_to_app: "/var/www/html"
+
     tasks:
       - name: Upload application file
         copy:
           src: ../index.php
-          dest: /var/www/html
+          dest: "{{ path_to_app }}"
           mode: 0755
+      - name: Create info page
+        copy:
+          dest: "{{ path_to_app }}/info.php"
+          content: "<h1>{{ ansible_hostname }}</h1>"
+      - name: See directory contents
+        command: ls -la {{ path_to_app }}
+        register: dir_contents
+      - name: Debug directory contents
+        debug:
+          msg: "{{ dir_contents }}"
       - name: Configure php.ini
         lineinfile:
           path: /etc/php.ini
           regexp: ^short_open_tag
           line: 'short_open_tag=On'
+        notify: Restart apache
+
+    handlers:
       - name: Restart apache
         service: name=httpd state=restarted
 #Run
 ansible-playbook playbooks/setup-app.yml
+
+#Create template file in jinja
+mkdir config
+nano config/lb-config.j2
+#Write
+ProxyRequests off
+<Proxy balancer://webcluster >
+ {% for hosts in groups['webservers'] %} 
+  BalancerMember http://{{ hostvars[hosts]['ansible_host'] }}
+ {% endfor %}
+  ProxySet lbmethod=byrequests
+</Proxy>
+# Optional
+<Location /balancer-manager>
+  SetHandler balancer-manager
+</Location>
+ProxyPass /balancer-manager !
+ProxyPass / balancer://webcluster/
+
+nano playbooks/setup-lb.yml
+#Write
+# setup-lb.yml
+
+---
+  - hosts: loadbalancers
+    become: true
+    tasks:
+      - name: Enable the Apache2 module proxy
+        community.general.apache2_module:
+          state: present
+          name: proxy
+      - name: Enable the Apache2 module lbmethod_byrequests
+        community.general.apache2_module:
+          state: present
+          name: lbmethod_byrequests
+      - name: Enable the Apache2 module proxy_balancer
+        community.general.apache2_module:
+          state: present
+          name: proxy_balancer
+      - name: Enable the Apache2 module pslotmem_shm
+        community.general.apache2_module:
+          state: present
+          name: slotmem_shm
+      - name: Enable the Apache2 module proxy_http
+        community.general.apache2_module:
+          state: present
+          name: proxy_http
+      - name: Create template
+        template:
+          src: ../config/lb-config.j2
+          dest: /etc/apache2/mods-enabled/lb.conf
+          mode: 064
+          owner: bin
+          group: sudo
+        notify: Restart apache
+
+    handlers:
+      - name: Restart apache
+        service: name=apache2 state=restarted
+#Run
+ansible-playbook playbooks/setup-lb.yml
+
+nano playbooks/all-playbooks.yml
+#Write
+# all-playbooks.yml
+
+---
+  - import_playbook: yum-update.yml
+  - import_playbook: install-services.yml
+  - import_playbook: setup-app.yml
+  - import_playbook: setup-lb.yml
+#Run the playbook
+ansible-playbook playbooks/all-playbooks.yml
+
+
+nano playbooks/check_status.yml
+#Write
+# check-status.yml
+---
+  - hosts: webservers
+    become: true
+
+    vars_prompt:
+      - name: "p_var"
+        prompt: "Type something"
+
+    tasks:
+      - name: Check apache status
+        command: service httpd status
+        changed_when: false
+        tags: check
+      - name: normally fails
+        command: /bin/false
+        ignore_errors: yes
+      - name: Debug input var
+        debug:
+          msg: "{{ p_var }}"
+        tags: see
+      - name: Debug input var conditional
+        debug:
+          msg: "{{ p_var }}"
+        tags: see2
+        when: p_var == 'yes'
+#Run
+ansible-playbook playbooks/check_status.yml
+ansible-playbook playbooks/check_status.yml --tags check
+ansible-playbook playbooks/check_status.yml --skip-tags check
