@@ -1,0 +1,18 @@
+####Server
+#At least 4GB of RAM
+
+#firewall
+#ubuntu
+sudo ufw allow proto tcp from any to any port 80,443
+#centos
+firewall-cmd --permanent --zone public --add-service http && firewall-cmd --permanent --zone public --add-service https && firewall-cmd --reload
+
+#update
+sudo apt update
+sudo apt upgrade -y
+
+#remove references to ipv6 in /etc/hosts
+
+
+
+

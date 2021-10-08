@@ -1,0 +1,141 @@
+#Install Workstation
+#Windows
+#Download Chef Workstation from website based on platform
+ Start-Process -FilePath msiexec.exe -ArgumentList '/i C:\chef-workstation-21.10.640-1-x64.msi','/qn' -Wait
+#Check install
+chef --version
+Get-Command -Module chef
+#Ubuntu
+curl https://packages.chef.io/files/stable/chef-workstation/21.9.613/ubuntu/20.04/chef-workstation_21.9.613-1_amd64.deb -x "http://192.168.1.254:80" --output chef-workstation.deb
+sudo dpkg -i chef-workstation.deb
+#Check install
+chef -v
+knife --version
+#Generate a repository
+chef generate repo chef-repo
+cd chef-repo
+#Configure git
+git config --global user.name user100
+git config --global user.email user100@testcorp.local
+#Git should not track .chef  directory
+echo ".chef" > .gitignore
+#Commit files
+git add .
+git commit -m "initial commit"
+#Configure chef
+mkdir .chef
+cd .chef
+#Copy the user certificate from the chef server
+scp ubuntu01.testcorp.local:/home/user100/chefadmin.pem .
+#Create a knife config
+nano knife.rb
+#Add the following text#
+current_dir = File.dirname(__FILE__)
+log_level :info
+log_location STDOUT
+node_name "chefadmin"
+client_key "#{current_dir}/chefadmin.pem"
+chef_server_url "https://ubuntu01.testcorp.local/organizations/testcorp"
+cookbook_path ["#{current_dir}/../cookbooks"]
+#done#
+#Get the ssl certificate from the chef server
+knife ssl fetch
+#Check certificate
+knife ssl check
+#Confirm that knife is set up correctly
+knife client list
+cd ..
+#Create a test cookbook
+chef generate cookbook  cookbooks/install_apache
+cd cookbooks
+#Create a template file for the html page
+chef generate template install_apache index.html
+#Edit the tamplate file
+nano install_apache/templates/index.html.erb
+#Write#
+<html>
+  <body>
+    <h1>Hello Chef World from <%= node['fqdn'] %></h1>
+  </body>
+</html>
+#end#
+#Edit the recipe file
+nano install_apache/recipes/default.rb
+#Write#
+# Install basic packages
+package 'Install basic packages' do
+  package_name %w(vim wget curl bash-completion)
+end
+
+# Install Apache web server
+package 'Install Apache web server' do
+  case node[:platform]
+  when 'redhat', 'centos', 'fedora'
+    package_name 'httpd'
+  when 'ubuntu', 'debian'
+    package_name 'apache2'
+  end
+end
+
+# Start and enable the service
+service 'Start and enable apache service' do
+  case node[:platform]
+  when 'redhat', 'centos', 'fedora'
+    service_name 'httpd'
+  when 'ubuntu', 'debian'
+    service_name 'apache2'
+  end
+  action [:enable, :start]
+end
+
+# Copy apache template
+template '/var/www/html/index.html' do
+  source 'index.html.erb'
+  mode '0644'
+  case node[:platform]
+  when 'redhat', 'centos', 'fedora', 'scientific'
+    owner 'apache'
+    group 'apache'
+  when node[:platform]
+    owner 'www-data'
+    group 'www-data'
+  end
+end
+#end#
+#Edit the metadata file with correct info
+nano install_apache/metadata.rb
+#Upload cookbook to the server
+knife cookbook upload install_apache
+#List cookbooks on the chef server
+knife cookbook list
+
+#Install Chef Client
+#Use bootstrap
+knife bootstrap ubuntu03.testcorp.local -U 'user100' -s 'https://ubuntu01.testcorp.local/organizations/testcorp' --run-list 'recipe[recipe-name]' -N 'ubuntu03.testcorp.local' --bootstrap-curl-options "--proxy http://192.168.1.254:80"  --use-sudo-password -P 'Parola#100'
+#On Linux it can be installed with a bootstrap tool: knife bootstrap or downloaded as a file and installed
+curl https://packages.chef.io/files/stable/chef/17.6.18/ubuntu/20.04/chef_17.6.18-1_amd64.deb?_ga=2.238889607.622738934.1633632656-198290981.1632942666 -x "http://192.168.1.254:80" --output chef-client.deb
+sudo dpkg -i chef-client.deb
+#Check install
+chef-client --version
+
+#CentOS
+curl https://packages.chef.io/files/stable/chef/17.6.18/el/8/chef-17.6.18-1.el8.x86_64.rpm?_ga=2.243060485.622738934.1633632656-198290981.1632942666 -x "http://192.168.1.254:80" --output chef-client.rpm
+rpm -i chef-client.rpm
+#Check install
+chef-client --version
+
+#On Windows we can use the knife windows tool or the msi
+Start-Process -FilePath msiexec.exe -ArgumentList '/i C:\chef-client-17.6.18-1-x64.msi','/qn','ADDLOCAL="ChefClientFeature,ChefSchTaskFeature,ChefPSModuleFeature"' -Wait
+#Chek install
+C:\opscode\chef\bin\chef-client.bat --version
+
+####Server
+curl https://packages.chef.io/files/stable/chef-server/14.9.23/ubuntu/20.04/chef-server-core_14.9.23-1_amd64.deb?_ga=2.46343968.622738934.1633632656-198290981.1632942666 -x "http://192.168.1.254:80" --output chef-server.deb
+sudo dpkg -i chef-server.deb
+#Start up all services
+sudo chef-server-ctl reconfigure
+#Check status
+sudo chef-server-ctl status
+#Create Chef Server admin and organization
+sudo chef-server-ctl user-create chefadmin Chef Admin chefadmin@testcorp.local 'Parola#21' --filename /home/user100/chefadmin.pem
+sudo chef-server-ctl org-create testcorp 'Test Corp' --association_user chefadmin --filename /home/user100/testcorp.pem
