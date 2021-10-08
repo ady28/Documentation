@@ -1,0 +1,51 @@
+###Server
+#Add package repo to centos
+sudo yum install https://yum.puppet.com/puppet6-release-el-7.noarch.rpm
+#Add package repo to ubuntu
+curl https://apt.puppet.com/puppet6-release-focal.deb -x "http://192.168.1.254:80" --output puppetserver.deb
+sudo dpkg -i puppetserver.deb
+
+#Update the repository then install puppet server
+yum install -y puppetserver
+apt install -y puppetserver
+
+#Exit the current session or start a new one and check the install
+puppet --version
+
+#Run puppet directly as root for sudo commands
+sudo -i
+
+#Run some local commands to configure some OS parts
+puppet apply -e 'package {"chrony": ensure => installed}'
+puppet apply -e 'service {"chronyd": ensure => running , enable => true}'
+
+#Open firewall port (ubuntu)
+sudo ufw allow 8140/tcp
+
+#Modify agent settings to point to puppet server and use proxy
+sudo nano /etc/puppetlabs/puppet/puppet.conf
+#Add
+[main]
+server = ubuntu01.testcorp.local
+http_proxy_host = 192.168.1.254
+http_proxy_port = 80
+no_proxy = localhost, 127.0.0.1, *.testcorp.local
+
+#Enable puppet services
+systemctl enable --now puppetserver puppet
+
+#Test that puppet agent is connecting to master
+puppet agent -t
+
+#Get list of all signed client certificates
+puppetserver ca list --all
+
+#Install a module from puppet forge
+puppet module install puppetlabs/apache
+
+#list puppet configuration
+puppet config print
+#See which config file is being used
+puppet config print config
+#See manifest info in the master section and for the production environment
+puppet config print manifest --section master --environment production

@@ -1,0 +1,29 @@
+#Create a manifest
+nano /etc/puppetlabs/code/environments/production/manifests/01.pp
+#Write#
+notify {'Hello World':
+  message => "Hellor World!",
+}
+#end#
+#Apply it
+puppet apply /etc/puppetlabs/code/environments/production/manifests/site.pp
+#Or
+puppet agent -t
+
+#Create a new environment
+mkdir -p /etc/puppetlabs/code/environments/dev/manifests
+#Configure agent to use the new environment
+puppet config set environment dev --section=agent
+
+#See how frequently the puppet agent runs
+puppet config print runinterval
+
+#List puppet resources
+puppet resource --type
+#Get help about a resource
+puppet describe service
+#Get example of using a resource
+puppet resource service chronyd
+
+#Go back to prod env
+puppet config set environment production --section=agent
