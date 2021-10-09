@@ -49,3 +49,17 @@ puppet config print
 puppet config print config
 #See manifest info in the master section and for the production environment
 puppet config print manifest --section master --environment production
+
+###Bolt
+apt install -y puppet-bolt
+#Test
+bolt command run whoami -t 127.0.0.1 -u user100 -p xxxx --no-host-key-check
+bolt command run whoami -t ubuntu02.testcorp.local -u user100 -p xxx --no-host-key-check --run-as root
+#Install puppet agent on remote host with bolt
+bolt command run 'yum install -y https://yum.puppet.com/puppet6-release-el-7.noarch.rpm' -t centos02.testcorp.local -u root -p xxx --no-host-key-check
+bolt command run 'yum install -y puppet-agent' -t centos02.testcorp.local -u root -p Parola#21 --no-host-key-check
+bolt command run 'puppet config set server ubuntu01.testcorp.local --section main' -t centos02.testcorp.local -u root -p xx --no-host-key-check
+bolt command run 'systemctl enable --now puppet' -t centos02.testcorp.local -u root -p xxx --no-host-key-check
+#Check if the certificate of the machine is in the Requested section
+puppetserver ca list
+puppetserver ca sign --certname centos02.testcorp.local
