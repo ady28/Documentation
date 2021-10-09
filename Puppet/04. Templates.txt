@@ -1,0 +1,38 @@
+#Create a template
+nano /root/test.epp
+#Write#
+You have connected to the server:
+<%= $facts['ipaddress'] %> <%= $facts['fqdn'] %>
+#end#
+
+#Test the template
+puppet epp render /root/test.epp
+
+#Create template for the chrony module
+cd chrony
+mkdir templates
+cd templates
+mv ../files/chrony.conf chrony.epp
+
+#Replace the servers part
+<% if $timezone == 'BST' { -%>
+pool ntp.ubuntu.com        iburst maxsources 4
+<% } elsif $timezone == 'GMT' { -%>
+pool 2.ubuntu.pool.ntp.org iburst maxsources 2
+<% } else { -%>
+pool 0.ubuntu.pool.ntp.org iburst maxsources 1
+pool 1.ubuntu.pool.ntp.org iburst maxsources 1
+<% } -%>
+#end#
+#Test
+puppet epp render chrony.epp
+
+cd ../manifests
+nano init.pp
+#Modify the file resource content line to#
+content => epp('chrony/chrony.epp'),
+#end#
+
+#Test
+puppet agent -t
+cat /etc/chrony/chrony.conf
