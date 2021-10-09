@@ -1,0 +1,85 @@
+#List modules
+puppet module list
+#Download module in current environment
+puppet module install puppetlabs/stdlib
+#Remove module
+puppet module uninstall puppetlabs/stdlib
+#Download module in a shared location
+puppet module install -i /etc/puppetlabs/code/modules puppetlabs/stdlib
+#Modules also have examples
+cat /etc/puppetlabs/code/environments/production/modules/stdlib/examples/file_line.pp
+
+#Copy the example in the current directory and execute it
+cp /etc/puppetlabs/code/environments/production/modules/stdlib/examples/file_line.pp .
+puppet apply file_line.pp
+#Check that it worked
+cat /tmp/dansfile
+
+#Create a module
+cd /etc/puppetlabs/code/environments/production/modules
+mkdir -p chrony/{manifests,files,examples}
+
+#copy the chrony config file in the module files direcroey
+cp /etc/chrony/chrony.conf chrony/files/
+#Add a comment at the top: Managed with Puppet
+nano chrony/files/chrony.conf
+
+nano chrony/manifests/init.pp
+#Write#
+class chrony {
+  package { 'chrony':
+    ensure => 'installed',
+  }
+  service { 'chronyd':
+    ensure => 'running',
+    enable => true,
+    require => Package['chrony'],
+  }
+  file { '/etc/chrony/chrony.conf':
+    ensure => file,
+    content => file('chrony/chrony.conf'),
+    notify => Service['chronyd'],
+  }
+}
+#end#
+
+#Create a manifest to show one more resource (not related to above module)
+nano /root/ssh.pp
+#Write#
+package { 'sshd':
+  ensure => 'installed',
+}
+service { 'sshd':
+  ensure => 'running',
+  enable => true,
+  require => Package['sshd'],
+}
+file_line { 'root_login_ssh':
+  path => '/etc/ssh/sshd_config',
+  ensure => 'present',
+  line => 'PermitRootLogin no',
+  match => '^PermitRootLogin',
+  notify => Service['sshd'],
+}
+#end#
+
+#View facts about a host
+facter
+facter --show-legacy
+facter --show-legacy | grep osfamily
+
+#Include the module in the 01 manifest
+nano /etc/puppetlabs/code/environments/production/manifests/01.pp
+#Write#
+if $osfamily == 'Debian' {
+  include chrony
+}
+if $osfamily == 'RedHat' {
+  notify {'Hello World':
+    message => "Hellor World!",
+  }
+}
+#end#
+
+#Test
+puppet agent -t
