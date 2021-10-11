@@ -1,0 +1,7 @@
+#Get the os fact
+facter operatingsystem
+#Get fqdn
+facter fqdn
+
+#Create custom facts
+export FACTER_team="Dev"

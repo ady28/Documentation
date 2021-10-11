@@ -24,6 +24,13 @@ pool 0.ubuntu.pool.ntp.org iburst maxsources 1
 pool 1.ubuntu.pool.ntp.org iburst maxsources 1
 <% } -%>
 #end#
+#Replace the keys part
+<% if $osfamily == 'Debian' { -%>
+keyfile /etc/chrony/chrony.keys
+<% } elsif $osfamily == 'RedHat' { -%>
+keyfile /etc/chrony.keys
+<% } -%>
+#end#
 #Test
 puppet epp render chrony.epp
 

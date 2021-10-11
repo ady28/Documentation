@@ -64,3 +64,7 @@ bolt command run 'systemctl enable --now puppet' -t centos02.testcorp.local -u r
 puppetserver ca list
 puppetserver ca sign --certname centos02.testcorp.local
 #On the new server test the puppet agent (you may need to log in again for the PATH variable to refresh)
+
+###Agent - Windows
+Start-Process -FilePath "msiexec.exe" -ArgumentList "/qn",'/norestart','/i C:\Puppet\puppet-agent-x64-latest.msi','PUPPET_MASTER_SERVER=ubuntu01.testcorp.local' -Wait
+#After install is done just sign the certificate on the puppet server

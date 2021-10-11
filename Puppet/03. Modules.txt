@@ -27,6 +27,13 @@ nano chrony/files/chrony.conf
 nano chrony/manifests/init.pp
 #Write#
 class chrony {
+  if $osfamily == 'RedHat' {
+    $chronypath = '/etc/chrony.conf'
+  }
+  elsif $osfamily == 'Debian' {
+    $chronypath = '/etc/chrony/chrony.conf'
+  }
+
   package { 'chrony':
     ensure => 'installed',
   }
@@ -35,13 +42,15 @@ class chrony {
     enable => true,
     require => Package['chrony'],
   }
-  file { '/etc/chrony/chrony.conf':
+  file { "$chronypath":
     ensure => file,
-    content => file('chrony/chrony.conf'),
+    content => files('chrony/chrony.epp'),
     notify => Service['chronyd'],
   }
 }
 #end#
+#Test file
+puppet parser validate chrony/manifests/init.pp
 
 #Create a manifest to show one more resource (not related to above module)
 nano /root/ssh.pp
@@ -71,10 +80,10 @@ facter --show-legacy | grep osfamily
 #Include the module in the 01 manifest
 nano /etc/puppetlabs/code/environments/production/manifests/01.pp
 #Write#
-if $osfamily == 'Debian' {
+if $osfamily != 'windows' {
   include chrony
 }
-if $osfamily == 'RedHat' {
+if $osfamily == 'windows' {
   notify {'Hello World':
     message => "Hellor World!",
   }
