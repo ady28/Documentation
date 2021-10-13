@@ -1,0 +1,60 @@
+#Test if hiera is installed
+hiera --version
+
+#Modify hiera.yml on the environment layer for production
+nano /etc/puppetlabs/code/environments/production/hiera.yaml
+#Uncomment datadir an ddata_hash
+#Remove :: from trusted.certname
+#add#
+  - name: "Per-OS defaults"
+    path: "os/%{facts.os.family}.yml"
+  - name: "Common data"
+    path: "common.yml"
+#end#
+#Remove other YAML hiarchical levels
+
+#Create common.yml
+nano /etc/puppetlabs/code/environments/production/data/common.yml
+#Write#
+---
+chrony::chrony_package_name: chrony
+chrony::chrony_service_name: chronyd
+#end#
+
+#Create the os files
+mkdir /etc/puppetlabs/code/environments/production/data/os
+nano /etc/puppetlabs/code/environments/production/data/os/RedHat.yml
+#Write#
+---
+chrony::chrony_path: /etc/chrony.conf
+#end#
+nano /etc/puppetlabs/code/environments/production/data/os/Debian.yml
+#Write#
+---
+chrony::chrony_path: /etc/chrony/chrony.conf
+#end#
+
+#Modify the chrony class so it looks like this
+nano /etc/puppetlabs/code/environments/production/modules/chrony/manifests/init.pp
+#Write#
+class chrony (
+  String        $chrony_package_name,
+  String        $chrony_service_name,
+  String        $chrony_path,
+) {
+
+  package { "${chrony_package_name}":
+    ensure => 'installed',
+  }
+  service { "${chrony_service_name}":
+    ensure => 'running',
+    enable => true,
+    require => Package["${chrony_package_name}"],
+  }
+  file { "${chrony_path}":
+    ensure => file,
+    content => epp('chrony/chrony.epp'),
+    notify => Service["${chrony_service_name}"],
+  }
+}
+#end#
