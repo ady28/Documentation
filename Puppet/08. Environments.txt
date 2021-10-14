@@ -1,0 +1,10 @@
+#Configure the environment for a puppet agent
+nano /etc/puppetlabs/puppet/puppet.conf
+#Create a new section#
+[agent]
+environment = dev
+#end#
+#For windows
+Add-Content -Path C:\ProgramData\PuppetLabs\puppet\etc\puppet.conf -Value "[agent]"
+Add-Content -Path C:\ProgramData\PuppetLabs\puppet\etc\puppet.conf -Value "environment = dev"
+

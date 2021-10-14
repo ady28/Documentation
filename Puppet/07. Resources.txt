@@ -1,0 +1,2 @@
+#Get status of a resource
+puppet resource user user100
