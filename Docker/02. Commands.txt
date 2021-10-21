@@ -1,0 +1,9 @@
+docker --version
+docker version
+docker info
+
+#The new command structure is with a management command followed by a command and options
+docker container run hello-world
+docker container ls
+docker container ls -a
+

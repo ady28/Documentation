@@ -1,0 +1,45 @@
+docker search mysql
+
+docker image pull redis:5.0
+docker container run redis:5.0
+
+#Run httpd and expose it to a random port
+docker container run -P httpd
+#See port
+docker container ls
+
+#Start container in interactive mode
+docker container run -it centos
+
+docker container run -d -p 8080:80 --name site1 nginx
+docker container run -d -p 8081:80 --name site2 nginx
+docker container run -d -p 8082:80 --name site3 httpd
+
+docker image ls
+docker container ls
+docker container ls -a
+docker container ls -a -f status=exited
+docker container ls -a -f status=exited -q
+
+docker container stop 7867ca86e109
+docker container stop site2
+docker container stop site1
+
+docker container rm 7867ca86e109
+docker container rm site2
+docker container rm site1
+docker container rm ecb06404ed72 415b44424018
+docker container rm $(docker container ls -a -f status=exited -q)
+
+docker image rm centos
+
+#Delete dangling images and stopped containers
+docker system prune
+
+#Run interactively
+docker container run --name=c1 -ti centos
+#Execute a command in a running container
+docker container exec -ti c3 bash
+docker container exec c3 cat /etc/passwd
+docker container stop c3
+docker container start c3

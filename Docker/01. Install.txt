@@ -32,3 +32,28 @@ sudo systemctl restart docker.service
 
 #Try running a container
 docker run hello-world
+docker container run -ti mcr.microsoft.com/powershell
+
+###CentOS
+sudo yum install -y yum-utils
+sudo yum-config-manager --add-repo=https://download.docker.com/linux/centos/docker-ce.repo
+sudo yum install docker-ce docker-ce-cli containerd.io
+systemctl enable docker
+systemctl start docker
+systemctl status docker
+
+###Windows Server
+Install-Module -Name DockerMsftProvider -Repository PSGallery -Force -Proxy http://192.168.1.254:80
+#Apply the windows provider proxy fix
+Import-PackageProvider -Name DockerMsftProvider -Force
+Install-Package -Name docker -ProviderName DockerMsftProvider -Proxy http://192.168.1.254:80
+Restart-Computer
+
+#Set proxy
+[Environment]::SetEnvironmentVariable("HTTP_PROXY", "http://192.168.1.254:80", [EnvironmentVariableTarget]::Machine)
+[Environment]::SetEnvironmentVariable("HTTPS_PROXY", "http://192.168.1.254:80", [EnvironmentVariableTarget]::Machine)
+[Environment]::SetEnvironmentVariable("NO_PROXY", "localhost,127.0.0.1,::1", [EnvironmentVariableTarget]::Machine)
+Restart-Service -Name docker
+
+docker image pull mcr.microsoft.com/windows/nanoserver:ltsc2022
+docker container run hello-world
