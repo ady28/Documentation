@@ -43,3 +43,16 @@ docker container exec -ti c3 bash
 docker container exec c3 cat /etc/passwd
 docker container stop c3
 docker container start c3
+
+#Run and get info
+docker container run --name=c1 -d -p 8080:80 nginx
+docker container port c1
+docker container logs c1
+#The -f is to keep the log stream open for real time viewing
+docker container logs -f c1
+docker container top c1
+#Real time info about running containers
+docker container stats
+docker container inspect c1
+#Attach to the container's console
+docker container attach c1

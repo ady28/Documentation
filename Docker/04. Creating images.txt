@@ -1,0 +1,28 @@
+docker container run -ti --name=c1 centos
+#Make some changes in the container
+touch /root/test.txt
+yum install -y nmap
+#Exit the container
+#Commit a new image from that container by specifying the container id, a commit message, the author and the repository/image_name; to push the image to dockerhub you must have a username which is the same as the repository you specified (aboutit)
+docker commit -m "Installed nmap" -a "AboutIT" 675d15b26652 aboutit/my_centos:latest
+docker image ls
+
+#Tag an image
+docker image tag nginx aboutit/nginx:custom
+#Add a second tag to an image
+docker image tag aboutit/my_centos:latest aboutit/my_centos:1.0
+
+#See a running container size on disk (the first number is the writable layer; the virtual size is the read-only layers and the writable one)
+docker ps -s
+
+#Using docker files to create images
+nano Dockerfile
+#Write#
+FROM centos:latest
+RUN yum install -y httpd
+RUN echo "<h1>My Site</h1>" > /var/www/html/index.html
+EXPOSE 80
+CMD /usr/sbin/apachectl -DFOREGROUND
+#end#
+docker image build -t aboutit/httpd:1.0 .
+docker container run -d -p 8080:80 --name=testc aboutit/httpd:1.0

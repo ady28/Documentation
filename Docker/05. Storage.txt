@@ -1,0 +1,8 @@
+docker volume create mysite
+docker volume ls
+docker volume inspect mysite
+#Put a file in the volume
+echo "<h1>Stuff</h1>" > /var/lib/docker/volumes/mysite/_data/index.html
+
+#Run a container and assign the volume to a folder in the container instance
+docker container run -d --name testc -p 8080:80 -v mysite:/var/www/html aboutit/httpd:1.0
