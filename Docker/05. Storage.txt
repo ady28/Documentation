@@ -6,3 +6,11 @@ echo "<h1>Stuff</h1>" > /var/lib/docker/volumes/mysite/_data/index.html
 
 #Run a container and assign the volume to a folder in the container instance
 docker container run -d --name testc -p 8080:80 -v mysite:/var/www/html aboutit/httpd:1.0
+
+#Share a volume between containers on the same host (will exist only for the containers lifetime)
+#Create first container
+docker container run --rm -ti -v /test --name c1 ubuntu bash
+#Create a file in the folder: echo "Test" > /test/file.txt
+#Create a second container
+docker container run --rm -ti --volumes-from c1 ubuntu bash
+#Check if the file exists

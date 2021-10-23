@@ -1,0 +1,38 @@
+docker network ls
+
+#Test connectivity between 2 containers on 2 hosts using the hosts network
+docker run --rm -ti -p 10000:10000 ubuntu bash
+#In the container install netcat apt install netcat
+#Run: nc -lp 10000
+#On the second host run another container (--dns is in case the container does not pick up the correct DNS server from your host)
+docker run --rm -ti --dns 192.168.1.254 ubuntu bash
+#Install netcat in the container
+#Run nc 192.168.1.253 10000
+#Then try to write some text. It should appear on the first container
+
+#Test direct connectivity between containers without going through the host network (this is only for containers that will run on the same host)
+docker container run --rm -ti --name serverc ubuntu bash
+#Install netcat in the container and listen on port 10000
+#Start a second container on same host
+docker container run --rm -ti --link serverc ubuntu bash
+#Install netcat and connect to the serverc name to port 10000 and send a message
+
+#Configure DNS servers for docker containers (in case they don't pick up the ones from the hosts resolv.conf file)
+sudo nano /etc/docker/daemon.json
+#Write#
+{
+    "dns": ["192.168.1.254"]
+}
+#end#
+sudo service docker restart
+
+#Create a private network
+docker network create testn1
+
+#Test connectivity between containers in the same private network
+#Create the first container
+docker container run --rm -ti --network testn1 --name serverc ubuntu bash
+#Install netcat in the container and listen on port 10000
+#Start a second container on same host
+docker container run --rm -ti --network testn1 ubuntu bash
+#Install netcat and connect to the serverc name to port 10000 and send a message

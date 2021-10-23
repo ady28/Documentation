@@ -26,3 +26,18 @@ CMD /usr/sbin/apachectl -DFOREGROUND
 #end#
 docker image build -t aboutit/httpd:1.0 .
 docker container run -d -p 8080:80 --name=testc aboutit/httpd:1.0
+
+#Build a multi stage docker file
+nano Dockerfile
+#Write#
+FROM ubuntu as builder
+RUN apt update
+RUN apt install -y curl
+RUN curl https://google.com -x "http://192.168.1.254:80" | wc -c > google.txt
+
+FROM alpine
+COPY --from=builder /google.txt google.txt
+CMD echo "Google is this big: $(cat google.txt)"
+#end#
+docker image build -t googlesize .
+docker container run -d -p 8080:80 --name=testc aboutit/httpd:1.0
