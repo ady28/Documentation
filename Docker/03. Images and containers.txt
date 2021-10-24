@@ -56,3 +56,12 @@ docker container stats
 docker container inspect c1
 #Attach to the container's console
 docker container attach c1
+
+#Windows
+docker image pull mcr.microsoft.com/windows/servercore:ltsc2022
+docker image pull mcr.microsoft.com/windows/nanoserver:ltsc2022
+#This works on both linux and windows without specifying the platform yourself
+docker image pull mcr.microsoft.com/powershell
+
+#See image layers
+docker image history mcr.microsoft.com/powershell
