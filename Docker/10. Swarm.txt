@@ -1,0 +1,71 @@
+#Create firewall rules on machines that will be part of the swarm
+#Ubuntu
+sudo ufw allow 2377/tcp
+sudo ufw allow 7946/tcp
+sudo ufw allow 7946/udp
+sudo ufw allow 4789/udp
+#CentOS
+firewall-cmd --permanent --add-port 2377/tcp
+firewall-cmd --permanent --add-port 7946/tcp
+firewall-cmd --permanent --add-port 7946/udp
+firewall-cmd --permanent --add-port 4789/udp
+
+#Connect to the manager machine and initialize a swarm
+#Use the IP of the manager
+#In the output you will get the command to use for joining worker nodes
+docker swarm init --advertise-addr 192.168.1.250
+#List nodes in swarm
+docker node ls
+#Get the command to join workers
+docker swarm join-token worker
+#Get the command to join managers
+docker swarm join-token manager
+
+#Add worker nodes (run command on each one)
+docker swarm join --token SWMTKN-1-683syeez5xyuymx5yuqopspbz4f4co8nhde0lflfqzcl95ipgh-eaksouf847qe65fjioe05d51z 192.168.1.250:2377
+
+#Create a service (run from manager)
+#The service will only have 1 instance, will be named helloworld, use the alpine image and run a ping
+docker service create --replicas 1 --name helloworld alpine ping docker.com
+#Get service info
+docker service ls
+#Inspect the service
+docker service inspect --pretty helloworld
+#See which nodes are running the service
+docker service ps helloworld
+
+#Scale the service
+docker service scale helloworld=5
+
+#Delete the service
+docker service rm helloworld
+
+#Create a new service that we will perform an image rolling upgrade on
+docker service create --replicas 3 --name redis --update-delay 10s redis:3.0.6
+docker service ps redis
+#Update the redis image (the time delay in the previous command is the wait time between updates between instances)
+docker service update --image redis:3.0.7 redis
+docker service ps redis
+#Drain one of the nodes
+docker node update --availability drain centos01.testcorp.local
+docker service ps redis
+docker node ls
+#Set node back to active
+docker node update --availability active centos01.testcorp.local
+#Remove service
+docker service rm redis
+
+#Create a service that listens on port 8080 on the host side and uses container port 80
+docker service create --name my-web --publish published=8080,target=80 --replicas 2 nginx
+#Evven though the service is running on 2 nodes, you can access it on all 3 nodes because you will be redirected
+
+#Promote an existing worker to manager
+docker node promote centos02.testcorp.local
+#Demote a manager to a worker
+docker node demote centos02.testcorp.local
+
+#Create a network on all nodes
+docker network create --driver overlay my-network
+
+#Create a service on all nodes
+docker service create --name myservice --mode global alpine top

@@ -57,3 +57,6 @@ Restart-Service -Name docker
 
 docker image pull mcr.microsoft.com/windows/nanoserver:ltsc2022
 docker container run hello-world
+
+#Check logging driver
+docker info --format '{{.LoggingDriver}}'

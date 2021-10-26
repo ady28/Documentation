@@ -65,3 +65,8 @@ docker image pull mcr.microsoft.com/powershell
 
 #See image layers
 docker image history mcr.microsoft.com/powershell
+
+#Configure live restore
+sudo nano /etc/docker/daemon.json
+#add
+"live-restore": true

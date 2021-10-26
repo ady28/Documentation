@@ -1,0 +1,54 @@
+###Install on Linux
+sudo curl -L "https://github.com/docker/compose/releases/download/v2.0.1/docker-compose-linux-x86_64" -o /usr/local/bin/docker-compose -x "http://192.168.1.254:80"
+sudo chmod +x /usr/local/bin/docker-compose
+#Check
+docker-compose --version
+
+###Install on Windows Server
+#Set TLS version
+[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+Invoke-WebRequest "https://github.com/docker/compose/releases/download/v2.0.1/docker-compose-Windows-x86_64.exe" -UseBasicParsing -OutFile $Env:ProgramFiles\Docker\docker-compose.exe -Proxy "http://192.168.1.254:80"
+#Check
+docker-compose --version
+
+#Create a docker compose file
+mkdir app
+nano app/compose.yml
+#Write#
+version: "3.7"
+
+services:
+  app:
+    image: node:12-alpine
+    command: sh -c "yarn install && yarn run dev"
+    ports:
+      - 3000:3000
+    working_dir: /app
+    volumes:
+      - ./:/app
+    environment:
+      MYSQL_HOST: mysql
+      MYSQL_USER: root
+      MYSQL_PASSWORD: secret
+      MYSQL_DB: todos
+
+  mysql:
+    image: mysql:5.7
+    volumes:
+      - todo-mysql-data:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: secret
+      MYSQL_DATABASE: todos
+
+volumes:
+  todo-mysql-data:
+#end#
+cd app
+#Start the application
+docker-compose up -d
+#Check logs of the containers that form the app
+docker-compose logs -f
+#See logs for a specific service
+docker-compose logs -f app
+#Tear the app down and also delete the volume
+docker-compose down --volumes
