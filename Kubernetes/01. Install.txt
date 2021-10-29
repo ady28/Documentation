@@ -1,0 +1,38 @@
+###Minikube on Windows client
+#Create a Windows 10/11 machine and enable nested virtualization
+#Install Hyper-V
+Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Hyper-V -All
+#Download minikube
+New-Item -Path 'c:\' -Name 'minikube' -ItemType Directory -Force
+Invoke-WebRequest -OutFile 'c:\minikube\minikube.exe' -Uri 'https://github.com/kubernetes/minikube/releases/latest/download/minikube-windows-amd64.exe' -UseBasicParsing
+#Add to path (start a new powershell session after; if you use Windows Terminal start a new Windows Terminal session altogether)
+$oldPath = [Environment]::GetEnvironmentVariable('Path', [EnvironmentVariableTarget]::Machine)
+[Environment]::SetEnvironmentVariable('Path', $('{0};C:\minikube' -f $oldPath),[EnvironmentVariableTarget]::Machine)
+#Download kubectl (check https://dl.k8s.io/release/stable.txt for latest release)
+Invoke-WebRequest -Uri "https://dl.k8s.io/release/v1.22.0/bin/windows/amd64/kubectl.exe" -OutFile 'c:\minikube\kubectl.exe' -UseBasicParsing
+#Start the cluster
+minikube start
+#Test
+kubectl get pods -A
+#Start and launch the kubernetes dashboard
+minikube dashboard
+#Create a deployment
+kubectl create deployment hello-minikube --image=k8s.gcr.io/echoserver:1.4
+kubectl expose deployment hello-minikube --type=NodePort --port=8080
+#Check deployment
+kubectl get services hello-minikube
+#Have minikube launch a web browser with the service url
+minikube service hello-minikube
+#Forward the port so you can access it with localhost
+kubectl port-forward service/hello-minikube 7080:8080
+#Create a load balancer deployment
+kubectl create deployment balanced --image=k8s.gcr.io/echoserver:1.4  
+kubectl expose deployment balanced --type=LoadBalancer --port=8080
+#Start a tunnel in another window
+minikube tunnel
+#Find the external IP to access to web site
+kubectl get services balanced
+#Remove the service
+kubectl delete service balanced
+#Get IP of the minikube VM
+minikube ip

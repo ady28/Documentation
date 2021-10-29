@@ -1,0 +1,9 @@
+#Create a simple POD
+kubectl run nginx --image=nginx
+#List pods
+kubectl get pods
+kubectl get pods -o wide
+#Get more info about pods
+kubectl describe pods
+#Remove pod
+kubectl delete pod nginx
