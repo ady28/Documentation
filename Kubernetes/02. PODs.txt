@@ -7,3 +7,133 @@ kubectl get pods -o wide
 kubectl describe pods
 #Remove pod
 kubectl delete pod nginx
+
+#Create a file named pod-definition.yml
+#write#
+apiVersion: v1
+kind: Pod
+metadata:
+  name: myapp-pod
+  labels:
+    app: myapp
+    type: front-end
+spec:
+  containers:
+  - name: nginx-container
+    image: nginx
+#end#
+#Create pod from file
+kubectl create -f pod-definition.yml
+
+#Create a replication controller for the above pod
+#Create a file named rc-definition.yml
+#write#
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: myapp-rc
+  labels:
+    app: myapp
+    type: front-end
+spec:
+  template:
+    metadata:
+      name: myapp-pod
+      labels:
+        app: myapp
+        type: front-end
+    spec:
+      containers:
+      - name: nginx-container
+        image: nginx
+  replicas: 3
+#end#
+#Create pods
+kubectl create -f rc-definition.yml
+#See info
+kubectl get pods
+kubectl get replicationcontrollers
+
+#Create a replica set
+#Create a file named rs-definition.yml
+#Write#
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: myapp-replicaset
+  labels:
+    app: myapp
+    type: front-end
+spec:
+  template:
+    metadata:
+      name: myapp-pod
+      labels:
+        app: myapp
+        type: front-end
+    spec:
+      containers:
+      - name: nginx-container
+        image: nginx
+  replicas: 3
+  selector:
+    matchLabels:
+      type: front-end
+#end#
+#Create pods
+kubectl create -f rs-definition.yml
+#See info
+kubectl get replicaset
+#To change the replica number you can change it in the file and then run
+kubectl replace -f rs-definition.yml
+#It can also be done imperatively
+kubectl scale --replicas=5 -f rs-definition.yml
+#or
+kubectl scale --replicas=6 replicaset myapp-replicaset
+
+#Create a deployment
+#Create a file anmed deployment-definition.yml
+#Write#
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: myapp-deployment
+  labels:
+    app: myapp
+    type: front-end
+spec:
+  template:
+    metadata:
+      name: myapp-pod
+      labels:
+        app: myapp
+        type: front-end
+    spec:
+      containers:
+      - name: nginx-container
+        image: nginx
+  replicas: 3
+  selector:
+    matchLabels:
+      type: front-end
+#end#
+#Create pods
+kubectl create -f deployment-definition.yml
+#See info
+kubectl get deployments
+
+#See everything
+kubectl get all
+
+#See deployment rollout info
+kubectl rollout status deployment.apps/myapp-deployment
+kubectl rollout history deployment.apps/myapp-deployment
+
+#Update the deployment (the default update strategy is the rolling upgrade in which the instances are deleted and recreated one by one)
+#Modify the image in the definition file to: image: nginx:1.7.1
+#Run
+kubectl apply -f deployment-definition.yml
+#Old replicaset is not deleted
+kubectl get replicasets
+#Roll back deployment
+kubectl rollout undo deployment.apps/myapp-deployment
