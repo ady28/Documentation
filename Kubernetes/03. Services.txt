@@ -1,0 +1,21 @@
+#Create a service
+#Create the file service-definition.yml
+#Write#
+apiVersion: v1
+kind: Service
+metadata:
+  name: myapp-service
+spec:
+  type: NodePort
+  ports:
+    - targetPort: 80
+      port: 80
+      nodePort: 30008
+  selector:
+    app: myapp
+    type: front-end
+#End#
+#Create the service
+kubectl create -f service-definition.yml
+#Use the IP of the host and the 30008 port to connect
+#In case there are multiple pods with the same tags, then the NodePort service will load balance the workload between them
