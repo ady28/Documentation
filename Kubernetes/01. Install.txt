@@ -36,3 +36,84 @@ kubectl get services balanced
 kubectl delete service balanced
 #Get IP of the minikube VM
 minikube ip
+
+
+###Manual install of kubernetes infra on centos
+#Disable swap on master and worker nodes
+swapoff -a
+#Comment out the swap line in /etc/fstab
+
+#Install docker on all nodes (check docker version compatibility with k8s)
+#Set docker cgroup driver to systemd
+sudo nano /etc/docker/daemon.json
+#Write#
+{
+"exec-opts": ["native.cgroupdriver=systemd"]
+}
+#end#
+sudo systemctl daemon-reload
+sudo systemctl restart docker
+sudo systemctl restart kubelet
+
+#Open firewall ports on master
+sudo firewall-cmd --permanent --add-port=6443/tcp
+sudo firewall-cmd --permanent --add-port=2379-2380/tcp
+sudo firewall-cmd --permanent --add-port=10250/tcp
+sudo firewall-cmd --permanent --add-port=10251/tcp
+sudo firewall-cmd --permanent --add-port=10252/tcp
+sudo firewall-cmd --permanent --add-port=10255/tcp
+sudo firewall-cmd --permanent --add-port=8472/udp
+sudo firewall-cmd --add-masquerade --permanent
+sudo systemctl restart firewalld
+
+#Open firewall ports on workers
+sudo firewall-cmd --permanent --add-port=10250/tcp
+sudo firewall-cmd --permanent --add-port=10255/tcp
+sudo firewall-cmd --permanent --add-port=8472/udp
+sudo firewall-cmd --permanent --add-port=30000-32767/tcp
+sudo firewall-cmd --add-masquerade --permanent
+sudo systemctl restart firewalld
+
+#Install kubeadm, kubelet and kubectl
+#Add the kubernetes repo
+sudo nano /etc/yum.repos.d/kubernetes.repo
+#Write#
+[kubernetes]
+name=Kubernetes
+baseurl=https://packages.cloud.google.com/yum/repos/kubernetes-el7-\$basearch
+enabled=1
+gpgcheck=1
+repo_gpgcheck=1
+gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
+exclude=kubelet kubeadm kubectl
+#end#
+#Set SELinux in permissive mode (effectively disabling it)
+sudo setenforce 0
+sudo sed -i 's/^SELINUX=enforcing$/SELINUX=permissive/' /etc/selinux/config
+#Install tools
+sudo yum install -y kubelet kubeadm kubectl --disableexcludes=kubernetes
+#Enable the kubelet service
+sudo systemctl enable --now kubelet
+#Set proxy if needed
+export HTTP_PROXY=192.168.1.254:80
+export HTTPS_PROXY=192.168.1.254:80
+export NO_PROXY=localhost,*testcorp.local,192.168.1.247
+#Initialize the cluster; networking will be done with flannel in this case (run only on the master)
+sudo kubeadm init --pod-network-cidr=10.244.0.0/16
+#Run as a normal non root user
+mkdir -p $HOME/.kube
+sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+sudo chown $(id -u):$(id -g) $HOME/.kube/config
+#Configure network
+kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
+#Check pods
+kubectl get pods --all-namespaces
+
+#Join worker nodes
+sudo kubeadm join 192.168.1.247:6443 --token xckfqx.3o9hrwl50pd75y8z --discovery-token-ca-cert-hash sha256:7acb95dab4dc3aa93e31244d8bcdb31ed7ef97ffbc85f28716fde81055f41012
+
+#Check on master that nodes are part of the cluster
+kubectl get nodes
+#Test kubernetes
+kubectl run nginx --image=nginx
+kubectl get pods
