@@ -41,3 +41,7 @@ apt install build-essential
 
 #Control udev
 udevadm
+
+#Disable centos root login
+sudo vi /etc/passwd
+#Modify the root shell to /sbin/nologin
