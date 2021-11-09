@@ -1,0 +1,31 @@
+#Make a folder to hold the project files
+mkdir app1
+cd app1
+#Create the files that are in the A1 folder in the repo
+#Build container
+docker build .
+#Run container
+docker container run -p 3000:3000 <imageid>
+
+
+#Make a folder to hold the project files
+mkdir app2
+cd app2
+#Create the files that are in the A2 folder in the repo
+#Build container
+docker build .
+#Run container
+docker container run -d -p 80:80 <imageid>
+#Build and give image a name
+docker build -t goals:latest .
+
+#Make a folder to hold the project files
+mkdir app3
+cd app3
+#Create the files that are in the A3 folder in the repo
+#Build container
+docker build .
+#Run container and provide input from keyboard to python script
+docker container run -it <imageid>
+#The container can be restarted with possibility to provide input like so
+docker container start -ia <name>
