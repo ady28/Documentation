@@ -30,6 +30,24 @@ sudo systemctl daemon-reload
 #Restart docker
 sudo systemctl restart docker.service
 
+#Configure proxy to be used during docker build or docker run in the containers
+#Create the proxy config file and folder in the home directory of the user that executes build or run
+mkdir /root/.docker
+nano /root/.docker/config.json
+#Write#
+{
+ "proxies":
+ {
+   "default":
+   {
+     "httpProxy": "http://192.168.1.254:80",
+     "httpsProxy": "http://192.168.1.254:80",
+     "noProxy": "*.testcorp.local,localhost,127.0.0.1"
+   }
+ }
+}
+#end#
+
 #Try running a container
 docker run hello-world
 docker container run -ti mcr.microsoft.com/powershell
