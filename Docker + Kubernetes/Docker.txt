@@ -29,3 +29,72 @@ docker build .
 docker container run -it <imageid>
 #The container can be restarted with possibility to provide input like so
 docker container start -ia <name>
+
+#Make a folder to hold the project files
+mkdir app4
+cd app4
+#Create the files that are in the A4 folder in the repo
+#Build container
+docker build -t feedback-node .
+#Run container
+docker container run -p 3000:80 -d feedback-node
+#After entering a feedback with title test we can navigate to the following address to view the contents: http://192.168.1.253:3000/feedback/test.txt
+#Stop ad remove the container
+#Replace the rename method in server.js with copyFile
+#Add an extra line under that one: await fs.unlink(tempFilePath);
+#Build image
+docker build -t feedback-node:volumes .
+#Run container
+docker container run -p 3000:80 -d --rm --name feedback -v feedback:/app/feedback feedback-node:volumes
+#Use the app
+#Check volume contents
+ls /var/lib/docker/volumes/feedback/_data
+#Add also a bind mount for the code while no overwriting the feedback and node_modules folders by using an anonymous volume for the node_modules folder which is deleted when the container is deleted; the node_modules is a folder where the node app gets all needed files with npm install so it needs to not be overwritten by the app4 folder on the host; the main app volume should be read only so the container cannot change the contents
+docker container run -p 3000:80 -d --rm --name feedback -v feedback:/app/feedback -v /root/app4:/app:ro -v /app/node_modules -v /app/temp feedback-node:volumes
+#Now test by changing the feedback.html file directly in the local path
+
+#The problem with the above implementation is that if we change the server.js file it will not work since the server has already loaded it.
+#We need to add a new dependency in the package.json file
+"scripts" : {
+  "start" : "nodemon server.js"
+}
+"devDependencies" : {
+  "nodemon" : "2.0.4"
+}
+#Modify the docker file; change the CMD args to:
+[ "npm", "start" ]
+#Build image
+docker build -t feedback-node:volumes .
+#Add console.log("sdsdsd") somewhere where in the code where the file is saved
+#Check the container logs after saving a feedback
+docker container logs feedback
+
+#Use env and arg
+#Modify the listening port from 80 to process.env.PORT
+#In the dockerfile add ENV PORT 80 and replace 80 from expose with $PORT
+#Build image
+docker build -t feedback-node:volumes .
+#Run container
+docker container run -p 3000:80 -d --rm --name feedback -v feedback:/app/feedback -v /root/app4:/app:ro -v /app/node_modules -v /app/temp feedback-node:volumes
+#Run container and overwrite the variable
+docker container run -p 3000:8000 --env PORT=8000 -d --rm --name feedback -v feedback:/app/feedback -v /root/app4:/app:ro -v /app/node_modules -v /app/temp feedback-node:volumes
+#Run container and overwrite variable with a variable in a file
+docker container run -p 3000:8000 --env-file .env -d --rm --name feedback -v feedback:/app/feedback -v /root/app4:/app:ro -v /app/node_modules -v /app/temp feedback-node:volumes
+#Add an argument for the default port number so that we can change it at build time thus being able to create multiple images from the same dockerfile
+#Add in the Dockerfile
+ARG DEFAULT_PORT=80
+#Change the 80 at ENV to $DEFAULT_PORT
+#Build image with port 80
+docker build -t feedback-node:volumes .
+#Build image with port 8080
+docker build -t feedback-node:test --build-arg DEFAULT_PORT=8080 .
+
+
+#Make a folder to hold the project files
+mkdir app5
+cd app5
+#Create the files that are in the A5 folder in the repo
+#Build container
+docker build -t favorites-node .
+#Run container (will not work since we do not yet have mongodb)
+docker container run -p 80:3000 -d --rm --name favorites favorites-node
