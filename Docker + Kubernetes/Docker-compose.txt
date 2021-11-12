@@ -1,0 +1,46 @@
+#Create a docker compose yaml file in app6
+nano docker-compose.yml
+#Write#
+version: "3.8"
+services:
+  mongodb:
+    image: 'mongo'
+    volumes:
+      - data:/data/db
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: secret
+  backend:
+    build: ./backend
+    volumes:
+      - logs:/app/logs
+      - ./backend:/app
+      - /app/node_modules
+    ports:
+      - '80:80'
+    depends_on:
+      - mongodb
+  frontend:
+    build: ./frontend
+    volumes:
+      - ./frontend/src:/app/src
+    ports:
+      - '3000:3000'
+    environment:
+      NODE_OPTIONS: --openssl-legacy-provider
+    stdin_open: true
+    tty: true
+    depends_on:
+      - backend
+
+volumes:
+  data:
+  logs:  
+#end#
+#Build the images in a separate step
+#Since I need a proxy to build the images then i have to use this command before docker-compose up
+docker-compose build --build-arg HTTP_PROXY=http://192.168.1.254:80 --build-arg HTTPS_PROXY=http://192.168.1.254:80 --build-arg NO_PROXY=localhost,127.0.0.1,::1
+#Run compose
+docker-compose up -d
+#Stop services (also remove volumes)
+docker-compose down -v

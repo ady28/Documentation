@@ -98,3 +98,26 @@ cd app5
 docker build -t favorites-node .
 #Run container (will not work since we do not yet have mongodb)
 docker container run -p 80:3000 -d --rm --name favorites favorites-node
+#Create a network
+docker network create favorites-net
+#Run a mongodb container
+docker run -d --name mongodb --network favorites-net mongo
+#Run the app container again
+docker container run -p 80:3000 -d --rm --name favorites --network favorites-net favorites-node
+
+#Make a folder to hold the project files
+mkdir app6
+cd app6
+#Create the files that are in the A6 folder in the repo
+#Build the backend container
+docker image build -t goals-node .
+#Build the backend container
+docker image build -t goals-react .
+#Create network
+docker network create goals-net
+#Run a mongodb container
+docker run -d --name mongodb --rm --network goals-net -v data:/data/db -e MONGO_INITDB_ROOT_USERNAME=root -e MONGO_INITDB_ROOT_PASSWORD=secret mongo
+#Run backend container (since the frontend code is actually running in the browser then it cannot access the backend by the container name so the backend will be exposed on the host to port 80)
+docker container run --name goals-backend --rm -d -p 80:80 --network goals-net -v /root/app6/backend:/app -v logs:/app/logs -v /app/node_modules goals-node
+#Run frontend container (needs it to keep running)
+docker container run --name goals-frontend --rm -p 3000:3000 -it -e NODE_OPTIONS=--openssl-legacy-provider -v /root/app6/frontend/src:/app/src goals-react
