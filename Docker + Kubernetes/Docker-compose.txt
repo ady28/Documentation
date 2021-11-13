@@ -1,4 +1,4 @@
-#Create a docker compose yaml file in app6
+#Create a docker compose yaml file in app6 (from the Docker.txt)
 nano docker-compose.yml
 #Write#
 version: "3.8"
@@ -44,3 +44,20 @@ docker-compose build --build-arg HTTP_PROXY=http://192.168.1.254:80 --build-arg 
 docker-compose up -d
 #Stop services (also remove volumes)
 docker-compose down -v
+
+#Create a compose file for the A7 utility container
+nano docker-compose.yml
+#Write#
+version: "3.8"
+services:
+  npm:
+    build: ./utility
+    volumes:
+      - ./app:/app
+    stdin_open: true
+    tty: true
+#end#
+#Run the container
+docker-compose run npm init
+#Run the container (clean up after)
+docker-compose run --rm npm init

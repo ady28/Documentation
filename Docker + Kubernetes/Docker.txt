@@ -121,3 +121,31 @@ docker run -d --name mongodb --rm --network goals-net -v data:/data/db -e MONGO_
 docker container run --name goals-backend --rm -d -p 80:80 --network goals-net -v /root/app6/backend:/app -v logs:/app/logs -v /app/node_modules goals-node
 #Run frontend container (needs it to keep running)
 docker container run --name goals-frontend --rm -p 3000:3000 -it -e NODE_OPTIONS=--openssl-legacy-provider -v /root/app6/frontend/src:/app/src goals-react
+
+#Utility containers
+#Create a new nodejs app from a utility container
+docker run -it node npm init
+#Create an app using utility container
+#Make a folder to hold the project files
+mkdir app7
+cd app7
+#Create the files that are in the A7 folder in the repo
+#Build the utility container
+docker build -t node-util .
+#Run the utility container
+docker run -it -v /root/app7/app:/app node-util init
+docker run -it -v /root/app7/app:/app node-util install
+docker run -it -v /root/app7/app:/app node-util install express
+
+Make a folder to hold the project files
+mkdir app8
+cd app8
+#Create the files that are in the A8 folder in the repo
+#Use the composer utility container to create a laravel app
+docker-compose run --rm composer create-project --prefer-dist laravel/laravel .
+#Modify the .env file from the src folder to update the DB name, user and password and also the MYSQL server name as they are specified in the docker compose env file
+#Test the services up to now
+#Just bring up the server which because of depends on will bring on also php and mysql
+docker-compose up -d --build server
+#Run the artisan container
+docker-compose run --rm artisan migrate
