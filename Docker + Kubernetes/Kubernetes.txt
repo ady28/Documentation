@@ -1,0 +1,53 @@
+#Create folder for app1
+mkdir app9
+cd app9
+#Create all files in the A9 folder from the repo
+#Create image
+docker build -t kub-first-app .
+#Tag image to upload to a registry
+docker tag kub-first-app 192.168.1.250:5000/kub-first-app
+docker push 192.168.1.250:5000/kub-first-app
+#Create a deployment with the image
+kubectl create deployment first-app --image=192.168.1.250:5000/kub-first-app
+kubectl get pods
+kubectl get deployments
+#Expose the pod to outside traffic (the --port is the port that the container is configured to use)
+kubectl expose deployment first-app --port=8080 --type=LoadBalancer
+kubectl get services
+#Try crashing the container to see that it will be back online
+kubectl get pods
+#Navigate to the site /error
+#Then notice that for the pod the number of restarts is 1
+kubectl get pods
+#Scale the deployment to more pods
+kubectl scale deployment/first-app --replicas=3
+
+#Workflow for changing code and updating the deployment
+#Change something in app.js
+#Create image
+docker build -t 192.168.1.250:5000/kub-first-app .
+#Push image to registry
+docker push 192.168.1.250:5000/kub-first-app
+#Set the new image for the deployment
+kubectl set image deployment/first-app kub-first-app=192.168.1.250:5000/kub-first-app:2
+#to see the name of the container (in this case it is) run:
+kubectl get deployment first-app -o jsonpath='{$.spec.template.spec.conta
+iners[*].name}{"\n"}'
+#Check rollout status
+kubectl rollout status deployment/first-app
+#To make a rollback
+kubectl rollout undo deployment/first-app
+kubectl rollout undo deployment/first-app --to-revision=1
+#See rollout history
+kubectl rollout history deployment/first-app
+kubectl rollout history deployment/first-app --revision=2
+
+#Clean up
+kubectl delete service first-app
+kubectl delete deployment first-app
+
+#Create deployment with yaml files
+kubectl apply -f deployment.yml
+kubectl apply -f service.yaml
+#Clean up
+kubectl delete -f deployment.yml,service.yaml
