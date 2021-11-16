@@ -23,7 +23,7 @@ sudo nano /etc/systemd/system/docker.service.d/proxy.conf
 [Service]
 Environment="HTTP_PROXY=http://192.168.1.254:80"
 Environment="HTTPS_PROXY=http://192.168.1.254:80"
-Environment="NO_PROXY="localhost,127.0.0.1,::1"
+Environment="NO_PROXY=localhost,127.0.0.1,::1"
 #end#
 #Reload daemon config
 sudo systemctl daemon-reload
@@ -45,6 +45,15 @@ nano /root/.docker/config.json
      "noProxy": "*.testcorp.local,localhost,127.0.0.1"
    }
  }
+}
+#end#
+
+#In case you use a local registry which is insecure add this in the daemon file
+#Also make sure that what address or domain name you use is in the no proxy variable
+sudo nano /etc/docker/daemon.json
+#Write#
+{
+"insecure-registries" : [ "192.168.1.250:5000" ]
 }
 #end#
 
