@@ -4,3 +4,22 @@ docker run -d -p 5000:5000 --restart=always --name registry registry:2
 docker tag hello-world:latest localhost:5000/aboutit/hello:latest
 #Push image
 docker push localhost:5000/aboutit/hello:latest
+
+
+#Install registry as an application on an ubuntu server
+sudo apt install docker-registry
+#Check that the service is running
+systemctl status docker-registry
+#Check version
+docker-registry --version
+#Open port 5000
+sudo ufw allow 5000/tcp
+#Change the auth to permit unauthenticated use for testing
+sudo nano /etc/docker/registry/config.yml
+#Remove the auth part
+sudo systemctl restart docker-registry
+#From another server make sure you configured NO_PROXY for your domain name, that you have insecure registry set for docker
+#Tag an image
+docker tag hello-world ubuntu02.testcorp.local:5000/hello-world
+#Push image
+docker push ubuntu02.testcorp.local:5000/hello-world
