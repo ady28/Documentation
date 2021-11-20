@@ -23,3 +23,48 @@ sudo systemctl restart docker-registry
 docker tag hello-world ubuntu02.testcorp.local:5000/hello-world
 #Push image
 docker push ubuntu02.testcorp.local:5000/hello-world
+
+#Securing the registry with self-signed certificates (for production use a CA)
+mkdir certs
+#Generate cert
+openssl req -out certs/testcorp.crt -newkey rsa:4096 -nodes -sha256 -x509 -days 365 -keyout certs/testcorp.key -addext "subjectAltName = DNS:ubuntu02.testcorp.local"
+#Add the certificates to the config file
+sudo nano /etc/docker/registry/config.yml
+#Place the following under http
+#begin#
+  tls:
+    certificate: /home/user100/certs/testcorp.crt
+    key: /home/user100/certs/testcorp.key
+#end#
+#Give the docker-registry user access to the key file
+sudo chown docker-registry certs/testcorp.key
+sudo systemctl restart docker-registry
+#Copy the crt file to the docker client machine
+cd certs
+scp testcorp.crt root@192.168.1.253:/root
+#On the client machine do the following:
+mv testcorp.crt ca.crt
+mkdir /etc/docker/certs.d
+mkdir /etc/docker/certs.d/ubuntu02.testcorp.local:5000
+cp ca.crt /etc/docker/certs.d/ubuntu02.testcorp.local:5000
+systemctl restart docker
+#try it out
+docker image tag alpine ubuntu02.testcorp.local:5000/alpine
+docker image push ubuntu02.testcorp.local:5000/alpine
+
+#using basic authentication (requires TLS to be configured first)
+mkdir auth
+#Generate a password file with the htpasswd utility
+#Install the utility
+sudo apt install apache2-utils -y
+htpasswd -Bbn user100 <pass> >> auth/htpasswd
+#Add an auth section to the config file
+sudo nano /etc/docker/registry/config.yml
+#write#
+auth:
+  htpasswd:
+    realm: basic-realm
+    path: /home/user100/auth/htpasswd
+#end#
+sudo systemctl restart docker-registry
+#On the client do a docker login to the registry
