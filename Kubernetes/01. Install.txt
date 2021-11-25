@@ -36,6 +36,8 @@ kubectl get services balanced
 kubectl delete service balanced
 #Get IP of the minikube VM
 minikube ip
+#Configure docker client from the host to talk to the docker server in the minikube VM for the current terminal window (on Linux)
+eval $(minikube docker-env)
 
 
 ###Manual install of kubernetes infra on centos
