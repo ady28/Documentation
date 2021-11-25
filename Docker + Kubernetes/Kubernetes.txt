@@ -1,4 +1,4 @@
-#Create folder for app1
+#Create folder for app9
 mkdir app9
 cd app9
 #Create all files in the A9 folder from the repo
@@ -51,3 +51,20 @@ kubectl apply -f deployment.yml
 kubectl apply -f service.yaml
 #Clean up
 kubectl delete -f deployment.yml,service.yaml
+
+
+#create folder for app10
+mkdir app10
+cd app10
+#Create all files in the A9 folder from the repo
+#Create image
+docker build -t 192.168.1.250:5000/kub-data-demo:1 .
+docker push 192.168.1.250:5000/kub-data-demo:1
+#Apply the files
+kubectl apply -f environment.yaml,host-pv.yaml,host-pvc.yaml,deployment.yaml,service.yaml
+#Get list of persistent volumes and claims
+kubectl get pv
+kubectl get pvc
+#Clean up
+kubectl delete -f environment.yaml,host-pv.yaml,host-pvc.yaml,deployment.yaml,service.yaml
+
