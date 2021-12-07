@@ -1,0 +1,14 @@
+#In the src folder create another folder with the project name
+mkdir src\helloworld
+#Create a helloworld.go file
+#write#
+package main
+
+import "fmt"
+
+func main() {
+	fmt.Println("Hello, World!")
+}
+#end#
+#Run program
+go run .\src\helloworld\helloworld.go

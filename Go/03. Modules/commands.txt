@@ -1,0 +1,20 @@
+#Create a module (you should be with the terminal where the source files are)
+go mod init example/username/repo
+#Test the module
+go test
+#Get a required package
+go get rsc.io/quote
+#List all module dependencies
+#Direct dependencies are the ones you specify with import
+#You can see also indirect dependencies by using the list command
+go list -m all
+
+#Manually get a newer version of a module
+go get golang.org/x/text
+go get rsc.io/sampler
+#Try a go test again. it should fail
+#See all versions of a module
+go list -m -versions rsc.io/sampler
+#Get a specific version of a module
+go get rsc.io/sampler@v1.3.1
+#Test again

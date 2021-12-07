@@ -1,0 +1,31 @@
+go version
+go help
+go env
+
+#Create a workspace for your projects
+mkdir gowork
+cd gowork
+mkdir bin
+mkdir pkg
+mkdir src
+#Modify the GOPATH env variable with the gowork folder path
+[Environment]::SetEnvironmentVariable("GOPATH", 'C:\Users\dumit\gowork', [System.EnvironmentVariableTarget]::User)
+
+#Set the GOBIN variable
+[Environment]::SetEnvironmentVariable("GOBIN", 'C:\Users\dumit\gowork\bin', [System.EnvironmentVariableTarget]::User)
+
+#Bring in code from github in the src folder
+go get -d github.com/goestoeleven/go-programming
+go get -d github.com/goestoeleven/golangtraining
+go get -d github.com/goestoeleven/golang-web-dev
+#The repos will be placed in pkg
+
+#Get help about a specific command
+go help fmt
+
+#Build an exe
+go build .\hellpworld.go
+#Run an exe
+go run .\helloworld.go
+#Create an exe and place it in the bin folder
+go install .\gowork\src\helloworld\helloworld.go
