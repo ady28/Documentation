@@ -122,6 +122,26 @@ func main() {
 	for v := range c3 {
 		fmt.Println(v)
 	}
+
+	//using select with channels
+	ceven := make(chan int)
+	codd := make(chan int)
+	cquit := make(chan int)
+	//send values to the channels
+	go csend(ceven, codd, cquit)
+	//get values from the channels
+	creceive(ceven, codd, cquit)
+
+	//fan in channels
+	ceven2 := make(chan int)
+	codd2 := make(chan int)
+	cfanin := make(chan int)
+	go csend2(ceven2, codd2)
+	go creceive2(ceven2, codd2, cfanin)
+	for v := range cfanin {
+		fmt.Println(v)
+	}
+
 }
 
 func f1() {
@@ -152,4 +172,63 @@ func sc2(c chan<- int) {
 		c <- i
 	}
 	close(c)
+}
+
+func csend(ce, co, cq chan<- int) {
+	for i := 0; i < 20; i++ {
+		if i%2 == 0 {
+			ce <- i
+		} else {
+			co <- i
+		}
+	}
+	close(ce)
+	close(co)
+	cq <- 0
+	close(cq)
+}
+
+func creceive(ce, co, cq <-chan int) {
+	for {
+		select {
+		case y := <-ce:
+			fmt.Println("From even channel:", y)
+		case y := <-co:
+			fmt.Println("From odd channel:", y)
+		case y := <-cq:
+			fmt.Println("From the quit channel:", y)
+			return
+		}
+	}
+}
+
+func csend2(ce, co chan<- int) {
+	for i := 0; i < 20; i++ {
+		if i%2 == 0 {
+			ce <- i
+		} else {
+			co <- i
+		}
+	}
+	close(ce)
+	close(co)
+}
+
+func creceive2(ce, co <-chan int, cfi chan<- int) {
+	var wgf sync.WaitGroup
+	wgf.Add(2)
+	go func() {
+		for v := range ce {
+			cfi <- v
+		}
+		wgf.Done()
+	}()
+	go func() {
+		for v := range co {
+			cfi <- v
+		}
+		wgf.Done()
+	}()
+	wgf.Wait()
+	close(cfi)
 }
