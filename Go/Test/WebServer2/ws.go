@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"os"
 
 	"github.com/gorilla/mux"
 )
@@ -17,6 +18,8 @@ type Article struct {
 }
 
 var Articles []Article
+
+var PORT = os.Getenv("PORT")
 
 //run go mod init and go mod tidy
 
@@ -39,7 +42,7 @@ func handleRequests() {
 	myRouter.HandleFunc("/article/{id}", deleteArticle).Methods("DELETE")
 	myRouter.HandleFunc("/article/{id}", returnSingleArticle)
 	myRouter.HandleFunc("/article", createNewArticle).Methods("POST")
-	http.ListenAndServe(":8080", myRouter)
+	http.ListenAndServe(":"+PORT, myRouter)
 }
 
 func sroot(w http.ResponseWriter, r *http.Request) {
