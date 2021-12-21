@@ -1,0 +1,53 @@
+#Centos
+#Install node exporter
+#Download tar
+curl -L https://github.com/prometheus/node_exporter/releases/download/v1.3.1/node_exporter-1.3.1.linux-amd64.tar.gz -x "http://192.168.1.254:80" --output node-exporter.tar.gz
+#Unpack archive
+tar xvfz node-exporter.tar.gz
+cd node_exporter-1.3.1.linux-amd64
+#Start 1 example target:
+firewall-cmd --permanent --add-port=8080/tcp
+firewall-cmd --reload
+./node_exporter --web.listen-address 192.168.1.253:8080
+#Ubuntu
+#Install node exporter
+#Download tar
+curl -L https://github.com/prometheus/node_exporter/releases/download/v1.3.1/node_exporter-1.3.1.linux-amd64.tar.gz -x "http://192.168.1.254:80" --output node-exporter.tar.gz
+#Unpack archive
+tar xvfz node-exporter.tar.gz
+cd node_exporter-1.3.1.linux-amd64
+#Start 1 example target:
+./node_exporter --web.listen-address 192.168.1.251:8080
+
+#Modify the yml prometheus file on the server
+#Add to scrape config:
+#begin#
+  - job_name:       'node'
+    # Override the global default and scrape targets from this job every 5 seconds.
+    scrape_interval: 5s
+    static_configs:
+      - targets: ['192.168.1.253:8080']
+        labels:
+          group: 'production'
+      - targets: ['192.168.1.251:8080']
+        labels:
+          group: 'canary'
+#end#
+
+#Try a query: node_cpu_seconds_total
+#get the metric averaged over all CPUs per instance measured over a window of 5 minutes: avg by (job, instance, mode) (rate(node_cpu_seconds_total[5m]))
+
+#To create a new metric for the above time series we will add a new rule on the prometheus server
+nano prometheus.rules.yml
+#begin#
+groups:
+- name: cpu-node
+  rules:
+  - record: job_instance_mode:node_cpu_seconds:avg_rate5m
+    expr: avg by (job, instance, mode) (rate(node_cpu_seconds_total[5m]))
+#end#
+#Add this new rule to the prometheus config in rules_files
+#begin#
+  - 'prometheus.rules.yml'
+#End#
+#query for: job_instance_mode:node_cpu_seconds:avg_rate5m

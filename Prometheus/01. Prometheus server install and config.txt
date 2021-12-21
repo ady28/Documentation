@@ -1,0 +1,20 @@
+#Ubuntu
+#Download tar
+curl -L https://github.com/prometheus/prometheus/releases/download/v2.32.1/prometheus-2.32.1.linux-amd64.tar.gz -x "http://192.168.1.254:80" --output prometheus.tar.gz
+#Unpack archive
+tar xvfz prometheus.tar.gz
+cd prometheus-2.32.1.linux-amd64
+#Get help on prometheus
+./prometheus --help
+#Prometheus can be started with a config file. A file named prometheus.yml is provided as a sample
+#Start prometheus
+./prometheus --config.file=prometheus.yml
+#Navigate to the IP address of the serve with port 9090
+#Prometheus now monitors itself
+#Go to Graph and enter the following expression to get data about it: promhttp_metric_handler_requests_total
+#Try another expression: promhttp_metric_handler_requests_total{code="200"}
+#You can count time series
+count(promhttp_metric_handler_requests_total)
+
+#Docker
+docker run -p 9090:9090 prom/prometheus
