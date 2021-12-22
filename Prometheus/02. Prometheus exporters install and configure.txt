@@ -51,3 +51,21 @@ groups:
   - 'prometheus.rules.yml'
 #End#
 #query for: job_instance_mode:node_cpu_seconds:avg_rate5m
+#Check that the rule file is syntactically correct
+./promtool check rules prometheus.rules.yml
+
+#Unit testing a rules file
+#Write a test yml file
+nano test.prometheus.rules.yml
+#write#
+rule_files:
+  - prometheus.rules.yml
+evaluation_interval: 5s
+group_eval_order:
+  - cpu-node
+tests:
+  - name: test_cpu-node
+    interval: 5s
+#end#
+#Run test
+./promtool test rules test.prometheus.rules.yml

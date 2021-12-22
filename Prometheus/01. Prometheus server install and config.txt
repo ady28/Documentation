@@ -15,6 +15,17 @@ cd prometheus-2.32.1.linux-amd64
 #Try another expression: promhttp_metric_handler_requests_total{code="200"}
 #You can count time series
 count(promhttp_metric_handler_requests_total)
+#Show the values of a metric from the last 30 seconds
+go_threads{group="canary"}[30s]
+#Show the value of a metric from a minute ago
+go_threads{group="canary"} offset 1m
+#Send queries via API
+Invoke-RestMethod -Uri 'http://192.168.1.250:9090/api/v1/query?query=go_info'
+
+#You can run prometheus so that it reloads config and rules files when calling a POST method:
+./prometheus --config.file=prometheus.yml --web.enable-lifecycle
+#Now you can use the following command to reload configuration
+Invoke-RestMethod -Uri 'http://192.168.1.250:9090/-/reload' -Method Post
 
 #Docker
 docker run -p 9090:9090 prom/prometheus
