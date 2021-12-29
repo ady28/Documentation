@@ -1,0 +1,11 @@
+#Run grafana in docker
+docker run -d --name=grafana -p 3000:3000 grafana/grafana:8.3.3
+
+#Navigate to the website
+#Click on the cogwheel on the side bar and go to Data Sources
+#Click on Add data source
+#Select Prometheus and enter the server url
+#Click on Save and Test
+
+#Create a new dashboard
+#Enter an expression and then click apply

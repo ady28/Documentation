@@ -1,0 +1,1 @@
+#Go to http://192.168.1.250:9090/consoles/node.html to see a sample of console templates
