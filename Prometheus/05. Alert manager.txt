@@ -1,0 +1,13 @@
+#Ubuntu
+#Download tar
+curl -L https://github.com/prometheus/alertmanager/releases/download/v0.23.0/alertmanager-0.23.0.linux-amd64.tar.gz -x "http://192.168.1.254:80" --output alertmanager.tar.gz
+#Unpack archive
+tar xvfz alertmanager.tar.gz
+cd cd alertmanager-0.23.0.linux-amd64
+
+./alertmanager -h
+#Alet=rt manager can reload its configuration while running by POSTing to /-/reload
+
+#Start
+./alertmanager
+#Navigate to http://192.168.1.252:9093
