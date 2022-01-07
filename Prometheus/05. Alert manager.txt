@@ -11,3 +11,34 @@ cd cd alertmanager-0.23.0.linux-amd64
 #Start
 ./alertmanager
 #Navigate to http://192.168.1.252:9093
+
+#In the prometheus config file set the ip/host name and port in alerting under targets
+
+#Install as a service
+useradd --shell /bin/false alertmanager
+passwd alertmanager
+mkdir /etc/alertmanager
+mv alertmanager /usr/local/bin
+mv amtool /usr/local/bin
+chown alertmanager:alertmanager /usr/local/bin/alertmanager
+chown alertmanager:alertmanager /usr/local/bin/amtool
+mv *.yml /etc/alertmanager
+chown -R alertmanager:alertmanager /etc/alertmanager
+sudo nano /etc/systemd/system/alertmanager.service
+#write#
+[Unit]
+Description=AlertManager
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+User=alertmanager
+Group=alertmanager
+Type=simple
+WorkingDirectory=/etc/alertmanager
+ExecStart=/usr/local/bin/alertmanager --config.file=/etc/alertmanager/alertmanager.yml
+[Install]
+WantedBy=multi-user.target
+#end#
+systemctl start alertmanager
+systemctl enable prometheus
