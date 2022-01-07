@@ -1,4 +1,4 @@
-#Ubuntu
+### Ubuntu
 #Download tar
 curl -L https://github.com/prometheus/prometheus/releases/download/v2.32.1/prometheus-2.32.1.linux-amd64.tar.gz -x "http://192.168.1.254:80" --output prometheus.tar.gz
 #Unpack archive
@@ -32,5 +32,38 @@ Invoke-RestMethod -Uri 'http://192.168.1.250:9090/-/healthy'
 #Readines check
 Invoke-RestMethod -Uri 'http://192.168.1.250:9090/-/ready'
 
-#Docker
+#Install as service(files are considered already downloaded and extracted)
+useradd --shell /bin/false prometheus
+passwd prometheus
+mkdir /etc/prometheus
+mkdir /var/lib/prometheus
+chown prometheus:prometheus /var/lib/prometheus
+mv console* /etc/prometheus
+mv *.yml /etc/prometheus
+chown -R prometheus:prometheus /etc/prometheus
+mv prometheus /usr/local/bin
+mv promtool /usr/local/bin
+chown prometheus:prometheus /usr/local/bin/prom*
+mv data /var/lib/prometheus
+chown -R prometheus:prometheus /var/lib/prometheus/data
+sudo nano /etc/systemd/system/prometheus.service
+#write#
+[Unit]
+Description=Prometheus
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+User=prometheus
+Group=prometheus
+Type=simple
+ExecStart=/usr/local/bin/prometheus --web.enable-lifecycle --config.file /etc/prometheus/prometheus.yml --storage.tsdb.path /var/lib/prometheus/ --web.console.templates=/etc/prometheus/consoles --web.console.libraries=/etc/prometheus/console_libraries
+
+[Install]
+WantedBy=multi-user.target
+#end#
+systemctl start prometheus
+systemctl enable prometheus
+
+### Docker
 docker run -p 9090:9090 prom/prometheus
