@@ -9,3 +9,5 @@ docker run -d --name=grafana -p 3000:3000 grafana/grafana:8.3.3
 
 #Create a new dashboard
 #Enter an expression and then click apply
+
+#Granafan can also be added as a target since it has the /metrics link

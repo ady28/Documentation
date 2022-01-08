@@ -1,0 +1,4 @@
+#Run a cAdvisor container on a docker host
+docker run --volume=/:/rootfs:ro --volume=/var/run:/var/run:ro --volume=/sys:/sys:ro --volume=/var/lib/docker:/var/lib/docker:ro --volume=/dev/disk:/dev/disk:ro -p 7000:8080 -d --name cadvisor google/cadvisor:v0.33.0
+
+#Now you can navigate to the website to see if it is working and also add the host:port as a prometheus target
