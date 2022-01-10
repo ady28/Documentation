@@ -16,6 +16,10 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 
 	"github.com/gorilla/mux"
+
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promauto"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 type Post struct {
@@ -27,6 +31,24 @@ type Post struct {
 var mongoDBServerName = os.Getenv("MONGODBSERVERNAME")
 var mongoDBServerPort = os.Getenv("MONGODBSERVERPORT")
 var PORT = os.Getenv("PORT")
+
+var (
+	httpDuration = promauto.NewHistogramVec(prometheus.HistogramOpts{
+		Name: "myapp_http_duration_seconds",
+		Help: "Duration of HTTP requests.",
+	}, []string{"path"})
+)
+
+// prometheusMiddleware implements mux.MiddlewareFunc.
+func prometheusMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		route := mux.CurrentRoute(r)
+		path, _ := route.GetPathTemplate()
+		timer := prometheus.NewTimer(httpDuration.WithLabelValues(path))
+		next.ServeHTTP(w, r)
+		timer.ObserveDuration()
+	})
+}
 
 //run go mod init and go mod tidy
 
@@ -42,6 +64,7 @@ func main() {
 
 func handleRequests() {
 	myRouter := mux.NewRouter().StrictSlash(true)
+	myRouter.Use(prometheusMiddleware)
 	myRouter.HandleFunc("/", sroot)
 	myRouter.HandleFunc("/posts", getAllPosts)
 	//the delete method must be first otherwise the get one will be executed
@@ -49,6 +72,7 @@ func handleRequests() {
 	myRouter.HandleFunc("/post/{id}", deletePost).Methods("DELETE")
 	myRouter.HandleFunc("/post/{id}", findPost)
 	myRouter.HandleFunc("/post", newPost).Methods("POST")
+	myRouter.Path("/metrics").Handler(promhttp.Handler())
 	http.ListenAndServe(":"+PORT, myRouter)
 }
 
