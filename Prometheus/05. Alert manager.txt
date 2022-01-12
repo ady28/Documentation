@@ -44,3 +44,17 @@ systemctl start alertmanager
 systemctl enable alertmanager
 
 #You can also monitor alert manager over port 9093 since it exposes the /metrics endopint
+
+
+#Create an alert rule
+#Add a group in an existing rule file or create a new one
+#write#
+      - alert: ServiceDown
+        expr: up == 0
+        for: 1m
+        annotations:
+          overview: '{{ $labels.job }} is down with status {{ $value }}'
+        labels:
+          severity: warning
+          team: linux_admins
+#end#
