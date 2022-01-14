@@ -1,0 +1,14 @@
+#Install the docker pipeline plugin
+#Add the jenkins user to the docker group
+
+#Create a pipeline with the code:
+pipeline {
+    agent { docker { image 'node:16.13.1-alpine' } }
+    stages {
+        stage('build') {
+            steps {
+                sh 'node --version'
+            }
+        }
+    }
+}

@@ -1,0 +1,27 @@
+###Ubuntu
+sudo apt install -y openjdk-11-jdk
+curl -fsSL https://pkg.jenkins.io/debian-stable/jenkins.io.key -x "http://192.168.1.254:80" | sudo tee /usr/share/keyrings/jenkins-keyring.asc > /dev/null
+echo deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc] https://pkg.jenkins.io/debian-stable binary/ | sudo tee /etc/apt/sources.list.d/jenkins.list > /dev/null
+sudo apt update
+sudo apt install -y jenkins
+
+#Check the service
+systemctl status jenkins
+
+#Navigate to the host on port 8080
+#Get the initial password
+sudo cat /var/lib/jenkins/secrets/initialAdminPassword
+#Configure a proxy
+#Install suggested plugins
+#Create admin (user101)
+
+#Use Jenkins API from powershell
+$user='user101'
+$pass=''
+$pair="$($user):$($pass)"
+$encodedCreds=[System.Convert]::ToBase64String([System.Text.Encoding]::ASCII.GetBytes($pair))
+$basicAuthValue="Basic $encodedCreds"
+$Headers = @{
+    Authorization = $basicAuthValue
+}
+Invoke-RestMethod 'http://192.168.1.250:8080/api/json' -Headers $Headers

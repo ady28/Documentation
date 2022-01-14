@@ -1,0 +1,2 @@
+#To install blue ocean just search for it in the plugins section
+#Then you can open blue ocean from the main page

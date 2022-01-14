@@ -1,0 +1,88 @@
+#Create a declarative pipeline
+#Create a new item and enter a name
+#Select Pipeline
+#In the pipeline text put#
+pipeline { 
+    agent any
+    environment { 
+        CC = 'clang'
+    }
+    stages {
+        stage('Build') { 
+            steps { 
+                echo "Running ${env.BUILD_ID} on ${env.JENKINS_URL}"
+            }
+        }
+        stage('Test'){
+            steps {
+                echo "Test ${env.CC}"
+            }
+        }
+        stage('Deploy') {
+            steps {
+                echo 'step deploy'
+            }
+        }
+    }
+}
+#end#
+#Run the pipeline
+
+
+#Another pipeline example
+pipeline {
+    agent any
+    stages {
+        stage('Test') {
+            steps {
+                sh 'echo "Fail!"; exit 1'
+            }
+        }
+    }
+    post {
+        always {
+            echo 'This will always run'
+        }
+        success {
+            echo 'This will run only if successful'
+        }
+        failure {
+            echo 'This will run only if failed'
+        }
+        unstable {
+            echo 'This will run only if the run was marked as unstable'
+        }
+        changed {
+            echo 'This will run only if the state of the Pipeline has changed'
+            echo 'For example, if the Pipeline was previously failing but is now successful'
+        }
+    }
+}
+
+
+#User input
+pipeline {
+    agent any
+    stages {
+        /* "Build" and "Test" stages omitted */
+
+        stage('Deploy - Staging') {
+            steps {
+                echo 'deploy staging'
+                echo 'run-smoke-tests'
+            }
+        }
+
+        stage('Sanity check') {
+            steps {
+                input "Does the staging environment look ok?"
+            }
+        }
+
+        stage('Deploy - Production') {
+            steps {
+                echo 'deploy production'
+            }
+        }
+    }
+}

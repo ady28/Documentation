@@ -1,0 +1,35 @@
+###Docker container as an agent
+#Create a keypair on the controller
+ssh-keygen -f ~/.ssh/jenkins_agent_key
+#Create a Jenkins ssh credential in the global scope
+#Kind: ssh username with privatekey
+#id: jenkins
+#description: SSH key for jenkins user
+#username: jenkins
+#Run the container on the docker host
+docker run -d --rm --name=agent1 -p 2202:22 -e "JENKINS_AGENT_SSH_PUBKEY=[your-public-key]" jenkins/ssh-agent:alpine
+
+#Set up the agent in jenkins from Manage nodes and clouds
+#New node
+#Name: agent1
+#select permanent agent
+#remote root directory: /home/jenkins
+#label: agent1
+#usage: only build jobs....
+#launch method: launch agents vis ssh
+#host: 192.168.1.251
+#credentials: jenkins
+#key verification: manually trusted...
+#Go to advanced and enter the custom port 2202
+#Enter the java path: /opt/java/openjdk/bin/java
+
+#Delegate the first job
+#From the jenkins dashboard go to New item
+#Item name: agent1 first job
+#select freestyle project and click ok
+#Check option: Restrict where this project can run and enter the label agent1
+#At build section select execute shell
+#Enter command: echo $NODE_NAME
+#Save job
+#Click on Build now, click on the job and go to Console output
+
