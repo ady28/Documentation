@@ -1,5 +1,6 @@
 #Install the docker pipeline plugin
 #Add the jenkins user to the docker group
+#Restart jenkins after adding the user
 
 #Create a pipeline with the code:
 pipeline {
@@ -12,3 +13,5 @@ pipeline {
         }
     }
 }
+
+#In the general jenkins settings you can set Docker Label so that pipelines with agent docker are run on hosts with this label(s)

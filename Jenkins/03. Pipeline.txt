@@ -86,3 +86,5 @@ pipeline {
         }
     }
 }
+
+#To specify agent labels in pipeline: agent { label 'linuxcontainer' }
