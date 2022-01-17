@@ -1,0 +1,7 @@
+[PSCustomObject]@{
+        "Name"   = $Processor.SystemName
+        "Cores"  = $Processor.NumberOfCores
+        "OS"     = $OpSystem.Caption
+        "Version"= $OpSystem.Version
+        "Memory" = $OpSystem.TotalVisibleMemorySize
+    }
