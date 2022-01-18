@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE report PUBLIC "-//JACOCO//DTD Report 1.1//EN" "report.dtd"[]>
+<report name="Pester (01/19/2022 01:04:28)">
+  <sessioninfo id="this" start="1642554268409" dump="1642554268688" />
+  <package name="Mocking">
+    <class name="Mocking/Cluster" sourcefilename="Cluster.ps1">
+      <method name="Test-Cluster" desc="()" line="12">
+        <counter type="INSTRUCTION" missed="0" covered="1" />
+        <counter type="LINE" missed="0" covered="1" />
+        <counter type="METHOD" missed="0" covered="1" />
+      </method>
+      <method name="Start-ClusterTest" desc="()" line="19">
+        <counter type="INSTRUCTION" missed="0" covered="4" />
+        <counter type="LINE" missed="0" covered="4" />
+        <counter type="METHOD" missed="0" covered="1" />
+      </method>
+      <counter type="INSTRUCTION" missed="0" covered="5" />
+      <counter type="LINE" missed="0" covered="5" />
+      <counter type="METHOD" missed="0" covered="2" />
+      <counter type="CLASS" missed="0" covered="1" />
+    </class>
+    <sourcefile name="Cluster.ps1">
+      <line nr="12" mi="0" ci="1" mb="0" cb="0" />
+      <line nr="19" mi="0" ci="1" mb="0" cb="0" />
+      <line nr="21" mi="0" ci="1" mb="0" cb="0" />
+      <line nr="23" mi="0" ci="1" mb="0" cb="0" />
+      <line nr="27" mi="0" ci="1" mb="0" cb="0" />
+      <counter type="INSTRUCTION" missed="0" covered="5" />
+      <counter type="LINE" missed="0" covered="5" />
+      <counter type="METHOD" missed="0" covered="2" />
+      <counter type="CLASS" missed="0" covered="1" />
+    </sourcefile>
+    <counter type="INSTRUCTION" missed="0" covered="5" />
+    <counter type="LINE" missed="0" covered="5" />
+    <counter type="METHOD" missed="0" covered="2" />
+    <counter type="CLASS" missed="0" covered="1" />
+  </package>
+  <counter type="INSTRUCTION" missed="0" covered="5" />
+  <counter type="LINE" missed="0" covered="5" />
+  <counter type="METHOD" missed="0" covered="2" />
+  <counter type="CLASS" missed="0" covered="1" />
+</report>
