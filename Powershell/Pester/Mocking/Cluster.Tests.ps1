@@ -1,7 +1,9 @@
+BeforeAll {
+    . $PSCommandPath.Replace('.Tests','')
+}
+
 Describe 'Test-Cluster' {
     BeforeAll {
-        . $PSCommandPath.Replace('.Tests','')
-
         $Test = Test-Cluster -Name 'Name'
     }
 
@@ -11,8 +13,6 @@ Describe 'Test-Cluster' {
 }
 Describe 'Start-ClusterTest' {
     BeforeAll {
-        #Dot source the function file
-        . $PSCommandPath.Replace('.Tests','')
 
         Mock -CommandName 'Test-Cluster' -MockWith {
             $true
