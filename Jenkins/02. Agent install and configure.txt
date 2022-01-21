@@ -52,3 +52,5 @@ nano /var/lib/jenkins/.ssh/authorized_keys
 #Add the server's key in the known_hosts on the controller
 #Add the agent
 
+#Disable built-in agent:
+#Set 0 executors, set a tag like no_execute and configure it to run based on tags

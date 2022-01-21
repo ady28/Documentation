@@ -1,0 +1,14 @@
+#Create a user and give him the general Read access and Jobs build and read access
+
+#Run jobs with no input parameters
+#Create a crumb for the user
+$Cred=Get-Credential
+$Crumb=Invoke-RestMethod -Uri 'http://192.168.1.250:8080/crumbIssuer/api/xml?xpath=concat(//crumbRequestField,":",//crumb)' -Credential $Cred -AllowUnencryptedAuthentication -Authentication Basic -SessionVariable js
+$Header=@{'Jenkins-Crumb'=$Crumb.Split(':')[1]}
+Invoke-WebRequest -Uri 'http://192.168.1.250:8080/job/ansible_test/build?delay=0sec' -Method Post -Credential $Cred -Authentication Basic -AllowUnencryptedAuthentication -Headers $Header -WebSession $js
+
+#Run jobs with input parameters
+$Cred=Get-Credential
+$Crumb=Invoke-RestMethod -Uri 'http://192.168.1.250:8080/crumbIssuer/api/xml?xpath=concat(//crumbRequestField,":",//crumb)' -Credential $Cred -AllowUnencryptedAuthentication -Authentication Basic -SessionVariable js
+$Header=@{'Jenkins-Crumb'=$Crumb.Split(':')[1]}
+Invoke-WebRequest -Uri 'http://192.168.1.250:8080/job/agent1%20first%20job/buildWithParameters?FIRSTNAME=Ady' -Method Post -Credential $Cred -Authentication Basic -AllowUnencryptedAuthentication -Headers $Header -WebSession $js
