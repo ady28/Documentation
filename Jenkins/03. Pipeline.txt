@@ -88,3 +88,7 @@ pipeline {
 }
 
 #To specify agent labels in pipeline: agent { label 'linuxcontainer' }
+
+#You can use retry(number) before a step to retry it a number of times of it fails
+
+#You can define a timeout for a step: timeout(time: 3, unit: 'SECONDS')

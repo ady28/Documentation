@@ -1,0 +1,35 @@
+#To create jobs as code install the Job DSL plugin
+#The way you can use DSL is by creating a seed job (a job that uses DSL to spawn other jobs)
+#In a job, at the build step just select Job DSL
+
+#An empty DSL job
+#If you run the seed job with this DSL, it will create an new empty job named empty_dsl_job
+job('empty_dsl_job') {
+	description("This is an empty job")
+}
+
+#Job with parameters
+job('param_dsl_job') {
+	parameters {
+		stringParam('PLANET', defaultValue = 'Earth', description = 'Enter a planet')
+		booleanParam('FLAG', true)
+		choiceParam('OPTION', ['option1', 'option2', 'option3'])
+	}
+}
+
+#To use scm
+scm {
+	git('git_url', 'branch_name')
+}
+
+#To set a trigger
+triggers {
+	cron('H 5 * * 7')
+}
+
+#Create a job with steps
+job('steps_dsl_job') {
+	steps {
+		shell("echo 'Ran from a seed generated task'")
+	}
+}
