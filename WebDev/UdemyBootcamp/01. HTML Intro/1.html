@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>1st page</title>
+</head>
+<body>
+    <!-- This is a comment -->
+    <h1>This is a simple tag heading</h1>
+    <h2>This is a smaller heading</h2>
+    <h6>This is the smallest heading</h6>
+
+    <p>This is simple <em>text</em></p>
+    <p>This is another <strong>text</strong></p>
+
+    <!-- Create an ordered list -->
+    <ol>
+        <li><strong>Text1</strong></li>
+        <li>
+            <ul>
+                <li>Subtext1</li>
+                <li>Subtext2</li>
+            </ul>
+        </li>
+        <li>Text3</li>
+    </ol>
+
+    <!-- Create an unordered list -->
+    <ul>
+        <li>Text1</li>
+        <li>Text2</li>
+        <li>Text3</li>
+    </ul>
+
+    <!-- HTML elements can also have attributes like src -->
+    <img src="http://www.pdunlimited.com.au/wp-content/uploads/2016/10/easy-480x180.jpg">
+
+    <a href="2.html">Go to page 2</a>
+
+    <table>
+        <thead>
+            <tr>
+                <th>1</th>
+                <th>2</th>
+                <th>3</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Data11</td>
+                <td>Data12</td>
+                <td>Data13</td>
+            </tr>
+            <tr>
+                <td>Data21</td>
+                <td>Data22</td>
+                <td>Data23</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <form action="login.html" method="post">
+        <h3>Log in:</h3>
+        <label>
+            Username:
+            <input name="username" type="text" placeholder="username">
+        </label>
+
+        <!-- label and input can be linked with for and id also -->
+        <label for="password">Password:</label>
+        <input id="password" name="password" type="password" placeholder="password" required>
+        
+        <p>Cats or Dogs?</p>
+        <label for="dogs">Dogs:</label>
+        <input id="dogs" type="radio" name="choice" value="Dogs">
+        <label for="cats">Cats:</label>
+        <input id="cats" type="radio" name="choice" value="Cats">
+
+        <p>Favorite color:</p>
+        <select name="color" id="color">
+            <option value="red">Red</option>
+            <option value="green">Green</option>
+            <option value="blue">Blue</option>
+        </select>
+
+        <div><button>LogIn</button></div>
+    </form>
+</body>
+</html>

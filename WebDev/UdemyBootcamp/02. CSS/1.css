@@ -1,0 +1,50 @@
+* {
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    /*background: url(https://techcrunch.com/wp-content/uploads/2014/12/matrix.jpg?w=1390&crop=1);
+    background-size: cover;*/
+    background-color: whitesmoke;
+}
+
+h2 {
+    color: blue;
+    background-color: silver;
+    font-family: Arial;
+    font-size: 2.0em;
+    font-weight: bolder;
+    line-height: 2;
+    text-align: center;
+}
+
+li {
+    color: green;
+    border: 2px solid red
+}
+
+h1 {
+    color: #221199;
+    border-color: black;
+    border-width: 6px;
+    border-style: dotted;
+}
+
+h3 {
+    color: rgb(0, 255, 20);
+}
+
+h4 {
+    color: rgba(100, 50, 10, 0.4);
+}
+
+#special {
+    color: royalblue;
+    background-color: slategray;
+}
+
+.sometext {
+    background-color: springgreen;
+    text-decoration: line-through;
+}
