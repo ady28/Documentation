@@ -1,0 +1,35 @@
+GET http://localhost:3000
+
+###
+
+GET http://localhost:3000/bye
+
+###
+
+GET http://localhost:3000/notexisting
+
+###
+
+GET http://localhost:3000/test/adi
+
+###
+
+GET http://localhost:3000/test/adi/stuff/2123323
+
+###
+
+GET http://localhost:3000/servers/SVRTESt01
+
+###
+
+GET http://localhost:3000/servers/tst
+
+###
+
+POST http://localhost:3000/servers
+content-type: application/json
+
+{
+    "name": "SRV01",
+    "role": "Web"
+}
