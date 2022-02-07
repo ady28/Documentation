@@ -1,0 +1,13 @@
+#To interact with node you can open the console using the node command and run javascript commands
+
+#You can also make a javascript file and run it with node like so node <filename>
+
+#NPM is the package manager for NodeJS
+#A good package is @faker-js/faker. This creates fake data if you don't have test data for your site.
+# npm install @faker-js/faker
+
+#When we run npm install packagename, the package is also assed to package.json
+#If we delete the packages folder we can get it back by running npm install in the directory where the json file is
+
+#When you are in a folder you can use npm init to initialize a package.json file with project details
+#After that use npm install name --save to install modules and save them as dependencies in the json file
