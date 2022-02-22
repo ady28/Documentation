@@ -123,6 +123,18 @@ curl https://packages.chef.io/files/stable/chef/17.6.18/el/8/chef-17.6.18-1.el8.
 rpm -i chef-client.rpm
 #Check install
 chef-client --version
+#Set configuration file
+sudo nano /etc/chef/client.rb
+#Add text#
+chef_server_url "https://ubuntu01.testcorp.local/organizations/testcorp"
+log_level :info
+node_name  "centos01.testcorp.local"
+validation_client_name "testcorp"
+validation_key "/etc/chef/testcorp.pem"
+ssl_verify_mode :verify_none
+#end#
+#Copy the org validator cert
+scp user100@ubuntu01.testcorp.local:/home/user100/testcorp.pem /etc/chef
 
 #On Windows we can use the knife windows tool or the msi
 Start-Process -FilePath msiexec.exe -ArgumentList '/i C:\chef-client-17.6.18-1-x64.msi','/qn','ADDLOCAL="ChefClientFeature,ChefSchTaskFeature,ChefPSModuleFeature"' -Wait
@@ -139,3 +151,6 @@ sudo chef-server-ctl status
 #Create Chef Server admin and organization
 sudo chef-server-ctl user-create chefadmin Chef Admin chefadmin@testcorp.local 'Parola#21' --filename /home/user100/chefadmin.pem
 sudo chef-server-ctl org-create testcorp 'Test Corp' --association_user chefadmin --filename /home/user100/testcorp.pem
+##CentOS
+curl https://packages.chef.io/files/stable/chef-server/14.12.21/el/7/chef-server-core-14.12.21-1.el7.x86_64.rpm -x "http://192.168.1.254:80" --output chef-server.rpm
+sudo rpm -Uvh chef-server.rpm
