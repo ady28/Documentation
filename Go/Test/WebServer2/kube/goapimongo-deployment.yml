@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: goapimongo-deployment
+  namespace: goapi
+spec: 
+  replicas: 1
+  selector:
+    matchLabels:
+      app: goapimongo
+  template:
+    metadata:
+      labels:
+        app: goapimongo
+    spec:
+      containers:
+        - name: goapimongo
+          image: mongo:5.0.5
+          volumeMounts:
+            - mountPath: /data/db
+              name: goapimongo-volume
+      volumes:
+        - name: goapimongo-volume
+          # emptyDir: {}
+          persistentVolumeClaim:
+            claimName: goapimongo-pvc
