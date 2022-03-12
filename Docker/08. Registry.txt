@@ -8,13 +8,13 @@ docker push localhost:5000/aboutit/hello:latest
 
 #Install registry as an application on an ubuntu server
 sudo apt install docker-registry
-#Check that the service is running
+#Check that the service is running (on centos the name is docker-distribution)
 systemctl status docker-registry
-#Check version
+#Check version (on centos the name is just registry)
 docker-registry --version
 #Open port 5000
 sudo ufw allow 5000/tcp
-#Change the auth to permit unauthenticated use for testing
+#Change the auth to permit unauthenticated use for testing (on centos it is /etc/docker-distribution/registry/config.yml)
 sudo nano /etc/docker/registry/config.yml
 #Remove the auth part
 sudo systemctl restart docker-registry
