@@ -1,0 +1,26 @@
+#If using insecure registries then you should use docker as the container runtime instead of containerd so first install docker, configure proxy, configure insecure registries and configure user docker execution without root if needed
+
+#Set proxy
+export http_proxy=http://192.168.1.254:80
+export https_proxy=http://192.168.1.254:80
+export no_proxy=127.0.0.1,.testcorp.local
+
+#Open firewall ports
+sudo firewall-cmd --permanent --add-port=6443/tcp
+sudo firewall-cmd --permanent --add-port=8472/udp
+sudo firewall-cmd --permanent --add-port=10250/tcp
+sudo systemctl restart firewalld
+
+#Install using the bash script
+curl -sfL https://get.k3s.io | sudo -E sh -
+#If you use docker as the runtime
+curl -sfL https://get.k3s.io | sudo -E sh -s - --docker
+
+
+#Remove proxy
+unset http_proxy
+unset https_proxy
+unset no_proxy
+
+#Test
+sudo /usr/local/bin/kubectl get pods --all-namespaces
