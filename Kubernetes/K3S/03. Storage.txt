@@ -1,0 +1,7 @@
+#Rancher developed a Local Path Provisioner which is meant to easily use localPath volumes
+#If using k3s it is already installed
+#Just create a pvc and the pv will be created automatically
+# https://www.fadhil-blog.dev/blog/rancher-local-path-provisioner/
+
+#To see pv(s)
+ls /var/lib/rancher/k3s/storage
