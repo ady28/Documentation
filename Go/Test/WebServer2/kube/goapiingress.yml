@@ -1,3 +1,16 @@
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: mw-goapi
+  namespace: goapi
+spec:
+  stripPrefix:
+    forceSlash: false
+    prefixes:
+      - /goapi
+
+---
+
 kind: Ingress
 apiVersion: networking.k8s.io/v1
 metadata:
@@ -5,27 +18,28 @@ metadata:
   namespace: goapi
   annotations:
     traefik.ingress.kubernetes.io/router.entrypoints: web
+    traefik.ingress.kubernetes.io/router.middlewares: goapi-mw-goapi@kubernetescrd
 
 spec:
   rules:
     - host: centos05.testcorp.local
       http:
         paths:
-          - path: /
+          - path: /goapi
             pathType: Exact
             backend:
               service:
                 name: goapiapp-service
                 port:
                   number: 8080
-          - path: /posts
+          - path: /goapi/posts
             pathType: Exact
             backend:
               service:
                 name: goapiapp-service
                 port:
                   number: 8080
-          - path: /post
+          - path: /goapi/post
             pathType: Prefix
             backend:
               service:
