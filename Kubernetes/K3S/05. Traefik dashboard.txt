@@ -1,0 +1,10 @@
+#Place the traefik-config.yaml file in /var/lib/rancher/k3s/server/manifests to enable the dashboard
+sudo /usr/local/bin/kubectl apply -f /var/lib/rancher/k3s/server/manifests/traefik-config.yaml
+
+#Create a user and password for authentication to dashboard
+htpasswd -nb root root | openssl base64
+#Place the output in secret.yaml
+kubectl apply -f secret.yaml
+kubectl apply -f mw.yaml
+kubectl apply -f ingress.yaml
+#Access dashboard at server/dashboard/

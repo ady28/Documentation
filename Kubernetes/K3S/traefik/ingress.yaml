@@ -1,0 +1,17 @@
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: traefik-exposed-dashboard
+  namespace: kube-system
+spec:
+  entryPoints:
+  - web
+  routes:
+  - kind: Rule
+    match: Host(`centos05.testcorp.local`) && (PathPrefix(`/api/`) || PathPrefix(`/dashboard/`))
+    middlewares:
+    - name: traefik-exposed-dashboard-basic-auth
+      namespace: kube-system
+    services:
+    - kind: TraefikService
+      name: api@internal
