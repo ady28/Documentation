@@ -26,20 +26,6 @@ spec:
       http:
         paths:
           - path: /goapi
-            pathType: Exact
-            backend:
-              service:
-                name: goapiapp-service
-                port:
-                  number: 8080
-          - path: /goapi/posts
-            pathType: Exact
-            backend:
-              service:
-                name: goapiapp-service
-                port:
-                  number: 8080
-          - path: /goapi/post
             pathType: Prefix
             backend:
               service:
