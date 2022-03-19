@@ -118,7 +118,12 @@ spec:
         - dashboard
         - --port
         - "8080"
+        - -c
+        - /etc/polaris/polaris-config.yaml
         image: 'quay.io/fairwinds/polaris:5.1'
+        volumeMounts:
+          - name: polaris-dashboard-config
+            mountPath: /etc/polaris
         imagePullPolicy: 'Always'
         name: dashboard
         ports:
@@ -153,3 +158,8 @@ spec:
       serviceAccountName: polaris
       nodeSelector:
       tolerations:
+      volumes:
+        - name: polaris-dashboard-config
+          configMap:
+            name: polaris-dashboard-config
+
