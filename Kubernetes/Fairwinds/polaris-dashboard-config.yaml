@@ -37,27 +37,11 @@ data:
 
     exemptions:
     - namespace: kube-system
+    - namespace: goapi
       controllerNames:
-        - kube-apiserver
-        - kube-proxy
-        - kube-scheduler
-        - etcd-manager-events
-        - kube-controller-manager
-        - kube-dns
-        - etcd-manager-main
+        - goapi
       rules:
-        - hostPortSet
-        - hostNetworkSet
-        - readinessProbeMissing
-        - livenessProbeMissing
-        - cpuRequestsMissing
-        - cpuLimitsMissing
-        - memoryRequestsMissing
-        - memoryLimitsMissing
-        - runAsRootAllowed
-        - runAsPrivileged
-        - notReadOnlyRootFilesystem
-        - hostPIDSet
+        - tlsSettingsMissing
 
     - controllerNames:
         - kube-flannel-ds
