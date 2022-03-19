@@ -16,6 +16,13 @@ spec:
       containers:
         - name: goapiapp
           image: centos03.testcorp.local:5000/goapi:v1
+          resources:
+            limits:
+              cpu: 500m
+              memory: 512Mi
+            requests:
+              cpu: 250m
+              memory: 256Mi
           env:
             - name: MONGODBSERVERNAME
               value: "goapimongo-service.goapi"
