@@ -8,3 +8,6 @@ htpasswd -nb root root | openssl base64
 kubectl apply -f secret.yaml
 kubectl apply -f mw.yaml
 kubectl apply -f ingress.yaml
+
+#If the config map is changed it will be changed automatically in the volume but a restart of the application is needed
+kubectl rollout restart deployment.apps/polaris-dashboard -n polaris
