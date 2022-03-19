@@ -19,3 +19,22 @@ spec:
           env:
             - name: MONGODBSERVERNAME
               value: "goapimongo-service.goapi"
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 8080
+            initialDelaySeconds: 3
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 8080
+            initialDelaySeconds: 3
+            periodSeconds: 10
+          securityContext:
+            allowPrivilegeEscalation: false
+            privileged: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
