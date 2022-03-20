@@ -1,0 +1,21 @@
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: goldilocks-exposed-dashboard-basic-auth
+  namespace: goldilocks
+spec:
+  basicAuth:
+    secret: goldilocks-exposed-dashboard-basic-auth
+
+---
+
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: goldilockslink
+  namespace: goldilocks
+spec:
+  stripPrefix:
+    forceSlash: false
+    prefixes:
+      - /goldilocks

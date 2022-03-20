@@ -1,0 +1,8 @@
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: polaris-exposed-dashboard-basic-auth
+  namespace: polaris
+spec:
+  basicAuth:
+    secret: polaris-exposed-dashboard-basic-auth

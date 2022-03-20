@@ -1,0 +1,29 @@
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: goldilocks-exposed-dashboard
+  namespace: goldilocks
+spec:
+  entryPoints:
+  - web
+  routes:
+  - kind: Rule
+    match: Host(`centos05.testcorp.local`)
+    middlewares:
+    - name: goldilocks-exposed-dashboard-basic-auth
+      namespace: goldilocks
+    services:
+    - kind: Service
+      name: goldilocks-dashboard
+      namespace: goldilocks
+      port: 80
+  - kind: Rule
+    match: Host(`centos05.testcorp.local`) && (PathPrefix(`/namespaces`) || PathPrefix(`/dashboard`))
+    middlewares:
+    - name: goldilocks-exposed-dashboard-basic-auth
+      namespace: goldilocks
+    services:
+    - kind: Service
+      name: goldilocks-dashboard
+      namespace: goldilocks
+      port: 80

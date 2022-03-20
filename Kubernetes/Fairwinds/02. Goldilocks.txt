@@ -1,0 +1,25 @@
+#First you need helm; i will use helm on a WSL instance that has the kubeconfig file for a remote cluster
+curl https://get.helm.sh/helm-v3.8.1-linux-amd64.tar.gz -o helm-v3.8.1-linux-amd64.tar.gz
+tar -xf helm-v3.8.1-linux-amd64.tar.gz
+#you will get a linux-amd64 directory
+cd ./linux-amd64
+
+
+#Install the kubernetes vpa chart from fairwinds
+#VPA is a kubernetes object which can be installed without the help of this chart
+#With this chart you will only get the parts of VPA that Goldilocks needs
+./helm repo add fairwinds-stable https://charts.fairwinds.com/stable
+./helm install vpa fairwinds-stable/vpa --namespace vpa --create-namespace
+#Install Goldilocks
+./helm install goldilocks --namespace goldilocks --create-namespace fairwinds-stable/goldilocks
+
+#You can access the dashboard either by port forward, nodeport or ingress
+#Create a user and password for authentication to dashboard
+htpasswd -nb root root | openssl base64
+#Place the output in secret.yaml
+kubectl apply -f secret.yaml
+kubectl apply -f mw.yaml
+kubectl apply -f ingress.yaml
+
+#Enable a namespace to be analyzed
+kubectl label ns goapi goldilocks.fairwinds.com/enabled=true
