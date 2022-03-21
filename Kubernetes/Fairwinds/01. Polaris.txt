@@ -1,6 +1,7 @@
 #To run Polaris as a dashboard (no outside traffice enabled)
 kubectl apply -f polaris-dashboard-config.yaml
 kubectl apply -f polaris-dashboard.yaml
+#If you want to expose Polaris directly use polaris-dashboard-externalservice.yaml
 #For external access either use a NodePort, use proxy or go through an ingress
 #Create a user and password for authentication to dashboard
 htpasswd -nb root root | openssl base64

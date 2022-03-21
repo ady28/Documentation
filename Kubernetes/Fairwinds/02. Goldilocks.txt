@@ -23,3 +23,13 @@ kubectl apply -f ingress.yaml
 
 #Enable a namespace to be analyzed
 kubectl label ns goapi goldilocks.fairwinds.com/enabled=true
+
+#You can also install Goldilocks using yaml files:
+kubectl apply -f ns.yaml
+kubectl apply -f controller.yaml
+kubectl apply -f dashboard.yaml
+#If you want to expose the dashboard directly use the -external version
+#The next ones are needed if you will use an ingress to expose the app
+kubectl apply -f secret.yaml
+kubectl apply -f mw.yaml
+kubectl apply -f ingress.yaml
