@@ -2,6 +2,7 @@ apiVersion: traefik.containo.us/v1alpha1
 kind: Middleware
 metadata:
   name: kd
+  namespace: kubernetes-dashboard
 spec:
   stripPrefix:
     forceSlash: false
@@ -29,7 +30,7 @@ metadata:
   namespace: kubernetes-dashboard
   annotations:
     traefik.ingress.kubernetes.io/router.entrypoints: web, websecure
-    traefik.ingress.kubernetes.io/router.middlewares: default-kd@kubernetescrd
+    traefik.ingress.kubernetes.io/router.middlewares: kubernetes-dashboard-kd@kubernetescrd
     ingress.kubernetes.io/ssl-passthrough: "true"
 
 spec:
