@@ -1,0 +1,10 @@
+#Download (does not have to be on the kubernetes cluster)
+curl -L https://github.com/FairwindsOps/pluto/releases/download/v5.6.0/pluto_5.6.0_linux_amd64.tar.gz -o pluto.tar.gz
+Invoke-WebRequest -Uri 'https://github.com/FairwindsOps/pluto/releases/download/v5.6.0/pluto_5.6.0_windows_amd64.tar.gz' -OutFile plutowin.tar.gz
+#Unpack (both linux and windows)
+tar -xf pluto.tar.gz
+
+#Check the yaml files in the kube directory
+.\pluto.exe detect-files -d 'E:\De pe F\Repos\Documentation\Kubernetes\K3S\dash\'
+#Check a specific file
+./pluto detect ./go/src/Test/WebServer2/kube/goapimongo-pvc.yml
