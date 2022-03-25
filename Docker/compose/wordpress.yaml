@@ -1,0 +1,29 @@
+version: "3.8"
+
+services:
+  wordpressdb:
+    image: mariadb:10.7.3-focal
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpass
+      MYSQL_DATABASE: wordpress
+      MYSQL_USER: wp-user
+      MYSQL_PASSWORD: wp-pass
+    volumes: 
+      - mariadbdata:/var/lib/mysql
+  wordpress:
+    image: wordpress:5.9.2-php8.1-apache
+    ports: 
+      - '8080:80'
+    depends_on: 
+      - wordpressdb
+    volumes:
+      - wordpressdata:/var/www/html
+    environment:
+      WORDPRESS_DB_USER: wp-user
+      WORDPRESS_DB_PASSWORD: wp-pass
+      WORDPRESS_DB_HOST: wordpressdb
+      WORDPRESS_DB_NAME: wordpress
+
+volumes:
+  mariadbdata:
+  wordpressdata:
