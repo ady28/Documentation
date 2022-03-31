@@ -1,0 +1,24 @@
+version: "3.8"
+
+services:
+  mongodb:
+    image: mongo:5.0.5
+    volumes:
+      - mongodata:/data/db
+  adiweb:
+    image: goapi:v1
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 10s
+      timeout: 10s
+      retries: 6
+    ports:
+      - '8080:8080'
+    depends_on:
+      - mongodb
+    deploy:
+      update_config:
+        order: start-first
+
+volumes:
+  mongodata:
