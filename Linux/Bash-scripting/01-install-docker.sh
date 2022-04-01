@@ -10,37 +10,71 @@ fi
 # the third value of the matches which is the OS (first is the whole line, then is NAME, then the OS name),
 # after that, pipe the result to tr to strip the " character, then pipe again to tr to tranform uppercase letters
 # into lowercase
-if [[ $(cat /etc/os-release | awk -F= '/NAME=/  && NR==1 { print $2 }' | tr -d '"' | tr [A-Z] [a-z] ) -ne ubuntu ]]
+OSSTRING=$(cat /etc/os-release | awk -F= '/NAME=/  && NR==1 { print $2 }' | awk '{ print $1 }' | tr -d '"' | tr [A-Z] [a-z])
+if [[ "$OSSTRING" != 'ubuntu' && "$OSSTRING" != 'centos' && "$OSSTRING" != 'rocky' ]]
 then
-	echo "This script works for only ubuntu"
+	echo "This script works for ubuntu, centos and rocky only"
 	exit 2
 fi
 
 echo "###################################################################################"
-echo "# OS is identified as Ubuntu                                                      #"
-echo "# This Script will remove old docker components and install latest stable docker  #"
+echo "# OS is identified as $OSSTRING                                                    "
+echo "# This Script will remove old docker components and install latest stable docker   "
 echo "###################################################################################"
 sleep 1
 echo "==> Removing older version of docker if any...."
-apt remove docker docker-engine docker.io containerd runc -y &> /dev/null
+if [[ "$OSSTRING" == 'ubuntu' ]]
+then
+	apt remove docker docker-engine docker.io containerd runc -y &> /dev/null
+elif [[ "$OSSTRING" == 'centos' || "$OSSTRING" == 'rocky' ]]
+then
+	yum remove docker docker-engine docker.io containerd runc -y &> /dev/null
+fi
 
-echo "==> Updating exiting list of packagesss..."
-apt update -y &> /dev/null
+if [[ "$OSSTRING" == 'ubuntu' ]]
+then
+	echo "==> Updating exiting list of packagesss..."
+	apt update -y &> /dev/null
+fi
 
 echo "==> Installing dependencies......."
-apt install apt-transport-https ca-certificates curl gnupg lsb-release -y &> /dev/null
+if [[ "$OSSTRING" == 'ubuntu' ]]
+then
+	apt install apt-transport-https ca-certificates curl gnupg lsb-release -y &> /dev/null
+elif [[ "$OSSTRING" == 'centos' || "$OSSTRING" == 'rocky' ]]
+then
+	yum install -y yum-utils &> /dev/null
+fi
 
-echo "==> Adding the GPG key for the official Docker repository to your system..."
-curl -fsSL https://download.docker.com/linux/ubuntu/gpg -x "http://192.168.1.254:80" | gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+if [[ "$OSSTRING" == 'ubuntu' ]]
+then
+	echo "==> Adding the GPG key for the official Docker repository to your system..."
+	curl -fsSL https://download.docker.com/linux/ubuntu/gpg -x "http://192.168.1.254:80" | gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+fi
+if [[ "$OSSTRING" == 'ubuntu' ]]
+then
+	echo "==> Adding the Docker repository to APT sources:.."
+	echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null
+elif [[ "$OSSTRING" == 'centos' || "$OSSTRING" == 'rocky' ]]
+then
+	echo "==> Adding the Docker repository to YUM sources:.."
+	yum-config-manager --add-repo=https://download.docker.com/linux/centos/docker-ce.repo &> /dev/null
+fi
 
-echo "==> Adding the Docker repository to APT sources:.."
-echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null
-
-echo "==> Update the package database with the Docker packages from the newly added repo..."
-apt update -y &> /dev/null
+if [[ "$OSSTRING" == 'ubuntu' ]]
+then
+	echo "==> Update the package database with the Docker packages from the newly added repo..."
+	apt update -y &> /dev/null
+fi
 
 echo "==> Now installing docker....."
-apt install docker-ce docker-ce-cli containerd.io -y &> /dev/null
+if [[ "$OSSTRING" == 'ubuntu' ]]
+then
+	apt install docker-ce docker-ce-cli containerd.io -y &> /dev/null
+elif [[ "$OSSTRING" == 'centos' || "$OSSTRING" == 'rocky' ]]
+then
+	yum install docker-ce docker-ce-cli containerd.io -y &> /dev/null
+fi
 
 if [[ $? -ne 0 ]]
 then
