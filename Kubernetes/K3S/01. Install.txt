@@ -3,19 +3,34 @@
 #Set proxy
 export http_proxy=http://192.168.1.254:80
 export https_proxy=http://192.168.1.254:80
-export no_proxy=127.0.0.1,.testcorp.local
+export no_proxy=127.0.0.1,testcorp.local,localhost
 
 #Open firewall ports
 sudo firewall-cmd --permanent --add-port=6443/tcp
 sudo firewall-cmd --permanent --add-port=8472/udp
 sudo firewall-cmd --permanent --add-port=10250/tcp
+#For HA with embedded etcd
+sudo firewall-cmd --permanent --add-port=2379/tcp
+sudo firewall-cmd --permanent --add-port=2380/tcp
 sudo systemctl restart firewalld
 
-#Install using the bash script
+#Firewall for ubuntu
+sudo ufw allow 6443/tcp
+sudo ufw allow 8472/udp
+sudo ufw allow 10250/tcp
+sudo ufw allow 2379/tcp
+sudo ufw allow 2380/tcp
+
+#Install single server using the bash script
 curl -sfL https://get.k3s.io | sudo -E sh -
 #If you use docker as the runtime
 curl -sfL https://get.k3s.io | sudo -E sh -s - --docker
 
+#Install a 3 node cluster (not working)
+#Run on first node
+curl -sfL https://get.k3s.io | sudo -E sh -s - --docker --cluster-init --advertise-address 192.168.1.234
+#Run on the other 2 nodes after the first one is done
+curl -sfL https://get.k3s.io | sudo -E K3S_TOKEN=K10b61ae25312efc53ebbc4b45d139128d8c0d74f84d0d9e9d538575ffccfe1da20::server:6f6ec42f13b46c2b556a4c82aedadcc2 sh -s - --docker --server https://192.168.1.234:6443
 
 #Remove proxy
 unset http_proxy

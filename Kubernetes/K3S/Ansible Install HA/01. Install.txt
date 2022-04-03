@@ -1,0 +1,29 @@
+#Works 100% on ubuntu
+#On CentOS you will get a systemd error
+
+#First you will need a system where ansible is installed
+#Copy the k3s-ansible folder in your home dir
+cd k3s-ansible
+
+#On the (5) servers that will be part of the k3s cluster install docker
+
+#Set the firewall rules needed for k3s
+
+#Copy the sample data
+cp -R inventory/sample inventory/my-cluster
+#Edit inventory/my-cluster/hosts.ini with correct server names
+
+#Edit inventory/my-cluster/group_vars/all.yml for the environment
+#  ansible_user: user100
+#  extra_server_args: "--no-deploy servicelb --no-deploy traefik --docker"
+#  extra_agent_args: "--docker"
+#  metal_lb_ip_range: "192.168.1.230-192.168.1.232"
+
+#Edit site.yaml. Add the following at the k3s_cluster level under - role: raspberrypi
+  environment:
+    http_proxy: http://192.168.1.254:80
+    https_proxy: http://192.168.1.254:80
+    no_proxy: 127.0.0.1,testcorp.local,localhost
+
+#Run ansible
+ansible-playbook site.yml -i inventory/my-cluster/hosts.ini --ask-pass --ask-become-pass
