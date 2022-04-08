@@ -1,10 +1,21 @@
-#Install on a single docker host
+### Install server on a single docker host
 #For distros with SELinux you will need --privileged for the portainer server container
-
 #Create volume for portainer
 docker volume create portainer_data
 #Run portainer server
 docker run -d -p 8000:8000 -p 9443:9443 --name portainer --restart=always -v /var/run/docker.sock:/var/run/docker.sock -v portainer_data:/data portainer/portainer-ce:2.11.1
+#If managing kubernetes make sure that client proxy is not set so that proxy is not set in the container
 
 #Access UI at https://192.168.1.234:9443
 #At the first logon just create a user and then add your local environment to get started with managing the machine portainer is running on
+
+### Install agent on a single docker host
+#For distros with SELinux you will need --privileged for the portainer agent container
+#Run portainer agent
+docker run -d -p 9001:9001 --name portainer_agent --restart=always -v /var/run/docker.sock:/var/run/docker.sock -v /var/lib/docker/volumes:/var/lib/docker/volumes portainer/agent:2.11.1
+#Go in portainer to Settings, Environments and add the new server
+
+### Install agent on a single master k3s cluster
+#In portainer go to create a new environment and you will get to select to deploy via NodePort or LoadBalancer; select either and copy the command
+#Run it on the server (proxy required)
+#Get the external port for the service and then add the agent in portainer
