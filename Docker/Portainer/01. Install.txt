@@ -16,6 +16,7 @@ docker run -d -p 9001:9001 --name portainer_agent --restart=always -v /var/run/d
 #Go in portainer to Settings, Environments and add the new server
 
 ### Install agent on a single master k3s cluster
+#Make sure that the proxy settings for your docker client have a noProxy value with the kubernetes IP or with the whole subnet
 #In portainer go to create a new environment and you will get to select to deploy via NodePort or LoadBalancer; select either and copy the command
 #Run it on the server (proxy required)
 #Get the external port for the service and then add the agent in portainer
