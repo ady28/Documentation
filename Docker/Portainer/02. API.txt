@@ -1,0 +1,23 @@
+https://app.swaggerhub.com/apis/portainer/portainer-ce/2.9.3#/custom_templates/CustomTemplateList
+
+#For the user you want to use witht eh API create an access token from the portainer UI
+$Token='ptr_ozJJVgG5HR7CGdW0QdznXfVV1pBSyV+K8K1QCgEI0bE='
+$Header=@{'X-API-Key'=$Token}
+
+#Get a list of stacks
+Invoke-RestMethod -Uri 'https://192.168.1.234:9443/api/stacks' -Headers $Header -SkipCertificateCheck
+
+#Get a list of settings
+Invoke-RestMethod -Uri 'https://192.168.1.234:9443/api/settings' -Headers $Header -SkipCertificateCheck
+
+#Get a list of endpoints
+Invoke-RestMethod -Uri 'https://192.168.1.234:9443/api/endpoints' -Headers $Header -SkipCertificateCheck
+
+#For a docker endpoint get list of containers
+Invoke-RestMethod -Uri 'https://192.168.1.234:9443/api/endpoints/3/docker/containers/json' -Headers $Header -SkipCertificateCheck
+
+#Get a list of custom templates
+Invoke-RestMethod -Uri 'https://192.168.1.234:9443/api/custom_templates' -Headers $Header -SkipCertificateCheck
+
+#Get a file of a template
+Invoke-RestMethod -Uri 'https://192.168.1.234:9443/api/custom_templates/1/file' -Headers $Header -SkipCertificateCheck | select -ExpandProperty FileContent
