@@ -67,6 +67,17 @@ sudo firewall-cmd --permanent --add-port=10255/tcp
 sudo firewall-cmd --permanent --add-port=8472/udp
 sudo firewall-cmd --add-masquerade --permanent
 sudo systemctl restart firewalld
+#For ubuntu
+sudo ufw allow 6443/tcp
+sudo ufw allow 2379/tcp
+sudo ufw allow 2380/tcp
+sudo ufw allow 10250/tcp
+sudo ufw allow 10251/tcp
+sudo ufw allow 10252/tcp
+sudo ufw allow 10255/tcp
+sudo ufw allow 8472/udp
+sudo ufw default allow FORWARD
+sudo service ufw restart
 
 #Open firewall ports on workers
 sudo firewall-cmd --permanent --add-port=10250/tcp
@@ -75,6 +86,13 @@ sudo firewall-cmd --permanent --add-port=8472/udp
 sudo firewall-cmd --permanent --add-port=30000-32767/tcp
 sudo firewall-cmd --add-masquerade --permanent
 sudo systemctl restart firewalld
+#For ubuntu
+sudo ufw allow 8472/udp
+sudo ufw allow 10250/tcp
+sudo ufw allow 10255/tcp
+sudo ufw allow 30000:32767/tcp
+sudo ufw default allow FORWARD
+sudo service ufw restart
 
 #Install kubeadm, kubelet and kubectl
 #Add the kubernetes repo
@@ -110,6 +128,13 @@ sudo chown $(id -u):$(id -g) $HOME/.kube/config
 kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
 #Check pods
 kubectl get pods --all-namespaces
+
+#Install for ubuntu
+sudo curl -fsSLo /usr/share/keyrings/kubernetes-archive-keyring.gpg https://packages.cloud.google.com/apt/doc/apt-key.gpg
+echo "deb [signed-by=/usr/share/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee /etc/apt/sources.list.d/kubernetes.list
+sudo apt-get update
+sudo apt-get install -y kubelet kubeadm kubectl
+#The rest is the same as for centos
 
 #Join worker nodes
 sudo kubeadm join 192.168.1.247:6443 --token xckfqx.3o9hrwl50pd75y8z --discovery-token-ca-cert-hash sha256:7acb95dab4dc3aa93e31244d8bcdb31ed7ef97ffbc85f28716fde81055f41012
