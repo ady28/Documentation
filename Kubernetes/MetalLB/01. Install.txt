@@ -1,0 +1,16 @@
+#Add rules on all nodes
+sudo ufw allow 7946/tcp
+sudo ufw allow 7946/udp
+sudo service ufw restart
+
+#Apply an ARP change to kube-proxy
+kubectl get configmap kube-proxy -n kube-system -o yaml | sed -e "s/strictARP: false/strictARP: true/" | kubectl apply -f - -n kube-system
+
+#Install
+#Download https://raw.githubusercontent.com/metallb/metallb/v0.12.1/manifests/namespace.yaml
+kubectl apply -f namespace.yml
+#Download https://raw.githubusercontent.com/metallb/metallb/v0.12.1/manifests/metallb.yaml
+kubectl apply -f metal.yml
+
+#Configure
+kubectl apply -f config.yml
