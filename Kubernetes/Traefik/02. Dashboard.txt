@@ -1,0 +1,3 @@
+kubectl apply -f dash.yaml
+
+#In the browser go to kube1/dashboard/
