@@ -68,3 +68,11 @@ auth:
 #end#
 sudo systemctl restart docker-registry
 #On the client do a docker login to the registry
+
+#List repositories from registry
+Invoke-RestMethod -Uri 'https://lnx1:5000/v2/_catalog' -SkipCertificateCheck -Credential $cred
+#List tags for images in repository
+Invoke-RestMethod -Uri 'https://lnx1:5000/v2/test1/tags/list' -SkipCertificateCheck -Credential $cred
+#Get details where test1 is the name and latest is the tag
+Invoke-RestMethod -Uri 'https://lnx1:5000/v2/test1/manifests/latest' -SkipCertificateCheck -Credential $cred
+#Details: https://docs.docker.com/registry/spec/api/#listing-repositories
