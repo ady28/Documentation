@@ -1,0 +1,137 @@
+The machine should have about 4 CPU cores and 6GB RAM
+
+#Set proxy
+export http_proxy=http://192.168.1.254:80
+export https_proxy=http://192.168.1.254:80
+export no_proxy=127.0.0.1,testcorp.local,localhost
+#Install Istio
+curl -L https://istio.io/downloadIstio | sudo -E sh -
+sudo chown user100:user100 istio-1.13.3
+cd istio-1.13.3/bin
+sudo cp istioctl /usr/local/bin/
+#Before installing istio, if using k3s
+sudo cp /etc/rancher/k3s/k3s.yaml .
+sudo sed -i 's:localhost:hoseplak3s:;s:default:TheNameOfYourHost:g' k3s.yaml
+sudo KUBECONFIG=~/.kube/config:k3s.yaml kubectl config view --raw > config.tmp
+sudo mv config.tmp /root/.kube/config
+#Install istio
+istioctl install --set profile=default -y
+
+#Install knative serving
+sudo -E kubectl apply --filename https://github.com/knative/serving/releases/download/knative-v1.4.0/serving-crds.yaml
+sudo -E kubectl apply --filename https://github.com/knative/serving/releases/download/knative-v1.4.0/serving-core.yaml
+sudo -E kubectl apply --filename https://github.com/knative-sandbox/net-istio/releases/download/knative-v1.4.0/release.yaml
+
+#If you are building a test lab install this for a test dynamic DNS solution
+sudo -E kubectl apply --filename https://github.com/knative/serving/releases/download/knative-v1.4.0/serving-default-domain.yaml
+
+#Install eventing
+sudo -E kubectl apply --filename https://github.com/knative/eventing/releases/download/knative-v1.2.2/eventing-crds.yaml
+sudo -E kubectl apply --filename https://github.com/knative/eventing/releases/download/knative-v1.2.2/eventing-core.yaml
+sudo -E kubectl apply --filename https://github.com/knative/eventing/releases/download/knative-v1.2.2/in-memory-channel.yaml
+sudo -E kubectl apply --filename https://github.com/knative/eventing/releases/download/knative-v1.2.2/mt-channel-broker.yaml
+
+#Configure namespace for serverless services
+sudo kubectl apply -f ns.yaml
+sudo kubectl config set-context --current --namespace testing
+
+#Deploy knative services
+#We will deploy 2 versions of a service
+for version in {1..2}; do
+cat << EOF | sudo kubectl apply -f -
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: hellosvc
+  namespace: testing
+spec:
+  template:
+    metadata:
+      name: hellosvc-v$version
+    spec:
+      containers:
+        - image: docker.io/cloudacademydevops/helloworld:v1
+          env:
+            - name: SENDER
+              value: "testing.knative.v$version"
+EOF
+done
+#Get service
+sudo kubectl get kservice
+#Test service
+HELLO_SVC_URL=$(sudo kubectl get ksvc/hellosvc -o jsonpath="{.status.url}")
+echo $HELLO_SVC_URL
+curl $HELLO_SVC_URL/hello
+#Get revisions
+sudo kubectl get revision
+
+#Test services with traffic splitting
+cat << EOF | sudo kubectl apply -f -
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: hellosvc
+  namespace: testing
+spec:
+  template:
+    metadata:
+      name: hellosvc-v3
+    spec:
+      containers:
+        - image: docker.io/cloudacademydevops/helloworld:v1
+          env:
+            - name: SENDER
+              value: "testing.knative.v3"
+  traffic:
+  - tag: prod
+    revisionName: hellosvc-v3
+    percent: 50
+  - tag: staging
+    revisionName: hellosvc-v2
+    percent: 50
+  - tag: latest
+    latestRevision: true
+    percent: 0
+EOF
+
+#Test
+sudo kubectl get ksvc
+HELLO_SVC_URL=$(sudo kubectl get ksvc/hellosvc -o jsonpath="{.status.url}")
+echo $HELLO_SVC_URL
+for i in {1..10}; do
+curl $HELLO_SVC_URL/hello
+done
+
+#Test with tags
+HELLO_SVC_URL_PROD=${HELLO_SVC_URL/hellosvc/prod-hellosvc}
+curl $HELLO_SVC_URL_PROD/hello
+HELLO_SVC_URL_STAGING=${HELLO_SVC_URL/hellosvc/staging-hellosvc}
+curl $HELLO_SVC_URL_STAGING/hello
+
+#Configure autoscaling
+cat << EOF | sudo kubectl apply -f -
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: hellosvc
+  namespace: testing
+spec:
+  template:
+    metadata:
+      name: hellosvc-v4
+      annotations:
+        # 2 requests in-flight per pod - for testing
+        autoscaling.knative.dev/class:  kpa.autoscaling.knative.dev
+        autoscaling.knative.dev/metric: concurrency
+        autoscaling.knative.dev/target: "2"
+        autoscaling.knative.dev/minScale: "0"
+        autoscaling.knative.dev/maxScale: "20"
+    spec:
+      containers:
+        - image: docker.io/cloudacademydevops/helloworld:v4
+          imagePullPolicy: Always
+          env:
+            - name: SENDER
+              value: "cloudacademy.knative.v4"
+EOF
+
