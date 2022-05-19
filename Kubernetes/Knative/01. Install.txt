@@ -135,3 +135,343 @@ spec:
               value: "cloudacademy.knative.v4"
 EOF
 
+#Send 20 concurrent curl requests 5 times for a total of 100 requests
+for i in {1..100}; do echo $HELLO_SVC_URL/hello?id=$i; done | xargs -P 20 -n 1 curl
+
+
+#KNative eventing
+#Install PingSource
+cat << EOF | sudo kubectl apply -f -
+apiVersion: sources.knative.dev/v1alpha2
+kind: PingSource
+metadata:
+  name: ping-cloudacademy
+  namespace: cloudacademy
+spec:
+  schedule: "* * * * *"
+  jsonData: '{"message": "knative rocks!!"}'
+  sink:
+    ref:
+      apiVersion: serving.knative.dev/v1
+      kind: Service
+      name: cloudacademy-service
+EOF
+
+#Install simple logger
+cat << EOF | sudo kubectl apply -f -
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: cloudacademy-service
+  namespace: cloudacademy
+spec:
+  template:
+    metadata:
+      name: cloudacademy-service-v1
+    spec:
+      containers:
+      - image: cloudacademydevops/simplelogger:v1
+        ports:
+        - containerPort: 8080
+EOF
+
+#Examine simple logger pod
+SIMPLELOGGER_POD=$(sudo kubectl get pod -l app=cloudacademy-service-v1 --no-headers=true -o custom-columns=:metadata.name)
+echo $SIMPLELOGGER_POD
+
+sudo kubectl logs $SIMPLELOGGER_POD -c user-container --follow
+
+#Eventing channel and subscription
+#Install inmemorychannel
+cat << EOF | kubectl apply -f -
+apiVersion: messaging.knative.dev/v1
+kind: InMemoryChannel
+metadata:
+  name: cloudacademy-channel
+  namespace: cloudacademy
+EOF
+
+#Install pingsource
+cat << EOF | kubectl apply -f -
+apiVersion: sources.knative.dev/v1alpha2
+kind: PingSource
+metadata:
+  name: ping-cloudacademy
+  namespace: cloudacademy
+spec:
+  schedule: "* * * * *"
+  jsonData: '{"message": "knative rocks!!", "from": "pingsource - channelsub"}'
+  sink:
+    ref:
+      apiVersion: messaging.knative.dev/v1
+      kind: InMemoryChannel
+      name: cloudacademy-channel
+EOF
+
+#Install 2* simplelogger
+cat << EOF | kubectl apply -f -
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: cloudacademy-service1
+  namespace: cloudacademy
+spec:
+  template:
+    metadata:
+      name: cloudacademy-service1-v1
+      annotations:
+        autoscaling.knative.dev/minScale: "1"
+        autoscaling.knative.dev/maxScale: "1"
+    spec:
+      containers:
+      - image: cloudacademydevops/simplelogger:v1
+        ports:
+        - containerPort: 8080
+---
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: cloudacademy-service2
+  namespace: cloudacademy
+spec:
+  template:
+    metadata:
+      name: cloudacademy-service2-v1
+      annotations:
+        autoscaling.knative.dev/minScale: "1"
+        autoscaling.knative.dev/maxScale: "1"
+    spec:
+      containers:
+      - image: cloudacademydevops/simplelogger:v1
+        ports:
+        - containerPort: 8080
+EOF
+
+#Install 2* subscription
+cat << EOF | kubectl apply -f -
+apiVersion: messaging.knative.dev/v1
+kind: Subscription
+metadata:
+  name: cloudacademy-sub1
+  namespace: cloudacademy
+spec:
+  channel:
+    apiVersion: messaging.knative.dev/v1
+    kind: InMemoryChannel
+    name: cloudacademy-channel
+  subscriber:
+    ref:
+      apiVersion: serving.knative.dev/v1
+      kind: Service
+      name: cloudacademy-service1
+---
+apiVersion: messaging.knative.dev/v1
+kind: Subscription
+metadata:
+  name: cloudacademy-sub2
+  namespace: cloudacademy
+spec:
+  channel:
+    apiVersion: messaging.knative.dev/v1
+    kind: InMemoryChannel
+    name: cloudacademy-channel
+  subscriber:
+    ref:
+      apiVersion: serving.knative.dev/v1
+      kind: Service
+      name: cloudacademy-service2
+EOF
+
+#Examine simplelogger pod
+SIMPLELOGGER_SVC1_POD=$(kubectl get pod -l app=cloudacademy-service1-v1 --no-headers=true -o custom-columns=:metadata.name)
+SIMPLELOGGER_SVC2_POD=$(kubectl get pod -l app=cloudacademy-service2-v1 --no-headers=true -o custom-columns=:metadata.name)
+
+echo $SIMPLELOGGER_SVC1_POD
+echo $SIMPLELOGGER_SVC2_POD
+
+kubectl logs $SIMPLELOGGER_SVC1_POD -c user-container --follow
+kubectl logs $SIMPLELOGGER_SVC2_POD -c user-container --follow
+
+#Broker and trigger
+#Configure automatic eventing injection
+kubectl label ns cloudacademy knative-eventing-injection=enabled
+
+#Install broker
+cat << EOF | kubectl apply -f -
+apiVersion: eventing.knative.dev/v1
+kind: broker
+metadata:
+ name: default
+ namespace: cloudacademy
+EOF
+
+#Get broker url
+kubectl config set-context --current --namespace cloudacademy
+kubectl get broker default
+
+#Install pingsource
+cat << EOF | kubectl apply -f -
+apiVersion: sources.knative.dev/v1alpha2
+kind: PingSource
+metadata:
+  name: ping-cloudacademy
+  namespace: cloudacademy
+spec:
+  schedule: "* * * * *"
+  jsonData: '{"message": "knative rocks!!", "from": "pingsource - brokertrigger"}'
+  sink:
+    ref:
+      apiVersion: eventing.knative.dev/v1
+      kind: Broker
+      name: default
+EOF
+
+#Install 3* simplelogger
+cat << EOF | kubectl apply -f -
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: cloudacademy-service1
+  namespace: cloudacademy
+spec:
+  template:
+    metadata:
+      name: cloudacademy-service1-v1
+      annotations:
+        autoscaling.knative.dev/minScale: "1"
+        autoscaling.knative.dev/maxScale: "1"
+    spec:
+      containers:
+      - image: cloudacademydevops/simplelogger:v1
+        ports:
+        - containerPort: 8080
+---
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: cloudacademy-service2
+  namespace: cloudacademy
+spec:
+  template:
+    metadata:
+      name: cloudacademy-service2-v1
+      annotations:
+        autoscaling.knative.dev/minScale: "1"
+        autoscaling.knative.dev/maxScale: "1"
+    spec:
+      containers:
+      - image: cloudacademydevops/simplelogger:v1
+        ports:
+        - containerPort: 8080
+---
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: cloudacademy-service3
+  namespace: cloudacademy
+spec:
+  template:
+    metadata:
+      name: cloudacademy-service3-v1
+      annotations:
+        autoscaling.knative.dev/minScale: "1"
+        autoscaling.knative.dev/maxScale: "1"
+    spec:
+      containers:
+      - image: cloudacademydevops/simplelogger:v1
+        ports:
+        - containerPort: 8080
+EOF
+
+#Install 3* trigger
+cat << EOF | kubectl apply -f -
+apiVersion: eventing.knative.dev/v1
+kind: Trigger
+metadata:
+  name: cloudacademy-trigger1
+  namespace: cloudacademy
+spec:
+  broker: default
+  filter:
+    attributes:
+      type: dev.knative.sources.ping
+  subscriber:
+    ref:
+      apiVersion: serving.knative.dev/v1
+      kind: Service
+      name: cloudacademy-service1
+---
+apiVersion: eventing.knative.dev/v1
+kind: Trigger
+metadata:
+  name: cloudacademy-trigger2
+  namespace: cloudacademy
+spec:
+  broker: default
+  filter:
+    attributes:
+      type: dev.knative.sources.ping
+  subscriber:
+    ref:
+      apiVersion: serving.knative.dev/v1
+      kind: Service
+      name: cloudacademy-service2
+---
+apiVersion: eventing.knative.dev/v1
+kind: Trigger
+metadata:
+  name: cloudacademy-trigger3
+  namespace: cloudacademy
+spec:
+  broker: default
+  filter:
+    attributes:
+      type: cloudacademy.app.blah
+  subscriber:
+    ref:
+      apiVersion: serving.knative.dev/v1
+      kind: Service
+      name: cloudacademy-service3
+EOF
+
+#Create curler pod
+cat << EOF | kubectl apply -f -
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    run: curler
+  name: curler
+  namespace: cloudacademy
+spec:
+  containers:
+  - name: curler
+    image: fedora:latest
+    tty: true
+EOF
+
+#Get broker url
+BROKER_URL=$(kubectl get broker default -o jsonpath='{.status.address.url}')
+echo BROKER_URL: $BROKER_URL
+
+#Perform post
+kubectl exec -it curler -- curl -v $BROKER_URL \
+-H "Ce-Id: say-hello" \
+-H "Ce-Specversion: 1.0" \
+-H "Ce-Type: cloudacademy.app.blah" \
+-H "Ce-Source: mycurl" \
+-H "Content-Type: application/json" \
+-d '{"key":"curl cloudevent message!!"}'
+
+#Examine simplelogger pod
+SIMPLELOGGER_SVC1_POD=$(kubectl get pod -l app=cloudacademy-service1-v1 --no-headers=true -o custom-columns=:metadata.name)
+SIMPLELOGGER_SVC2_POD=$(kubectl get pod -l app=cloudacademy-service2-v1 --no-headers=true -o custom-columns=:metadata.name)
+SIMPLELOGGER_SVC3_POD=$(kubectl get pod -l app=cloudacademy-service3-v1 --no-headers=true -o custom-columns=:metadata.name)
+
+echo $SIMPLELOGGER_SVC1_POD
+echo $SIMPLELOGGER_SVC2_POD
+echo $SIMPLELOGGER_SVC3_POD
+
+kubectl logs $SIMPLELOGGER_SVC1_POD -c user-container --follow
+kubectl logs $SIMPLELOGGER_SVC2_POD -c user-container --follow
+kubectl logs $SIMPLELOGGER_SVC3_POD -c user-container --follow
