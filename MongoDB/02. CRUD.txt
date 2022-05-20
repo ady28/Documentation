@@ -1,0 +1,31 @@
+#Use a specific db
+use dbname
+
+#List collections
+show collections
+
+#Create a db
+use test1
+#Create collection
+db.createCollection("testcol")
+#Drop collection
+db.getCollection("testcol").drop()
+#Drop database
+db.dropDatabase()
+
+#Inserting data
+#Insert empty document
+db.getCollection("testcol1").insert({})
+#Get data
+db.testcol1.find()
+#Insert array of empty objects
+db.getCollection("testcol1").insert([{},{},{}])
+
+#Insert only one document at a time and get back the id
+db.getCollection("testcol1").insertOne({})
+
+#Insert many documents at a time and get back the ids
+db.getCollection("testcol1").insertMany([{},{},{}])
+
+#Remove all documents
+db.getCollection("testcol1").remove({})
