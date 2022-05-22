@@ -29,3 +29,49 @@ db.getCollection("testcol1").insertMany([{},{},{}])
 
 #Remove all documents
 db.getCollection("testcol1").remove({})
+
+#Insert multiple data types
+db.getCollection("testcol1").insertOne({"string":"Test","Number":10,"NumberInt":NumberInt(10),"NumberLong":NumberLong(10),"Date":new Date(),"Array":[1,2,3,4],"Object":{"Name:":"Test","Data":10}})
+
+#find() returns a cursor to iterate through and findOne() just returns a document
+
+#Count documents
+db.getCollection('testcol1').find({}).count()
+
+#Limit number of documents
+db.getCollection('testcol1').find({}).limit(4)
+
+#Skip number of documents
+db.getCollection('testcol1').find({}).skip(4)
+
+#Sort by a field in ascending order
+db.getCollection('testcol1').find({}).sort({"forwardpe":1})
+
+#The order of execution is always sort, skip and limit independent of the order you use them
+db.getCollection('testcol1').find({}).limit(2).skip(4).sort({"forwardpe":1})
+
+#Count ignores anything and returns the total number of documents
+db.getCollection('testcol1').find({}).limit(2).skip(4).sort({"forwardpe":1}).count()
+
+#Find a single document
+db.getCollection('testcol1').findOne()
+db.getCollection('testcol1').findOne({"ticker":"MSFT"})
+
+#Find by field value
+db.getCollection('testcol1').find({"ticker":"IVR"})
+db.getCollection('testcol1').find({"ticker":"IVR","city":"Atlanta"})
+#Find with comparison operators
+db.getCollection('testcol1').find({"forwardpe":{"$gt":5}})
+db.getCollection('testcol1').find({"ticker":{"$ne":"IVR"}})
+db.getCollection('testcol1').find({"city":{"$in":["Redmond","Atlanta"]}})
+
+#Use and
+db.getCollection('testcol1').find({"$and":[{"city":{"$in":["Redmond","Atlanta"]}},{"ticker":{"$ne":"IVR"}}]})
+#You can also use or
+
+#Return only some fields
+db.getCollection('testcol1').find({},{ticker:1,forwardpe:1})
+db.getCollection('testcol1').find({},{ticker:1,forwardpe:1,_id:0})
+db.getCollection('testcol1').find({},{ticker:1,forwardpe:1,_id:0,"earningsnext.date1":1,"earningsnext.date2":1})
+
+#Find can also be used with $regex
