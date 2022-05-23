@@ -75,3 +75,38 @@ db.getCollection('testcol1').find({},{ticker:1,forwardpe:1,_id:0})
 db.getCollection('testcol1').find({},{ticker:1,forwardpe:1,_id:0,"earningsnext.date1":1,"earningsnext.date2":1})
 
 #Find can also be used with $regex
+
+#Update one or more fields
+db.getCollection('testcol1').update({"ticker":"IVR"},{"$set":{"name":"Sample","recommtrend":{}}})
+#Delete fields
+db.getCollection('testcol1').update({"ticker":"IVR"},{"$unset":{"name":1}})
+#Update multiple documents
+db.getCollection('testcol1').update({},{"$set":{"testdata":"Sample"}},{"multi":true})
+#Replace a document
+db.getCollection('testcol1').replaceOne({"ticker":"IVR"},{})
+#Use multiple update operators at a time
+db.getCollection('testcol1').update({"ticker":"VALE"},{"$unset":{"name":1},"$set":{"col1":21}})
+#Rename a field
+db.getCollection('testcol1').update({"ticker":"VALE"},{"$rename":{"beta":"BETA"}})
+#Set a field to the current date without using $set
+db.getCollection('testcol1').update({"ticker":"VALE"},{"$currentDate":{"lastUpdated":true}})
+
+#Push to an array
+db.getCollection('testcol1').update({"ticker":"VALE"},{"$push":{"testarray":{"elem1":"a"}}})
+#Push ,ultiple elements
+db.getCollection('testcol1').update({"ticker":"VALE"},{"$push":{"testarray":{"$each":[{"elem1":"b"},{"elem1":"c"}]}}})
+#Add element to array only if it doesn't exist
+db.getCollection('testcol1').update({"ticker":"VALE"},{"$addToSet":{"testarray":{"elem1":"a"}}})
+db.getCollection('testcol1').update({"ticker":"VALE"},{"$addToSet":{"testarray":{"$each":[{"elem1":"c"},{"elem1":"d"}]}}})
+#Remove first element of array
+db.getCollection('testcol1').update({"ticker":"VALE"},{"$pop":{"testarray":-1}})
+#Remove last element of array
+db.getCollection('testcol1').update({"ticker":"VALE"},{"$pop":{"testarray":1}})
+#Remove a specific element from an array
+db.getCollection('testcol1').update({"ticker":"VALE"},{"$pull":{"testarray":{"elem1":"c"}}})
+db.getCollection('testcol1').update({"ticker":"VALE"},{"$pull":{"testarray":{"$gt":{"elem1":"a"}}}})
+#Delete all occurances of any of the items listed
+db.getCollection('testcol1').update({"ticker":"VALE"},{"$pullAll":{"testarray":[{"elem1":"c"},{"elem1":"d"}]}})
+
+#Increment number field
+db.getCollection('testcol1').update({"ticker":"MSFT"},{"$inc":{"beta":2}})
