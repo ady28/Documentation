@@ -110,3 +110,10 @@ db.getCollection('testcol1').update({"ticker":"VALE"},{"$pullAll":{"testarray":[
 
 #Increment number field
 db.getCollection('testcol1').update({"ticker":"MSFT"},{"$inc":{"beta":2}})
+
+#Remove a document
+db.getCollection('testcol1').remove({"ticker":"MSFT"},true)
+#Remove documents matching query
+db.getCollection('testcol1').remove({"BETA": {"$exists": true}})
+#Remove all documents
+db.getCollection('testcol1').remove({})
