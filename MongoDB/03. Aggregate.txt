@@ -32,3 +32,40 @@ db.getCollection("testcol1").aggregate([
 	{$match: {"employeeno": {$gt: 10000}}},
 	{$project: {_id: 0, employeeno: 1, city: 1, country: 1}}
 ])
+
+#Add limit
+db.getCollection("testcol1").aggregate([
+	{$match: {"employeeno": {$gt: 10000}}},
+	{$project: {_id: 0, employeeno: 1, city: 1, country: 1}},
+	{$limit: 3}
+])
+
+#Add unwind
+db.getCollection("testcol1").aggregate([
+	{$match: {"employeeno": {$gt: 10000}}},
+	{$unwind: "$cashflowh"}
+	{$project: {_id: 0, ticker: 1, city: 1, country: 1, cash:"$cashflowh.enddate"}}
+])
+
+#Add accumulators
+db.getCollection("testcol1").aggregate([
+	{$match: {"employeeno": {$gt: 10000}}},
+	{$unwind: "$cashflowh"},
+	{$project: {_id: 0, ticker: 1, city: 1, country: 1, cash:"$cashflowh.enddate", depreciation:"$cashflowh.depreciation"}},
+        {$group: {_id: "$cash", avgdepr: {$avg: "$depreciation"}}}
+])
+
+#Create new collection with data
+db.getCollection("testcol1").aggregate([
+	{$match: {"employeeno": {$gt: 10000}}},
+	{$unwind: "$cashflowh"},
+	{$project: {_id: 0, ticker: 1, city: 1, country: 1, cash:"$cashflowh.enddate", depreciation:"$cashflowh.depreciation"}},
+        {$group: {_id: "$cash", avgdepr: {$avg: "$depreciation"}}},
+        {$out: "results"}
+])
+
+
+#Aggregation is done by default in RAM with a limit of 100MB. To use disk just add this option to your aggregation command:
+db.getCollection("testcol1").aggregate([
+	{$match: {"employeeno": {$gt: 10000}}}
+], allowDiskUse: true)
