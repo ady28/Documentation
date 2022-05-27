@@ -1,0 +1,25 @@
+#mongoexport exports data in JSON or CSV format
+mongoexport --db database --collection col --out file.json
+mongoexport --db database --collection col --out file.json --query '{query}'
+
+#mongoimport imports JSON files
+mongoimport --db database --collection col --file file.json
+
+#mongodump will export data in binary format
+#dump all DBs except local
+mongodump
+#dump the testDB database
+mongodump --db testDB
+#dump a collection
+mongodump --db testDB --collection testcol
+#make dump in a specific directory
+mongodump --db testDB --out /dir/dump
+#compress data
+mongodump --db testDB --archive=archdata --gzip
+
+#restore mongodump data from the dump directory in current folder
+#use --dir for another directory
+#use --archive=file --gzip to restore from a compressed file
+mongorestore
+
+#mongostat and mongotop show statistics about the performance of the database

@@ -1,0 +1,21 @@
+#Get indexes
+db.getCollection('testcol1').getIndexes()
+
+#Create an index
+#Get indexes
+db.getCollection('testcol1').createIndex({name: 1})
+#This query should use the index now
+db.getCollection('testcol1').find({}).sort({"name":1})
+#To create an index on a large collection
+db.getCollection('testcol1').createIndex({name: 1},{background: true})
+#Indexes can have custom names
+db.getCollection('testcol1').createIndex({name: 1},{name: "indexfortest"})
+
+#Check if query uses the index
+db.getCollection('testcol1').find({}).sort({"name":1}).explain()
+#look in queryPlanner, winningPlan, winningPlan and stage should be IXSCAN
+#Get more info from explain
+db.getCollection('testcol1').find({}).sort({"name":1}).explain("executionStats")
+
+#Delete an index
+db.getCollection('testcol1').dropIndex({name: 1})
