@@ -1,0 +1,9 @@
+#Install
+sudo curl -L "https://github.com/hadolint/hadolint/releases/download/v2.10.0/hadolint-Linux-x86_64" --output /usr/bin/hadolint
+#Assign execute permissions
+sudo chmod +x hadolint
+
+#Run it against a dockerfile
+hadolint Dockerfile
+hadolint Dockerfile --info DL3008 -t warning -f json | tee -a dockerfile_lint.json
+
