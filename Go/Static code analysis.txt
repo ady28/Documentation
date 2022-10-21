@@ -1,0 +1,10 @@
+#Install statickcheck
+curl -L "https://github.com/dominikh/go-tools/releases/download/v0.3.3/staticcheck_linux_amd64.tar.gz" -o staticcheck.tar.gz
+tar -xf staticcheck.tar.gz
+sudo mv ./staticcheck/staticcheck /usr/bin/
+
+#Usage
+#Scan a file
+staticcheck ws.go
+#Scan all modules in current directory
+staticcheck ./...
