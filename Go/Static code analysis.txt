@@ -8,3 +8,12 @@ sudo mv ./staticcheck/staticcheck /usr/bin/
 staticcheck ws.go
 #Scan all modules in current directory
 staticcheck ./...
+
+
+#Install gosec
+curl -L "https://github.com/securego/gosec/releases/download/v2.14.0/gosec_2.14.0_linux_amd64.tar.gz" -o gosec.tar.gz
+tar -xf gosec.tar.gz
+sudo mv ./gosec /usr/bin
+
+#Use
+gosec ./...
