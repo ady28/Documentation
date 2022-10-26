@@ -1,0 +1,4 @@
+#In the project directory run go get module@v0.0.0 (or whatever version)
+#There should be a line added in go.mod with //indirect
+
+#EG: go get golang.org/x/text@v0.3.8
