@@ -9,3 +9,7 @@ sudo apt-get install trivy
 trivy image lnx1:5000/stocksimportapi:test
 #Scan image, output results to a file as JSON and return exit code 1 if any vulnerabilities are found
 trivy image lnx1:5000/stocksimportapi:test -f json -o testtrivy.json --exit-code 1 -s "HIGH,CRITICAL"
+
+#Use powershell to read json
+$a=Get-Content .\trivy.json -Raw | ConvertFrom-Json
+$a.Results.Vulnerabilities | select PkgName,InstalledVersion,FixedVersion
