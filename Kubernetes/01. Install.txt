@@ -130,11 +130,35 @@ kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documen
 kubectl get pods --all-namespaces
 
 #Install for ubuntu
+swapoff -a
+#Comment out the swap line in /etc/fstab
+
 sudo curl -fsSLo /usr/share/keyrings/kubernetes-archive-keyring.gpg https://packages.cloud.google.com/apt/doc/apt-key.gpg
 echo "deb [signed-by=/usr/share/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee /etc/apt/sources.list.d/kubernetes.list
 sudo apt-get update
 sudo apt-get install -y kubelet kubeadm kubectl
+sudo apt-mark hold kubelet kubeadm kubectl
 #The rest is the same as for centos
+
+#Install containerd
+sudo modprobe overlay
+sudo modprobe br_netfilter
+sudo tee /etc/sysctl.d/kubernetes.conf EOF
+net.bridge.bridge-nf-call-ip6tables = 1
+net.bridge.bridge-nf-call-iptables = 1
+net.ipv4.ip_forward = 1
+EOF
+sudo sysctl --system
+sudo apt install -y curl gnupg2 software-properties-common apt-transport-https ca-certificates
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+sudo apt-get install containerd.io -y
+sudo mkdir -p /etc/containerd
+sudo su -
+containerd config default>/etc/containerd/config.toml
+exit
+sudo systemctl restart containerd
+sudo systemctl enable containerd
 
 #Join worker nodes
 sudo kubeadm join 192.168.1.247:6443 --token xckfqx.3o9hrwl50pd75y8z --discovery-token-ca-cert-hash sha256:7acb95dab4dc3aa93e31244d8bcdb31ed7ef97ffbc85f28716fde81055f41012
