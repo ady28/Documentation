@@ -141,9 +141,13 @@ sudo apt-mark hold kubelet kubeadm kubectl
 #The rest is the same as for centos
 
 #Install containerd
+cat <<EOF | sudo tee /etc/modules-load.d/containerd.conf
+verlay
+br_netfilter
+EOF
 sudo modprobe overlay
 sudo modprobe br_netfilter
-sudo tee /etc/sysctl.d/kubernetes.conf EOF
+cat <<EOF | sudo tee /etc/sysctl.d/kubernetes.conf
 net.bridge.bridge-nf-call-ip6tables = 1
 net.bridge.bridge-nf-call-iptables = 1
 net.ipv4.ip_forward = 1
