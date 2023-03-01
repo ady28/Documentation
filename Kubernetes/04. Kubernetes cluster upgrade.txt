@@ -1,0 +1,39 @@
+#Upgrading kubernetes cluster with no downtime
+
+### Start by upgrading the control plane node
+#See the current kubeadm version
+kubeadm version
+#Upgrade kubeadm
+sudo apt-mark unhold kubeadm
+sudo apt-get update && sudo apt-get install -y kubeadm=1.26.2-00
+sudo apt-mark hold kubeadm
+#Check the upgrade plan
+sudo kubeadm upgrade plan
+#Apply upgrade
+sudo kubeadm upgrade apply v1.26.2
+#Upgrade kubelet and kubectl
+sudo apt-mark unhold kubelet kubectl
+sudo apt-get update && sudo apt-get install -y kubelet=1.26.2-00 kubectl=1.26.2-00
+sudo apt-mark hold kubelet kubectl
+#Restart kubelet
+sudo systemctl daemon-reload
+sudo systemctl restart kubelet
+
+### Upgrade each worker node at a time
+#Upgrade kubeadm
+sudo apt-mark unhold kubeadm
+sudo apt-get update && sudo apt-get install -y kubeadm=1.26.2-00
+sudo apt-mark hold kubeadm
+#Upgrade node
+sudo kubeadm upgrade node
+#Drain the node (run from control plane node)
+kubectl drain node_name --ignore-daemonsets --delete-emptydir-data
+#Upgrade kubelet and kubectl
+sudo apt-mark unhold kubelet kubectl
+sudo apt-get update && sudo apt-get install -y kubelet=1.26.2-00 kubectl=1.26.2-00
+sudo apt-mark hold kubelet kubectl
+#Restart kubelet
+sudo systemctl daemon-reload
+sudo systemctl restart kubelet
+#Bring node back online (run from control plane node)
+kubectl uncordon node_name
