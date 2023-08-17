@@ -9,3 +9,10 @@ sudo pip install --proxy=http:192.168.1.254:80 pywinrm
 #Check version
 ansible --version
 
+###CentOS 8
+sudo yum install epel-release -y
+sudo yum install ansible -y
+
+#Generate an example cfg file
+ansible-config init --disabled > ansible.cfg
+

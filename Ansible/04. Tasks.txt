@@ -1,5 +1,17 @@
 #Run the ansible ping command on all hosts
 ansible -m ping all
 
+#Gather facts
+ansible -m setup all
+
 #Run the shell function with the uname parameter
 ansible -m shell -a "uname" webservers
+
+#Install and uninstall something on centos8
+ansible -i inv.ini local -m yum -a "name=emacs state=latest use_backend=dnf" -b --ask-become-pass
+ansible -i inv.ini local -m yum -a "name=emacs state=absent use_backend=dnf" -b --ask-become-pass
+
+#Create a file
+ansible -i inv.ini local -m file -a "path=/home/user100/testfile state=touch"
+#Get data about file
+ansible -i inv.ini local -m file -a "path=/home/user100/testfile"
