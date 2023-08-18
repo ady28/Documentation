@@ -17,3 +17,73 @@ win ansible_host=SMinion04 ansible_connection=winrm ansible_winrm_cert_pem=/home
 control ansible_host=smaster ansible_connection=local
 #Test inventory
 ansible -i hosts-dev --list-hosts all
+
+####Working with inventories and variables + playbooks
+#Create an ansible directory
+mkdir ansible
+cd ansible
+#Create an inventory file inv.ini with the content:
+[local]
+rocky01.testcorp.local ansible_connection=local
+
+[httpd]
+rocky02.testcorp.local
+rocky03.testcorp.local
+
+[test_servers]
+rocky0[2:3].testcorp.local
+
+#Create an ansible.cfg file with the content:
+[defaults]
+inventory=inv.ini
+host_key_checking=False
+
+#Create group_vars and host_vars directories
+mkdir group_vars host_vars
+#In group_vars put test_servers.yaml with content
+logs: /var/log/messages
+#In host_vars put rocky01.testcorp.local.yaml with content
+opt_dir: /opt
+
+#Test variables
+ansible rocky01.testcorp.local -a "ls -l {{opt_dir}}"
+ansible test_servers -a "ls -l {{logs}}"
+ansible]$ ansible test_servers -a "tail {{logs}}" -b --ask-become-pass
+
+#Create playbooks
+mkdir playbooks
+cd playbooks
+#Create a web playbook web.yaml and write:
+---
+  - hosts: httpd
+    become: true
+    tasks:
+      - name: Install apache
+        yum:
+          name: httpd
+          state: latest
+          use_backend: dnf
+      - name: Start and enable apache
+        service:
+          name: httpd
+          state: started
+          enabled: yes
+      - name: Create index.html file
+        copy:
+          dest: /var/www/html/index.html
+          content: ""
+          force: false
+      - name: Add line to index.html
+        lineinfile:
+          path: /var/www/html/index.html
+          line: "<h1>Hello!</h1>"
+      - name: Enable firewall for http traffic
+        firewalld:
+          service: http
+          permanent: true
+          state: enabled
+          immediate: yes
+#Run
+ansible-playbook web.yaml -i ../inv.ini --ask-become-pass -f 5
+#Check httpd is insta;;ed
+sudo dnf list httpd
