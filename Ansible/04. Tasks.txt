@@ -15,3 +15,8 @@ ansible -i inv.ini local -m yum -a "name=emacs state=absent use_backend=dnf" -b 
 ansible -i inv.ini local -m file -a "path=/home/user100/testfile state=touch"
 #Get data about file
 ansible -i inv.ini local -m file -a "path=/home/user100/testfile"
+
+#Get facts with filter
+ansible local -m setup -a "filter='*dist*'"
+#See local facts
+ansible local -m setup -a "filter='*ansible_local*'"

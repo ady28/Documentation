@@ -45,6 +45,12 @@ logs: /var/log/messages
 #In host_vars put rocky01.testcorp.local.yaml with content
 opt_dir: /opt
 
+#Create local facts on nodes
+sudo mkdir /etc/ansible/facts.d
+#Create general.fact file with content (make it different for other servers for testing):
+[location]
+name=NY
+
 #Test variables
 ansible rocky01.testcorp.local -a "ls -l {{opt_dir}}"
 ansible test_servers -a "ls -l {{logs}}"
@@ -114,6 +120,9 @@ cd playbooks
           force: false
         when:
           - ansible_hostname == "rocky03"
+      - name: Use groups magic variable and separate items by space
+        debug:
+          msg: "Servers in the httpd group: {{ groups.httpd|join(' ') }}"
 #Run
 ansible-playbook web.yaml -i ../inv.ini --ask-become-pass -f 5
 #Check httpd is insta;;ed
