@@ -57,6 +57,12 @@ cd playbooks
 ---
   - hosts: httpd
     become: true
+    handlers:
+      - name: Restart apache
+        service:
+          name: httpd
+          state: restarted
+        listen: apache restart
     tasks:
       - name: Install apache
         yum:
@@ -83,6 +89,31 @@ cd playbooks
           permanent: true
           state: enabled
           immediate: yes
+      - name: Copy a test file and trigger apache restart
+        copy:
+          src: testfile
+          dest: /home/user100/testreg
+          mode: 0400
+        register: copy_res
+        notify: apache restart
+      - name: Show result of copy command
+        debug: msg="The copy of the test file returned {{ copy_res }}"
+        ignore_errors: yes
+      - name: Copy multiple files
+        copy:
+          src: "{{item}}"
+          dest: "/home/user100/{{item}}"
+          mode: 0400
+        with_items:
+          - file1
+          - file2
+      - name: Create a file only for a hostname
+        copy:
+          dest: /home/user100/whenfile
+          content: ""
+          force: false
+        when:
+          - ansible_hostname == "rocky03"
 #Run
 ansible-playbook web.yaml -i ../inv.ini --ask-become-pass -f 5
 #Check httpd is insta;;ed
