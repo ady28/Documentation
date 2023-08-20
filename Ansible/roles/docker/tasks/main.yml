@@ -1,0 +1,53 @@
+---
+- name: Update yum packages
+  yum: 
+    name: "*"
+    state: latest
+    use_backend: dnf
+- name: Install yum utils
+  yum: 
+    name: yum-utils
+    state: latest
+    use_backend: dnf
+- name: Add docker repo to package manager
+  get_url:
+    url: https://download.docker.com/linux/centos/docker-ce.repo
+    dest: /etc/yum.repos.d/docer-ce.repo
+  environment:
+    http_proxy: http://192.168.1.254:80
+    https_proxy: http://192.168.1.254:80
+- name: Install docker
+  yum: 
+    name:
+    - docker-ce
+    - docker-ce-cli
+    - containerd.io
+    state: latest
+    use_backend: dnf
+- name: Start and enable docker
+  service:
+    name: docker
+    state: started
+    enabled: yes
+- name: Add user to the docker group
+  user:
+    name: user100
+    groups: docker
+    append: yes
+- name: Create docker config directory
+  file:
+    path: /etc/systemd/system/docker.service.d
+    state: directory
+- name: Copy docker proxy config file
+  copy:
+    src: docker_proxy.conf
+    dest: /etc/systemd/system/docker.service.d/proxy.conf
+  notify: docker restart
+- name: Create user local docker directory
+  file:
+    path: /home/user100/.docker
+    state: directory
+- name: Copy docker config file
+  copy:
+    src: local_docker_config.json
+    dest: /home/user100/.docker/config.json
