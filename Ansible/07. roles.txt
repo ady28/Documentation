@@ -16,3 +16,54 @@ ansible-galaxy init roles/webservers
     roles:
       - webservers
 #Copy the setup-app.yml file outside the roles directory
+
+
+###Test roles
+ansible-galaxy init roles/apache
+#Edit the tasks/main.yml file. Add:
+- name: Install apache
+  yum:
+    name: httpd
+    state: latest
+    use_backend: dnf
+- name: Copy apache conf file
+  template:
+    src: apache.conf.j2
+    dest: /etc/httpd/conf/httpd.conf
+  notify: apache restart
+- name: Start and enable apache
+  service:
+    name: httpd
+    state: started
+    enabled: yes
+- name: Copy index file
+  copy:
+    src: index.html
+    dest: /var/www/html/index.html
+#Create the template file
+nano roles/apache/templates/apache.conf.j2
+#Add all text from a standard conf file and find ServerAdmin. change the value to {{ apache_server_admin }}
+#Create index file
+nano roles/apache/files/index.html
+#Add:
+<h1>Apache role works!</h1>
+#Set a default value for apache_server_admin
+nano roles/apache/defaults/main.yml
+#Add:
+apache_server_admin: admin@testcorp.local
+#Add the handler
+nano roles/apache/handlers/main.yml
+#Add:
+- name: Restart apache
+  service:
+    name: httpd
+    state: restarted
+  listen: apache restart
+#Create a playbook directly in ansible folder where roles folder exists
+nano setup-apache.yaml
+#Add
+---
+- hosts: httpd
+  become: true
+  roles:
+    - apache
