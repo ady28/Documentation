@@ -44,19 +44,13 @@
     ansible_distribution_file_variety == "Debian"
 - name: Install docker Fedora
   yum: 
-    name:
-    - docker-ce
-    - docker-ce-cli
-    - containerd.io
+    name: "{{ dockerRole_dockerPackages }}"
     state: present
   when:
     ansible_distribution_file_variety == "RedHat"
 - name: Install docker Debian
   apt: 
-    name:
-    - docker-ce
-    - docker-ce-cli
-    - containerd.io
+    name: "{{ dockerRole_dockerPackages }}"
     state: present
     update_cache: yes
   when:
