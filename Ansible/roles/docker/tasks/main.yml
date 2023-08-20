@@ -1,29 +1,66 @@
 ---
-- name: Update yum packages
-  yum: 
-    name: "*"
-    state: latest
-    use_backend: dnf
-- name: Install yum utils
+- name: Install Fedora prerequisites
   yum: 
     name: yum-utils
-    state: latest
-    use_backend: dnf
-- name: Add docker repo to package manager
+    state: present
+  when:
+    ansible_distribution_file_variety == "RedHat"
+- name: Install Debian prerequisites
+  apt: 
+    name:
+    - apt-transport-https
+    - ca-certificates
+    - curl
+    - gnupg
+    - lsb-release
+    state: present
+    update_cache: yes
+  when:
+    ansible_distribution_file_variety == "Debian"
+- name: Add docker repo to Fedora package manager
   get_url:
     url: https://download.docker.com/linux/centos/docker-ce.repo
     dest: /etc/yum.repos.d/docer-ce.repo
+    use_proxy: "{{ dockerRole_urlUseProxy }}"
   environment:
-    http_proxy: http://192.168.1.254:80
-    https_proxy: http://192.168.1.254:80
-- name: Install docker
+    http_proxy: "{{ dockerRole_httpProxy  }}"
+    https_proxy: "{{ dockerRole_httpsProxy  }}"
+  when:
+    ansible_distribution_file_variety == "RedHat"
+- name: Add Docker GPG apt Key
+  apt_key:
+    url: https://download.docker.com/linux/ubuntu/gpg
+    state: present
+  when:
+    ansible_distribution_file_variety == "Debian"
+  environment:
+    http_proxy: "{{ dockerRole_httpProxy  }}"
+    https_proxy: "{{ dockerRole_httpsProxy  }}"
+- name: Add docker repo to Debian package manager
+  apt_repository:
+    repo: deb https://download.docker.com/linux/ubuntu focal stable
+    state: present
+  when:
+    ansible_distribution_file_variety == "Debian"
+- name: Install docker Fedora
   yum: 
     name:
     - docker-ce
     - docker-ce-cli
     - containerd.io
-    state: latest
-    use_backend: dnf
+    state: present
+  when:
+    ansible_distribution_file_variety == "RedHat"
+- name: Install docker Debian
+  apt: 
+    name:
+    - docker-ce
+    - docker-ce-cli
+    - containerd.io
+    state: present
+    update_cache: yes
+  when:
+    ansible_distribution_file_variety == "Debian"
 - name: Start and enable docker
   service:
     name: docker
@@ -47,7 +84,11 @@
   file:
     path: /home/user100/.docker
     state: directory
+    group: user100
+    owner: user100
 - name: Copy docker config file
   copy:
     src: local_docker_config.json
     dest: /home/user100/.docker/config.json
+    group: user100
+    owner: user100

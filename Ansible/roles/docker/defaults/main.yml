@@ -1,0 +1,6 @@
+---
+dockerRole_httpProxy: http://192.168.1.254:80
+dockerRole_httpsProxy: http://192.168.1.254:80
+dockerRole_noProxy: "*.testcorp.local,localhost,127.0.0.1"
+
+dockerRole_urlUseProxy: true
