@@ -1,0 +1,13 @@
+{
+ {% if dockerRole_useProxyDocker %}
+ "proxies":
+ {
+  "default":
+  {
+   "httpProxy": "{{ dockerRole_httpProxy }}",
+   "httpsProxy": "{{ dockerRole_httpsProxy }}",
+   "noProxy": "{{ dockerRole_noProxy }}"
+  }
+ }
+ {% endif %}
+}

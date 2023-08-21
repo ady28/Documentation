@@ -1,4 +1,10 @@
 ---
+- name: set an optional environment with proxy vars
+  set_fact:
+    proxy_env:
+      http_proxy: "{{ dockerRole_httpProxy }}"
+      https_proxy: "{{ dockerRole_httpsProxy }}"
+  when: dockerRole_useProxy
 - name: Install Fedora prerequisites
   yum: 
     name: yum-utils
@@ -21,21 +27,16 @@
   get_url:
     url: https://download.docker.com/linux/centos/docker-ce.repo
     dest: /etc/yum.repos.d/docer-ce.repo
-    use_proxy: "{{ dockerRole_urlUseProxy }}"
-  environment:
-    http_proxy: "{{ dockerRole_httpProxy  }}"
-    https_proxy: "{{ dockerRole_httpsProxy  }}"
+  environment: "{{ proxy_env | default(omit) }}"
   when:
-    ansible_distribution_file_variety == "RedHat"
+    ansible_distribution_file_variety == "RedHat" and dockerRole_useProxy
 - name: Add Docker GPG apt Key
   apt_key:
     url: https://download.docker.com/linux/ubuntu/gpg
     state: present
   when:
-    ansible_distribution_file_variety == "Debian"
-  environment:
-    http_proxy: "{{ dockerRole_httpProxy  }}"
-    https_proxy: "{{ dockerRole_httpsProxy  }}"
+    ansible_distribution_file_variety == "Debian" and dockerRole_useProxy
+  environment: "{{ proxy_env | default(omit) }}"
 - name: Add docker repo to Debian package manager
   apt_repository:
     repo: deb https://download.docker.com/linux/ubuntu focal stable
@@ -70,19 +71,25 @@
     path: /etc/systemd/system/docker.service.d
     state: directory
 - name: Copy docker proxy config file
-  copy:
-    src: docker_proxy.conf
+  template:
+    src: docker_proxy.conf.j2
     dest: /etc/systemd/system/docker.service.d/proxy.conf
   notify: docker restart
+  when:
+    dockerRole_useProxyDocker
 - name: Create user local docker directory
   file:
-    path: /home/user100/.docker
+    path: "/home/{{ item }}/.docker"
     state: directory
-    group: user100
-    owner: user100
+    group: "{{ item }}"
+    owner: "{{ item }}"
+  with_items:
+  - "{{ dockerRole_dockerUsers }}"
 - name: Copy docker config file
-  copy:
-    src: local_docker_config.json
-    dest: /home/user100/.docker/config.json
-    group: user100
-    owner: user100
+  template:
+    src: local_docker_config.json.j2
+    dest: "/home/{{ item }}/.docker/config.json"
+    group: "{{ item }}"
+    owner: "{{ item }}"
+  with_items:
+  - "{{ dockerRole_dockerUsers }}"

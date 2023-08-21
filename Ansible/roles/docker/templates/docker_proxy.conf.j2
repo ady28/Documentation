@@ -1,0 +1,6 @@
+[Service]
+{% if dockerRole_useProxyDocker %}
+Environment="HTTP_PROXY={{ dockerRole_httpProxy }}"
+Environment="HTTPS_PROXY={{ dockerRole_httpsProxy }}"
+Environment="NO_PROXY={{ dockerRole_noProxy }}"
+{% endif %}
