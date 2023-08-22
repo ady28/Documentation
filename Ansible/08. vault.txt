@@ -13,4 +13,6 @@ vars_files:
       - name: Debug vault contents
         debug:
           msg: "{{ pass }}"
-#Run the playbook with --ask-vault-pass
+#Run the playbook with --ask-vault-pass or --vault-password-file after putting the password in a text file
+
+#When testing playbooks you an put also ansible_become_pass as a variable in the encrypted file and avoid using --ask-become-pass
