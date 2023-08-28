@@ -29,13 +29,13 @@
     dest: /etc/yum.repos.d/docer-ce.repo
   environment: "{{ proxy_env | default(omit) }}"
   when:
-    ansible_distribution_file_variety == "RedHat" and dockerRole_useProxy
+    ansible_distribution_file_variety == "RedHat"
 - name: Add Docker GPG apt Key
   apt_key:
     url: https://download.docker.com/linux/ubuntu/gpg
     state: present
   when:
-    ansible_distribution_file_variety == "Debian" and dockerRole_useProxy
+    ansible_distribution_file_variety == "Debian"
   environment: "{{ proxy_env | default(omit) }}"
 - name: Add docker repo to Debian package manager
   apt_repository:
@@ -93,3 +93,10 @@
     owner: "{{ item }}"
   with_items:
   - "{{ dockerRole_dockerUsers }}"
+- name: Download docker-compose
+  ansible.builtin.get_url:
+    url: "https://github.com/docker/compose/releases/download/{{dockerRole_composeVersion}}/docker-compose-linux-x86_64"
+    dest: /usr/local/bin/docker-compose
+    mode: '0775'
+    checksum: "sha256:https://github.com/docker/compose/releases/download/{{dockerRole_composeVersion}}/docker-compose-linux-x86_64.sha256"
+  environment: "{{ proxy_env | default(omit) }}"

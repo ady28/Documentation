@@ -12,3 +12,5 @@ dockerRole_dockerPackages:
 
 dockerRole_dockerUsers:
 - user100
+
+dockerRole_composeVersion: v2.20.3
