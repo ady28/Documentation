@@ -1,18 +1,22 @@
 ---
+- name: exit if distribution is not supported
+  ansible.builtin.fail:
+    msg: "Distribution {{ ansible_facts['distribution'] }} is not supported"
+  when: (ansible_facts['distribution'] not in dockerRole_supportedFedoraDistros) and (ansible_facts['distribution'] not in dockerRole_supportedDebianDistros)
 - name: set an optional environment with proxy vars
-  set_fact:
+  ansible.builtin.set_fact:
     proxy_env:
       http_proxy: "{{ dockerRole_httpProxy }}"
       https_proxy: "{{ dockerRole_httpsProxy }}"
   when: dockerRole_useProxy
 - name: Install Fedora prerequisites
-  yum: 
+  ansible.builtin.yum: 
     name: yum-utils
     state: present
   when:
-    ansible_distribution_file_variety == "RedHat"
+    ansible_facts['distribution'] in dockerRole_supportedFedoraDistros
 - name: Install Debian prerequisites
-  apt: 
+  ansible.builtin.apt: 
     name:
     - apt-transport-https
     - ca-certificates
@@ -22,77 +26,75 @@
     state: present
     update_cache: yes
   when:
-    ansible_distribution_file_variety == "Debian"
+    ansible_facts['distribution'] in dockerRole_supportedDebianDistros
 - name: Add docker repo to Fedora package manager
-  get_url:
+  ansible.builtin.get_url:
     url: https://download.docker.com/linux/centos/docker-ce.repo
     dest: /etc/yum.repos.d/docer-ce.repo
   environment: "{{ proxy_env | default(omit) }}"
   when:
-    ansible_distribution_file_variety == "RedHat"
+    ansible_facts['distribution'] in dockerRole_supportedFedoraDistros
 - name: Add Docker GPG apt Key
-  apt_key:
+  ansible.builtin.apt_key:
     url: https://download.docker.com/linux/ubuntu/gpg
     state: present
   when:
-    ansible_distribution_file_variety == "Debian"
+    ansible_facts['distribution'] in dockerRole_supportedDebianDistros
   environment: "{{ proxy_env | default(omit) }}"
 - name: Add docker repo to Debian package manager
-  apt_repository:
+  ansible.builtin.apt_repository:
     repo: deb https://download.docker.com/linux/ubuntu focal stable
     state: present
   when:
-    ansible_distribution_file_variety == "Debian"
+    ansible_facts['distribution'] in dockerRole_supportedDebianDistros
 - name: Install docker Fedora
-  yum: 
+  ansible.builtin.yum: 
     name: "{{ dockerRole_dockerPackages }}"
     state: present
   when:
-    ansible_distribution_file_variety == "RedHat"
+    ansible_facts['distribution'] in dockerRole_supportedFedoraDistros
 - name: Install docker Debian
-  apt: 
+  ansible.builtin.apt: 
     name: "{{ dockerRole_dockerPackages }}"
     state: present
     update_cache: yes
   when:
-    ansible_distribution_file_variety == "Debian"
+    ansible_facts['distribution'] in dockerRole_supportedDebianDistros
 - name: Start and enable docker
-  service:
+  ansible.builtin.service:
     name: docker
     state: started
     enabled: yes
 - name: Add user to the docker group
-  user:
+  ansible.builtin.user:
     name: user100
     groups: docker
     append: yes
 - name: Create docker config directory
-  file:
+  ansible.builtin.file:
     path: /etc/systemd/system/docker.service.d
     state: directory
 - name: Copy docker proxy config file
-  template:
+  ansible.builtin.template:
     src: docker_proxy.conf.j2
     dest: /etc/systemd/system/docker.service.d/proxy.conf
   notify: docker restart
   when:
     dockerRole_useProxyDocker
 - name: Create user local docker directory
-  file:
+  ansible.builtin.file:
     path: "/home/{{ item }}/.docker"
     state: directory
     group: "{{ item }}"
     owner: "{{ item }}"
-  with_items:
-  - "{{ dockerRole_dockerUsers }}"
+  loop: "{{ dockerRole_dockerUsers }}"
 - name: Copy docker config file
-  template:
+  ansible.builtin.template:
     src: local_docker_config.json.j2
     dest: "/home/{{ item }}/.docker/config.json"
     group: "{{ item }}"
     owner: "{{ item }}"
-  with_items:
-  - "{{ dockerRole_dockerUsers }}"
+  loop: "{{ dockerRole_dockerUsers }}"
 - name: Download docker-compose
   ansible.builtin.get_url:
     url: "https://github.com/docker/compose/releases/download/{{dockerRole_composeVersion}}/docker-compose-linux-x86_64"

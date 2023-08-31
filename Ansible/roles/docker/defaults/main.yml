@@ -14,3 +14,9 @@ dockerRole_dockerUsers:
 - user100
 
 dockerRole_composeVersion: v2.20.3
+
+dockerRole_supportedDebianDistros:
+- Ubuntu
+dockerRole_supportedFedoraDistros:
+- Rocky
+- CentOS
