@@ -1,0 +1,125 @@
+---
+- hosts: kubernetes
+  become: true
+  handlers:
+  - name: Restart containerd
+    systemd:
+      state: restarted
+      name: containerd
+    listen: restart containerd
+  tasks:
+  - name: set an optional environment with proxy vars
+    ansible.builtin.set_fact:
+      proxy_env:
+        http_proxy: "192.168.1.254:80"
+        https_proxy: "192.168.1.254:80"
+  - name: disable swap in running instance
+    ansible.builtin.command:
+      cmd: swapoff -a
+    changed_when: false
+  - name: disable swap in the fstab file
+    ansible.builtin.replace:
+      path: /etc/fstab
+      regexp: '^([^#].*?\sswap\s+sw\s+.*)$'
+      replace: '# \1'
+  - name: create a empty file for containerd module.
+    ansible.builtin.copy:
+      content: ""
+      dest: /etc/modules-load.d/containerd.conf
+      force: no
+  - name: configure module for containerd.
+    ansible.builtin.blockinfile:
+      path: /etc/modules-load.d/containerd.conf
+      block: |
+            overlay
+            br_netfilter
+  - name: Add modules
+    community.general.modprobe:
+      name: "{{ item  }}"
+      state: present
+    loop:
+      - overlay
+      - br_netfilter
+  - name: create a empty file for kubernetes sysctl params.
+    ansible.builtin.copy:
+      content: ""
+      dest: /etc/sysctl.d/99-kubernetes-cri.conf
+      force: no
+  - name: Configure sysctl params for Kubernetes.
+    ansible.posix.sysctl:
+      name: "{{ item  }}"
+      value: '1'
+      sysctl_set: true
+      state: present
+      reload: true
+      sysctl_file: '/etc/sysctl.d/99-kubernetes-cri.conf'
+    loop:
+    - net.bridge.bridge-nf-call-ip6tables
+    - net.bridge.bridge-nf-call-iptables
+    - net.ipv4.ip_forward
+  - name: Installing Prerequisites for Kubernetes
+    ansible.builtin.apt:
+      name: "{{ item  }}"
+      state: present
+    loop:
+    - apt-transport-https
+    - ca-certificates
+    - gnupg-agent
+    - curl
+    - software-properties-common
+  - name: Add Docker GPG apt Key
+    ansible.builtin.apt_key:
+      url: https://download.docker.com/linux/ubuntu/gpg
+      state: present
+    environment: "{{ proxy_env | default(omit) }}"
+  - name: Add docker repo to Debian package manager
+    ansible.builtin.apt_repository:
+      repo: deb https://download.docker.com/linux/ubuntu focal stable
+      state: present
+  - name: Install containerd
+    ansible.builtin.apt:
+      name: containerd.io
+      state: present
+      update_cache: yes
+  - name: Start and enable containerd
+    ansible.builtin.service:
+      name: containerd
+      state: started
+      enabled: yes
+  - name: get containerd default settings
+    ansible.builtin.command:
+      cmd: containerd config default
+    changed_when: false
+    register: containerd_config
+  - name: set containerd config file
+    ansible.builtin.copy:
+      dest: "/etc/containerd/config.toml"
+      content: "{{ containerd_config['stdout']  }}"
+    notify: restart containerd
+  - name: Add Google official GPG key
+    ansible.builtin.apt_key:
+      url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
+      state: present
+    environment: "{{ proxy_env | default(omit) }}"
+  - name: Add Kubernetes Repository
+    ansible.builtin.apt_repository:
+      repo: deb http://apt.kubernetes.io/ kubernetes-xenial main
+      state: present
+      filename: kubernetes
+  - name: Installing Kubernetes Cluster Packages.
+    ansible.builtin.apt:
+      name: "{{ item  }}"
+      state: present
+      update_cache: yes
+    loop:
+    - kubeadm
+    - kubectl
+    - kubelet
+  - name: Hold kubernetes packages
+    ansible.builtin.dpkg_selections:
+      name: "{{ item  }}"
+      selection: hold
+    loop:
+    - kubeadm
+    - kubectl
+    - kubelet
