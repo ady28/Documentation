@@ -43,8 +43,25 @@
         proto: 'tcp'
       - port: '8472'
         proto: 'udp'
+    when: "'kubernetes-master' in group_names"
     notify: restart ufw
-  - name: 'Allow docker DEFAULT_FORWARD_POLICY=ACCEPT'
+  - name: Allow firewall ports for kubernetes workers
+    community.general.ufw:
+      rule: allow
+      proto: "{{ item.proto }}"
+      port: "{{ item.port }}"
+    loop:
+      - port: '10250'
+        proto: 'tcp'
+      - port: '10255'
+        proto: 'tcp'
+      - port: '8472'
+        proto: 'udp'
+      - port: '30000:32767'
+        proto: 'tcp'
+    when: "'kubernetes-worker' in group_names"
+    notify: restart ufw
+  - name: 'Allow ufw DEFAULT_FORWARD_POLICY=ACCEPT'
     ufw:
       direction: routed
       default: allow
