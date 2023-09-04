@@ -215,3 +215,31 @@
       remote_src: yes
       owner: user100
       group: user100
+  - name: Copy flannel file
+    ansible.builtin.copy:
+      src: /home/user100/ansible/flannel.yml
+      dest: /home/user100/flannel.yml
+  - name: install Pod network
+    ansible.builtin.shell: 
+      cmd: kubectl apply -f /home/user100/flannel.yml
+    become: yes
+    become_user: user100
+  - name: Get the token for joining the worker nodes
+    ansible.builtin.shell: 
+      cmd: kubeadm token create  --print-join-command
+    become: yes
+    become_user: user100
+    register: kubernetes_join_command
+  - name: Copy join command to local file.
+    ansible.builtin.copy: 
+      content: "{{ kubernetes_join_command.stdout_lines[0] }}"
+      dest: "/tmp/kubernetes_join_command"
+  - name: Copy join file to controller
+    ansible.builtin.fetch:
+    src: "/tmp/kubernetes_join_command"
+    dest: "/tmp/kubernetes_join_command"
+    flat: yes
+  - name: Remove local join command file
+    ansible.builtin.file:
+      path: "/tmp/kubernetes_join_command"
+      state: absent
