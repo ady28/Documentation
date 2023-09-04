@@ -186,7 +186,7 @@
             Environment="HTTPS_PROXY=http://192.168.1.254:80"
             Environment="NO_PROXY=localhost,.testcorp.local,192.168.1.0/24,10.0.0.0/8,172.16.0.0/16,.cluster.local"
 
-- hosts: kubernetes
+- hosts: kubernetes-master
   become: true
   tasks:
   - name: set an optional environment with proxy vars
@@ -204,3 +204,14 @@
       name: kubelet
       state: started
       enabled: yes
+  - name: Create .kube local directory
+    ansible.builtin.file:
+      path: /home/user100/.kube
+      state: directory
+  - name: Copy kubeconfig file for user
+    ansible.builtin.copy:
+      src: /etc/kubernetes/admin.conf
+      dest: /home/user100/.kube/config
+      remote_src: yes
+      owner: user100
+      group: user100
