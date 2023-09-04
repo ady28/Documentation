@@ -236,9 +236,9 @@
       dest: "/tmp/kubernetes_join_command"
   - name: Copy join file to controller
     ansible.builtin.fetch:
-    src: "/tmp/kubernetes_join_command"
-    dest: "/tmp/kubernetes_join_command"
-    flat: yes
+      src: "/tmp/kubernetes_join_command"
+      dest: "/tmp/kubernetes_join_command"
+      flat: yes
   - name: Remove local join command file
     ansible.builtin.file:
       path: "/tmp/kubernetes_join_command"
