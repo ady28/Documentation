@@ -197,7 +197,7 @@
         no_proxy: localhost,.testcorp.local,192.168.1.0/24,10.0.0.0/8,172.16.0.0/16,.cluster.local
   - name: Initialize kubernetes Cluster
     ansible.builtin.command:
-      cmd: kubeadm init --pod-network-cidr=10.244.0.0/16 --ignore-preflight-errors=all
+      cmd: kubeadm init --pod-network-cidr=10.244.0.0/16
     environment: "{{ proxy_env | default(omit) }}"
   - name: Start and enable kubelet
     ansible.builtin.service:
@@ -243,3 +243,15 @@
     ansible.builtin.file:
       path: "/tmp/kubernetes_join_command"
       state: absent
+
+- hosts: kubernetes-worker
+  become: true
+  tasks:
+  - name: Copy join command from Ansiblehost to the worker nodes.
+    ansible.builtin.copy:
+      src: /tmp/kubernetes_join_command
+      dest: /tmp/kubernetes_join_command
+      mode: 0500
+  - name: Join the Worker nodes to the cluster.
+    ansible.builtin.command:
+      cmd: sh /tmp/kubernetes_join_command
