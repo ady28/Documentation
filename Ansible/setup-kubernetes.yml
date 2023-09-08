@@ -14,6 +14,12 @@
       name: ufw
       daemon_reload: true
     listen: restart ufw
+  - name: Restart kubelet
+    systemd:
+      state: restarted
+      name: kubelet
+      daemon_reload: true
+    listen: restart kubelet
   tasks:
   - name: set an optional environment with proxy vars
     ansible.builtin.set_fact:
@@ -140,16 +146,6 @@
       name: containerd
       state: started
       enabled: yes
-  - name: get containerd default settings
-    ansible.builtin.command:
-      cmd: containerd config default
-    changed_when: false
-    register: containerd_config
-  - name: set containerd config file
-    ansible.builtin.copy:
-      dest: "/etc/containerd/config.toml"
-      content: "{{ containerd_config['stdout']  }}"
-    notify: restart containerd
   - name: Create containerd service directory
     ansible.builtin.file:
       path: /etc/systemd/system/containerd.service.d
@@ -180,7 +176,7 @@
       filename: kubernetes
   - name: Installing Kubernetes Cluster Packages.
     ansible.builtin.apt:
-      name: "{{ item  }}"
+      name: "{{ item  }}=1.28.1-1.1"
       state: present
       update_cache: yes
     loop:
@@ -202,7 +198,7 @@
             Environment="HTTP_PROXY=http://192.168.1.254:80"
             Environment="HTTPS_PROXY=http://192.168.1.254:80"
             Environment="NO_PROXY=localhost,.testcorp.local,192.168.1.0/24,10.0.0.0/8,172.16.0.0/16,.cluster.local"
-
+    notify: restart kubelet
 - hosts: kubernetes-master
   become: true
   tasks:
