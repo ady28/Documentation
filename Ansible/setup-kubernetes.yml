@@ -146,6 +146,16 @@
       name: containerd
       state: started
       enabled: yes
+  - name: get containerd default settings
+    ansible.builtin.command:
+      cmd: containerd config default
+    changed_when: false
+    register: containerd_config
+  - name: set containerd config file
+    ansible.builtin.copy:
+      dest: "/etc/containerd/config.toml"
+      content: "{{ containerd_config['stdout']  }}"
+    notify: restart containerd
   - name: Create containerd service directory
     ansible.builtin.file:
       path: /etc/systemd/system/containerd.service.d
@@ -176,7 +186,7 @@
       filename: kubernetes
   - name: Installing Kubernetes Cluster Packages.
     ansible.builtin.apt:
-      name: "{{ item  }}=1.28.1-1.1"
+      name: "{{ item  }}=1.28.0-1.1"
       state: present
       update_cache: yes
     loop:
@@ -256,6 +266,34 @@
     ansible.builtin.file:
       path: "/tmp/kubernetes_join_command"
       state: absent
+  - name: Check if Helm binary exists.
+    ansible.builtin.stat:
+      path: /usr/local/bin/helm
+    register: helm_check
+  - name: Check Helm version.
+    ansible.builtin.command:
+      cmd: /usr/local/bin/helm version
+    failed_when: false
+    changed_when: false
+    register: helm_existing_version
+  - name: Download helm.
+    ansible.builtin.unarchive:
+      src: https://get.helm.sh/helm-v3.2.1-linux-amd64.tar.gz
+      dest: /tmp
+      remote_src: true
+      mode: 0755
+    register: helm_download
+    when:
+      not helm_check.stat.exists or helm_version not in helm_existing_version.stdout
+    environment: "{{ proxy_env | default(omit) }}"
+  - name: Copy helm binary into place.
+    ansible.builtin.copy:
+      src: /tmp/linux-amd64/helm
+      dest: /usr/local/bin/helm
+      mode: 0755
+      remote_src: true
+    become: true
+    when: helm_download is changed
 
 - hosts: kubernetes-worker
   become: true
