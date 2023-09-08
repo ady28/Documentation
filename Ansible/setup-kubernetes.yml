@@ -170,12 +170,12 @@
     notify: restart containerd
   - name: Add Google official GPG key
     ansible.builtin.apt_key:
-      url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
+      url: https://pkgs.k8s.io/core:/stable:/v1.28/deb/Release.key
       state: present
     environment: "{{ proxy_env | default(omit) }}"
   - name: Add Kubernetes Repository
     ansible.builtin.apt_repository:
-      repo: deb http://apt.kubernetes.io/ kubernetes-xenial main
+      repo: deb https://pkgs.k8s.io/core:/stable:/v1.28/deb/ /
       state: present
       filename: kubernetes
   - name: Installing Kubernetes Cluster Packages.
@@ -197,7 +197,7 @@
     - kubelet
   - name: configure proxy for kubelet
     ansible.builtin.blockinfile:
-      path: /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
+      path: /usr/lib/systemd/system/kubelet.service.d/10-kubeadm.conf
       block: |
             Environment="HTTP_PROXY=http://192.168.1.254:80"
             Environment="HTTPS_PROXY=http://192.168.1.254:80"
