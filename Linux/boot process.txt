@@ -22,3 +22,9 @@ poweroff
 #Near the end of the file there is the line that specifies the kernel to boot and remove quiet
 #Press Ctrl+X to boot with this setting
 #with dmesg you can now view the logs
+
+#Fix out of memory at boot:
+#Set these 2 lines in /etc/default/grub:
+ GRUB_DEFAULT=saved
+ GRUB_SAVEDEFAULT=true
+sudo update-grub
