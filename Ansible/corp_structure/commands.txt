@@ -1,0 +1,4 @@
+ansible-playbook -i inventories/test kubernetesservers.yml --ask-become-pass
+ansible-playbook -i inventories/test kubernetesservers.yml --limit=ubuntu04.testcorp.local --ask-become-pass
+
+ansible-playbook -i inventories/test one_time_kubernetes_cluster_add_nodes.yml --limit=ubuntu01.testcorp.local,ubuntu04.testcorp.local --ask-become-pass

@@ -1,0 +1,30 @@
+ansible/
+  inventories/
+    production/
+      hosts         #inv file
+      group_vars/
+        group1.yml
+        group2.yml
+      host_vars
+        host1.yml
+        host2.yml
+    test/
+      hosts         #inv file
+      group_vars/
+        group1.yml
+        group2.yml
+      host_vars
+        host1.yml
+        host2.yml
+
+  everything.yml
+  webservers.yml
+  dbservers.yml
+  kubernetesservers.yml
+  one_time-kubernetes_cluster.yml
+  one_time-kubernetes_add_worker.yml
+
+  roles/
+    common/
+    web/
+    monitoring/

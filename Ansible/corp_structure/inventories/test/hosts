@@ -1,0 +1,11 @@
+[kubernetes-master]
+ubuntu01.testcorp.local
+
+[kubernetes-worker]
+ubuntu02.testcorp.local
+ubuntu03.testcorp.local
+ubuntu04.testcorp.local
+
+[kubernetes:children]
+kubernetes-master
+kubernetes-worker
