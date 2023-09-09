@@ -1,0 +1,57 @@
+---
+kubernetesRole_httpProxy: http://192.168.1.254:80
+kubernetesRole_httpsProxy: http://192.168.1.254:80
+kubernetesRole_noProxy: "localhost,.testcorp.local,192.168.1.0/24,10.0.0.0/8,172.16.0.0/16,.cluster.local"
+kubernetesRole_useProxy: true
+
+kubernetesRole_masterFirewall:
+- port: '6443'
+  proto: 'tcp'
+- port: '2379'
+  proto: 'tcp'
+- port: '2380'
+  proto: 'tcp'
+- port: '10250'
+  proto: 'tcp'
+- port: '10251'
+  proto: 'tcp'
+- port: '10252'
+  proto: 'tcp'
+- port: '10255'
+  proto: 'tcp'
+- port: '8472'
+  proto: 'udp'
+kubernetesRole_workerFirewall:
+- port: '10250'
+  proto: 'tcp'
+- port: '10255'
+  proto: 'tcp'
+- port: '8472'
+  proto: 'udp'
+- port: '30000:32767'
+  proto: 'tcp'
+
+kubernetesRole_containerdModules:
+- overlay
+- br_netfilter
+
+kubernetesRole_sysctlParams:
+- net.bridge.bridge-nf-call-ip6tables
+- net.bridge.bridge-nf-call-iptables
+- net.ipv4.ip_forward
+
+kubernetesRole_prerequisites:
+- apt-transport-https
+- ca-certificates
+- gnupg-agent
+- curl
+- software-properties-common
+
+kubernetesRole_kubernetesPackages:
+- kubeadm
+- kubectl
+- kubelet
+kubernetesRole_packagesVersion: 1.28.1-1.1
+
+kubernetesRole_supportedDebianDistros:
+- Ubuntu

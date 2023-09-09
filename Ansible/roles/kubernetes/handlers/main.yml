@@ -1,0 +1,19 @@
+---
+- name: Restart containerd
+  ansible.builtin.systemd:
+    state: restarted
+    name: containerd
+    daemon_reload: true
+  listen: restart containerd
+- name: Restart ufw
+  ansible.builtin.systemd:
+    state: restarted
+    name: ufw
+    daemon_reload: true
+  listen: restart ufw
+- name: Restart kubelet
+  ansible.builtin.systemd:
+    state: restarted
+    name: kubelet
+    daemon_reload: true
+  listen: restart kubelet
