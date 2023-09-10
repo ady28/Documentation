@@ -51,7 +51,11 @@ kubernetesRole_kubernetesPackages:
 - kubeadm
 - kubectl
 - kubelet
-kubernetesRole_packagesVersion: 1.28.1-1.1
+kubernetesRole_packagesVersionDebian: 1.28.1-1.1
+kubernetesRole_packagesVersionFedora: '1.28.1-150500.1.1'
+kubernetesRole_repoVersion: v1.28
 
 kubernetesRole_supportedDebianDistros:
 - Ubuntu
+kubernetesRole_supportedFedoraDistros:
+- CentOS

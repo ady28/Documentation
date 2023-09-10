@@ -2,7 +2,7 @@
 - name: exit if distribution is not supported
   ansible.builtin.fail:
     msg: "Distribution {{ ansible_facts['distribution'] }} is not supported"
-  when: ansible_facts['distribution'] not in kubernetesRole_supportedDebianDistros
+  when: ansible_facts['distribution'] not in kubernetesRole_supportedDebianDistros and ansible_facts['distribution'] not in kubernetesRole_supportedFedoraDistros
 - name: set an optional environment with proxy vars
   ansible.builtin.set_fact:
     proxy_env:
@@ -10,28 +10,52 @@
       https_proxy: "{{ kubernetesRole_httpsProxy }}"
       no_proxy: "{{ kubernetesRole_noProxy }}"
   when: kubernetesRole_useProxy
-- name: Allow firewall ports for kubernetes master
+- name: Allow firewall ports for kubernetes master Debian
   community.general.ufw:
     rule: allow
     proto: "{{ item.proto }}"
     port: "{{ item.port }}"
   loop: "{{ kubernetesRole_masterFirewall }}"
-  when: "'kubernetes-master' in group_names"
+  when: "'kubernetes_master' in group_names and ansible_facts['distribution'] in kubernetesRole_supportedDebianDistros"
   notify: restart ufw
-- name: Allow firewall ports for kubernetes workers
+- name: Allow firewall ports for kubernetes workers Debian
   community.general.ufw:
     rule: allow
     proto: "{{ item.proto }}"
     port: "{{ item.port }}"
   loop: "{{ kubernetesRole_workerFirewall }}"
-  when: "'kubernetes-worker' in group_names"
+  when: "'kubernetes_worker' in group_names  and ansible_facts['distribution'] in kubernetesRole_supportedDebianDistros"
   notify: restart ufw
 - name: 'Allow ufw DEFAULT_FORWARD_POLICY=ACCEPT'
   ufw:
     direction: routed
     default: allow
     route: yes
+  when: "ansible_facts['distribution'] in kubernetesRole_supportedDebianDistros"
   notify: restart ufw
+- name: Allow firewall ports for kubernetes master Fedora
+  ansible.posix.firewalld:
+    port: "{{ item.port }}/{{ item.proto }}"
+    permanent: true
+    state: enabled
+  when: "'kubernetes_master' in group_names  and ansible_facts['distribution'] in kubernetesRole_supportedFedoraDistros"
+  loop: "{{ kubernetesRole_masterFirewall }}"
+  notify: restart firewalld
+- name: Allow firewall ports for kubernetes worker Fedora
+  ansible.posix.firewalld:
+    port: "{{ item.port | replace(':','-') }}/{{ item.proto }}"
+    permanent: true
+    state: enabled
+  when: "'kubernetes_worker' in group_names  and ansible_facts['distribution'] in kubernetesRole_supportedFedoraDistros"
+  loop: "{{ kubernetesRole_workerFirewall }}"
+  notify: restart firewalld
+- name: enable masquarade for firewalld
+  ansible.posix.firewalld:
+    masquerade: true
+    state: enabled
+    permanent: true
+  when: "ansible_facts['distribution'] in kubernetesRole_supportedFedoraDistros"
+  notify: restart firewalld
 - name: disable swap in running instance
   ansible.builtin.command:
     cmd: swapoff -a
@@ -71,25 +95,41 @@
     reload: true
     sysctl_file: '/etc/sysctl.d/99-kubernetes-cri.conf'
   loop: "{{ kubernetesRole_sysctlParams }}"
-- name: Installing Prerequisites for Kubernetes
+- name: Installing Prerequisites for Kubernetes Debian
   ansible.builtin.apt:
     name: "{{ item  }}"
     state: present
   loop: "{{ kubernetesRole_prerequisites }}"
+  when: "ansible_facts['distribution'] in kubernetesRole_supportedDebianDistros"
+- name: Add docker repo to Fedora package manager
+  ansible.builtin.get_url:
+    url: https://download.docker.com/linux/centos/docker-ce.repo
+    dest: /etc/yum.repos.d/docer-ce.repo
+  environment: "{{ proxy_env | default(omit) }}"
+  when: "ansible_facts['distribution'] in kubernetesRole_supportedFedoraDistros"
 - name: Add Docker GPG apt Key
   ansible.builtin.apt_key:
     url: https://download.docker.com/linux/ubuntu/gpg
     state: present
   environment: "{{ proxy_env | default(omit) }}"
+  when: "ansible_facts['distribution'] in kubernetesRole_supportedDebianDistros"
 - name: Add docker repo to Debian package manager
   ansible.builtin.apt_repository:
     repo: deb https://download.docker.com/linux/ubuntu focal stable
     state: present
-- name: Install containerd
+  when: "ansible_facts['distribution'] in kubernetesRole_supportedDebianDistros"
+- name: Install containerd apt
   ansible.builtin.apt:
     name: containerd.io
     state: present
     update_cache: yes
+  when: "ansible_facts['distribution'] in kubernetesRole_supportedDebianDistros"
+- name: Install containerd yum
+  ansible.builtin.yum:
+    name: containerd.io
+    state: present
+    update_cache: yes
+  when: "ansible_facts['distribution'] in kubernetesRole_supportedFedoraDistros"
 - name: Start and enable containerd
   ansible.builtin.service:
     name: containerd
@@ -125,27 +165,49 @@
           Environment="NO_PROXY=kubernetesRole_noProxy"
   notify: restart containerd
   when: kubernetesRole_useProxy
+- name: Put SELinux in permissive mode, logging actions that would be blocked.
+  ansible.posix.selinux:
+    policy: targeted
+    state: permissive
+  when: "ansible_facts['distribution'] in kubernetesRole_supportedFedoraDistros"
 - name: Add Google official GPG key
   ansible.builtin.apt_key:
     url: https://pkgs.k8s.io/core:/stable:/v1.28/deb/Release.key
     state: present
   environment: "{{ proxy_env | default(omit) }}"
-- name: Add Kubernetes Repository
+  when: "ansible_facts['distribution'] in kubernetesRole_supportedDebianDistros"
+- name: Add Kubernetes Repository apt
   ansible.builtin.apt_repository:
     repo: deb https://pkgs.k8s.io/core:/stable:/v1.28/deb/ /
     state: present
     filename: kubernetes
-- name: Installing Kubernetes Cluster Packages.
+  when: "ansible_facts['distribution'] in kubernetesRole_supportedDebianDistros"
+- name: Installing Kubernetes Cluster Packages apt.
   ansible.builtin.apt:
-    name: "{{ item  }}={{ kubernetesRole_packagesVersion }}"
+    name: "{{ item  }}={{ kubernetesRole_packagesVersionDebian }}"
     state: present
     update_cache: yes
   loop: "{{ kubernetesRole_kubernetesPackages }}"
-- name: Hold kubernetes packages
+  when: "ansible_facts['distribution'] in kubernetesRole_supportedDebianDistros"
+- name: Hold kubernetes packages apt
   ansible.builtin.dpkg_selections:
     name: "{{ item  }}"
     selection: hold
   loop: "{{ kubernetesRole_kubernetesPackages }}"
+  when: "ansible_facts['distribution'] in kubernetesRole_supportedDebianDistros"
+- name: Copy Kubernetes repo file for yum
+  ansible.builtin.template:
+    src: kubernetes-yum.j2
+    dest: /etc/yum.repos.d/kubernetes.repo
+  when: "ansible_facts['distribution'] in kubernetesRole_supportedFedoraDistros"
+- name: Installing Kubernetes Cluster Packages yum.
+  ansible.builtin.yum:
+    name: "{{ item  }}-{{ kubernetesRole_packagesVersionFedora }}"
+    state: present
+    update_cache: yes
+    disable_excludes: kubernetes
+  loop: "{{ kubernetesRole_kubernetesPackages }}"
+  when: "ansible_facts['distribution'] in kubernetesRole_supportedFedoraDistros"
 - name: configure proxy for kubelet
   ansible.builtin.blockinfile:
     path: /usr/lib/systemd/system/kubelet.service.d/10-kubeadm.conf
