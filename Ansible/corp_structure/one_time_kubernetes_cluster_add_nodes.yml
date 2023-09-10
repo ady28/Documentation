@@ -1,5 +1,5 @@
 ---
-- hosts: kubernetes-master
+- hosts: kubernetes_master
   become: true
   tasks:
   - name: Get the token for joining the worker nodes
@@ -22,7 +22,7 @@
       path: "/tmp/kubernetes_join_command"
       state: absent
 
-- hosts: kubernetes-worker
+- hosts: kubernetes_worker
   become: true
   tasks:
   - name: Copy join command from Ansiblehost to the worker nodes.
