@@ -59,3 +59,4 @@ kubernetesRole_supportedDebianDistros:
 - Ubuntu
 kubernetesRole_supportedFedoraDistros:
 - CentOS
+- Rocky

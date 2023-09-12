@@ -1,6 +1,7 @@
 [kubernetes_master]
 ubuntu01.testcorp.local
 centos01.testcorp.local
+rocky02.testcorp.local
 
 [kubernetes_worker]
 ubuntu02.testcorp.local
@@ -8,6 +9,8 @@ ubuntu03.testcorp.local
 ubuntu04.testcorp.local
 centos02.testcorp.local
 ubuntu03.testcorp.local
+rocky03.testcorp.local
+rocky04.testcorp.local
 
 [kubernetes:children]
 kubernetes_master

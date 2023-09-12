@@ -16,6 +16,7 @@
     state: restarted
     name: kubelet
     daemon_reload: true
+    enabled: yes
   listen: restart kubelet
 - name: Restart firewalld
   ansible.builtin.systemd:

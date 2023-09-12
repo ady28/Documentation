@@ -217,3 +217,31 @@
           Environment="NO_PROXY={{ kubernetesRole_noProxy }}"
   notify: restart kubelet
   when: kubernetesRole_useProxy
+- name: Check if Helm binary exists.
+  ansible.builtin.stat:
+    path: /usr/local/bin/helm
+  register: helm_check
+- name: Check Helm version.
+  ansible.builtin.command:
+    cmd: /usr/local/bin/helm version
+  failed_when: false
+  changed_when: false
+  register: helm_existing_version
+- name: Download helm.
+  ansible.builtin.unarchive:
+    src: https://get.helm.sh/helm-v3.2.1-linux-amd64.tar.gz
+    dest: /tmp
+    remote_src: true
+    mode: 0755
+  register: helm_download
+  when:
+    (not helm_check.stat.exists or helm_version not in helm_existing_version.stdout) and 'kubernetes_master' in group_names
+  environment: "{{ proxy_env | default(omit) }}"
+- name: Copy helm binary into place.
+  ansible.builtin.copy:
+    src: /tmp/linux-amd64/helm
+    dest: /usr/local/bin/helm
+    mode: 0755
+    remote_src: true
+  become: true
+  when: helm_download is changed and 'kubernetes_master' in group_names
