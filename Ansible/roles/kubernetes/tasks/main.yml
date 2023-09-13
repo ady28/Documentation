@@ -60,11 +60,18 @@
   ansible.builtin.command:
     cmd: swapoff -a
   changed_when: false
-- name: disable swap in the fstab file
-  ansible.builtin.replace:
-    path: /etc/fstab
-    regexp: '^([^#].*?\sswap\s+sw\s+.*)$'
-    replace: '# \1'
+- name: disable swap in fstab Debian
+  ansible.posix.mount:
+    path: none
+    fstype: swap
+    state: absent
+  when: "ansible_facts['distribution'] in kubernetesRole_supportedDebianDistros"
+- name: disable swap in fstab Fedora
+  ansible.posix.mount:
+    path: swap
+    fstype: swap
+    state: absent
+  when: "ansible_facts['distribution'] in kubernetesRole_supportedFedoraDistros"
 - name: create a empty file for containerd module.
   ansible.builtin.copy:
     content: ""
@@ -184,7 +191,7 @@
   when: "ansible_facts['distribution'] in kubernetesRole_supportedDebianDistros"
 - name: Installing Kubernetes Cluster Packages apt.
   ansible.builtin.apt:
-    name: "{{ item  }}={{ kubernetesRole_packagesVersionDebian }}"
+    name: "{{ item  }}"
     state: present
     update_cache: yes
   loop: "{{ kubernetesRole_kubernetesPackages }}"
@@ -202,7 +209,7 @@
   when: "ansible_facts['distribution'] in kubernetesRole_supportedFedoraDistros"
 - name: Installing Kubernetes Cluster Packages yum.
   ansible.builtin.yum:
-    name: "{{ item  }}-{{ kubernetesRole_packagesVersionFedora }}"
+    name: "{{ item  }}"
     state: present
     update_cache: yes
     disable_excludes: kubernetes
@@ -217,31 +224,3 @@
           Environment="NO_PROXY={{ kubernetesRole_noProxy }}"
   notify: restart kubelet
   when: kubernetesRole_useProxy
-- name: Check if Helm binary exists.
-  ansible.builtin.stat:
-    path: /usr/local/bin/helm
-  register: helm_check
-- name: Check Helm version.
-  ansible.builtin.command:
-    cmd: /usr/local/bin/helm version
-  failed_when: false
-  changed_when: false
-  register: helm_existing_version
-- name: Download helm.
-  ansible.builtin.unarchive:
-    src: https://get.helm.sh/helm-v3.2.1-linux-amd64.tar.gz
-    dest: /tmp
-    remote_src: true
-    mode: 0755
-  register: helm_download
-  when:
-    (not helm_check.stat.exists or helm_version not in helm_existing_version.stdout) and 'kubernetes_master' in group_names
-  environment: "{{ proxy_env | default(omit) }}"
-- name: Copy helm binary into place.
-  ansible.builtin.copy:
-    src: /tmp/linux-amd64/helm
-    dest: /usr/local/bin/helm
-    mode: 0755
-    remote_src: true
-  become: true
-  when: helm_download is changed and 'kubernetes_master' in group_names
