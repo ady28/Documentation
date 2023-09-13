@@ -3,3 +3,7 @@
 #Helm
 #Add repo: https://helm.traefik.io/traefik
 #Install traefik/traefik
+
+helm repo add traefik https://traefik.github.io/charts
+helm repo update
+helm install traefik traefik/traefik
