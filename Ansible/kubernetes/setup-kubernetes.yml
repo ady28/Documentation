@@ -1,0 +1,211 @@
+---
+- hosts: kubernetes
+  become: true
+  handlers:
+  - name: Restart containerd
+    systemd:
+      state: restarted
+      name: containerd
+      daemon_reload: true
+    listen: restart containerd
+  - name: Restart ufw
+    systemd:
+      state: restarted
+      name: ufw
+      daemon_reload: true
+    listen: restart ufw
+  - name: Restart kubelet
+    systemd:
+      state: restarted
+      name: kubelet
+      daemon_reload: true
+    listen: restart kubelet
+  tasks:
+  - name: set an optional environment with proxy vars
+    ansible.builtin.set_fact:
+      proxy_env:
+        http_proxy: "192.168.1.254:80"
+        https_proxy: "192.168.1.254:80"
+        no_proxy: localhost,.testcorp.local,192.168.1.0/24,10.0.0.0/8,172.16.0.0/16,.cluster.local
+  - name: Allow firewall ports for kubernetes master
+    community.general.ufw:
+      rule: allow
+      proto: "{{ item.proto }}"
+      port: "{{ item.port }}"
+    loop:
+      - port: '6443'
+        proto: 'tcp'
+      - port: '2379'
+        proto: 'tcp'
+      - port: '2380'
+        proto: 'tcp'
+      - port: '10250'
+        proto: 'tcp'
+      - port: '10251'
+        proto: 'tcp'
+      - port: '10252'
+        proto: 'tcp'
+      - port: '10255'
+        proto: 'tcp'
+      - port: '8472'
+        proto: 'udp'
+    when: "'kubernetes-master' in group_names"
+    notify: restart ufw
+  - name: Allow firewall ports for kubernetes workers
+    community.general.ufw:
+      rule: allow
+      proto: "{{ item.proto }}"
+      port: "{{ item.port }}"
+    loop:
+      - port: '10250'
+        proto: 'tcp'
+      - port: '10255'
+        proto: 'tcp'
+      - port: '8472'
+        proto: 'udp'
+      - port: '30000:32767'
+        proto: 'tcp'
+    when: "'kubernetes-worker' in group_names"
+    notify: restart ufw
+  - name: 'Allow ufw DEFAULT_FORWARD_POLICY=ACCEPT'
+    ufw:
+      direction: routed
+      default: allow
+      route: yes
+    notify: restart ufw
+  - name: disable swap in running instance
+    ansible.builtin.command:
+      cmd: swapoff -a
+    changed_when: false
+  - name: disable swap in the fstab file
+    ansible.builtin.replace:
+      path: /etc/fstab
+      regexp: '^([^#].*?\sswap\s+sw\s+.*)$'
+      replace: '# \1'
+  - name: create a empty file for containerd module.
+    ansible.builtin.copy:
+      content: ""
+      dest: /etc/modules-load.d/containerd.conf
+      force: no
+  - name: configure module for containerd.
+    ansible.builtin.blockinfile:
+      path: /etc/modules-load.d/containerd.conf
+      block: |
+            overlay
+            br_netfilter
+  - name: Add modules
+    community.general.modprobe:
+      name: "{{ item  }}"
+      state: present
+    loop:
+      - overlay
+      - br_netfilter
+  - name: create a empty file for kubernetes sysctl params.
+    ansible.builtin.copy:
+      content: ""
+      dest: /etc/sysctl.d/99-kubernetes-cri.conf
+      force: no
+  - name: Configure sysctl params for Kubernetes.
+    ansible.posix.sysctl:
+      name: "{{ item  }}"
+      value: '1'
+      sysctl_set: true
+      state: present
+      reload: true
+      sysctl_file: '/etc/sysctl.d/99-kubernetes-cri.conf'
+    loop:
+    - net.bridge.bridge-nf-call-ip6tables
+    - net.bridge.bridge-nf-call-iptables
+    - net.ipv4.ip_forward
+  - name: Installing Prerequisites for Kubernetes
+    ansible.builtin.apt:
+      name: "{{ item  }}"
+      state: present
+    loop:
+    - apt-transport-https
+    - ca-certificates
+    - gnupg-agent
+    - curl
+    - software-properties-common
+  - name: Add Docker GPG apt Key
+    ansible.builtin.apt_key:
+      url: https://download.docker.com/linux/ubuntu/gpg
+      state: present
+    environment: "{{ proxy_env | default(omit) }}"
+  - name: Add docker repo to Debian package manager
+    ansible.builtin.apt_repository:
+      repo: deb https://download.docker.com/linux/ubuntu focal stable
+      state: present
+  - name: Install containerd
+    ansible.builtin.apt:
+      name: containerd.io
+      state: present
+      update_cache: yes
+  - name: Start and enable containerd
+    ansible.builtin.service:
+      name: containerd
+      state: started
+      enabled: yes
+  - name: get containerd default settings
+    ansible.builtin.command:
+      cmd: containerd config default
+    changed_when: false
+    register: containerd_config
+  - name: set containerd config file
+    ansible.builtin.copy:
+      dest: "/etc/containerd/config.toml"
+      content: "{{ containerd_config['stdout']  }}"
+    notify: restart containerd
+  - name: Create containerd service directory
+    ansible.builtin.file:
+      path: /etc/systemd/system/containerd.service.d
+      state: directory
+  - name: create a empty file for containerd service proxy
+    ansible.builtin.copy:
+      content: ""
+      dest: /etc/systemd/system/containerd.service.d/http-proxy.conf
+      force: no
+  - name: configure proxy for containerd
+    ansible.builtin.blockinfile:
+      path: /etc/systemd/system/containerd.service.d/http-proxy.conf
+      block: |
+            [Service]
+            Environment="HTTP_PROXY=http://192.168.1.254:80"
+            Environment="HTTPS_PROXY=http://192.168.1.254:80"
+            Environment="NO_PROXY=localhost,.testcorp.local,192.168.1.0/24,10.0.0.0/8,172.16.0.0/16,.cluster.local"
+    notify: restart containerd
+  - name: Add Google official GPG key
+    ansible.builtin.apt_key:
+      url: https://pkgs.k8s.io/core:/stable:/v1.28/deb/Release.key
+      state: present
+    environment: "{{ proxy_env | default(omit) }}"
+  - name: Add Kubernetes Repository
+    ansible.builtin.apt_repository:
+      repo: deb https://pkgs.k8s.io/core:/stable:/v1.28/deb/ /
+      state: present
+      filename: kubernetes
+  - name: Installing Kubernetes Cluster Packages.
+    ansible.builtin.apt:
+      name: "{{ item  }}=1.28.0-1.1"
+      state: present
+      update_cache: yes
+    loop:
+    - kubeadm
+    - kubectl
+    - kubelet
+  - name: Hold kubernetes packages
+    ansible.builtin.dpkg_selections:
+      name: "{{ item  }}"
+      selection: hold
+    loop:
+    - kubeadm
+    - kubectl
+    - kubelet
+  - name: configure proxy for kubelet
+    ansible.builtin.blockinfile:
+      path: /usr/lib/systemd/system/kubelet.service.d/10-kubeadm.conf
+      block: |
+            Environment="HTTP_PROXY=http://192.168.1.254:80"
+            Environment="HTTPS_PROXY=http://192.168.1.254:80"
+            Environment="NO_PROXY=localhost,.testcorp.local,192.168.1.0/24,10.0.0.0/8,172.16.0.0/16,.cluster.local"
+    notify: restart kubelet

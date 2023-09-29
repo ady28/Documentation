@@ -1,0 +1,67 @@
+---
+- hosts: kubernetes-master
+  become: true
+  tasks:
+  - name: set an optional environment with proxy vars
+    ansible.builtin.set_fact:
+      proxy_env:
+        http_proxy: "192.168.1.254:80"
+        https_proxy: "192.168.1.254:80"
+        no_proxy: localhost,.testcorp.local,192.168.1.0/24,10.0.0.0/8,172.16.0.0/16,.cluster.local
+  - name: Initialize kubernetes Cluster
+    ansible.builtin.command:
+      cmd: kubeadm init --pod-network-cidr=10.244.0.0/16
+    environment: "{{ proxy_env | default(omit) }}"
+  - name: Start and enable kubelet
+    ansible.builtin.service:
+      name: kubelet
+      state: started
+      enabled: yes
+  - name: Create .kube local directory
+    ansible.builtin.file:
+      path: /home/user100/.kube
+      state: directory
+  - name: Copy kubeconfig file for user
+    ansible.builtin.copy:
+      src: /etc/kubernetes/admin.conf
+      dest: /home/user100/.kube/config
+      remote_src: yes
+      owner: user100
+      group: user100
+  - name: Copy flannel file
+    ansible.builtin.copy:
+      src: /home/user100/ansible/flannel.yml
+      dest: /home/user100/flannel.yml
+  - name: install Pod network
+    ansible.builtin.shell: 
+      cmd: kubectl apply -f /home/user100/flannel.yml
+    become: yes
+    become_user: user100
+  - name: Check if Helm binary exists.
+    ansible.builtin.stat:
+      path: /usr/local/bin/helm
+    register: helm_check
+  - name: Check Helm version.
+    ansible.builtin.command:
+      cmd: /usr/local/bin/helm version
+    failed_when: false
+    changed_when: false
+    register: helm_existing_version
+  - name: Download helm.
+    ansible.builtin.unarchive:
+      src: https://get.helm.sh/helm-v3.2.1-linux-amd64.tar.gz
+      dest: /tmp
+      remote_src: true
+      mode: 0755
+    register: helm_download
+    when:
+      not helm_check.stat.exists or helm_version not in helm_existing_version.stdout
+    environment: "{{ proxy_env | default(omit) }}"
+  - name: Copy helm binary into place.
+    ansible.builtin.copy:
+      src: /tmp/linux-amd64/helm
+      dest: /usr/local/bin/helm
+      mode: 0755
+      remote_src: true
+    become: true
+    when: helm_download is changed
