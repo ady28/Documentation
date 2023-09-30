@@ -1,4 +1,5 @@
 ansible/
+  files/
   inventories/
     production/
       hosts         #inv file
