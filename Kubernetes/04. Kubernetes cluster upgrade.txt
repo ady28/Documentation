@@ -1,5 +1,10 @@
 #Upgrading kubernetes cluster with no downtime
 
+#Get control plane node
+kubectl get nodes | awk '/control-plane/ {print $(NF-4)}'
+#Get the worker nodes
+kubectl get nodes | awk '$0 !~ /control-plane/ && NR>1 {print $(NF-4)}'
+
 ### Start by upgrading the control plane node
 #See the current kubeadm version
 kubeadm version
@@ -10,6 +15,7 @@ sudo apt-mark hold kubeadm
 #Check the upgrade plan
 sudo kubeadm upgrade plan
 #Apply upgrade
+#To get version programatically: kubeadm version | awk -F '[,:]' '{ print $7 }' | tr -d '"'
 sudo kubeadm upgrade apply v1.26.2
 #Upgrade kubelet and kubectl
 sudo apt-mark unhold kubelet kubectl
