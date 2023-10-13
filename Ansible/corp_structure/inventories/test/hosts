@@ -6,7 +6,6 @@ rocky02.testcorp.local
 [kubernetes_worker]
 ubuntu02.testcorp.local
 ubuntu03.testcorp.local
-ubuntu04.testcorp.local
 centos02.testcorp.local
 ubuntu03.testcorp.local
 rocky03.testcorp.local
@@ -15,3 +14,6 @@ rocky04.testcorp.local
 [kubernetes:children]
 kubernetes_master
 kubernetes_worker
+
+[mongodb]
+ubuntu04.testcorp.local

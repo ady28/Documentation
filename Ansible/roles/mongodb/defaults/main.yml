@@ -1,0 +1,46 @@
+---
+mongoRole_httpProxy: http://192.168.1.254:80
+mongoRole_httpsProxy: http://192.168.1.254:80
+mongoRole_noProxy: "*.testcorp.local,localhost,127.0.0.1"
+mongoRole_useProxy: true
+
+mongoRole_supportedDebianDistros:
+- Ubuntu
+mongoRole_supportedFedoraDistros:
+- Rocky
+- CentOS
+
+mongoRole_DBVersion: 6.0
+mongoRole_DBEdition: org
+mongoRole_pymongoVersion: 4.3.3
+mongoRole_noLog: true
+
+mongoRole_adminPass: 'change_me'
+mongoRole_adminuserName: adminuser
+mongoRole_adminuserPass: 'change_me'
+
+mongoRole_storage:
+  dbPath: /var/lib/mongodb
+  journal:
+    enabled: true
+mongoRole_systemlog:
+  destination: file
+  logAppend: true
+  path: /var/log/mongodb/mongod.log
+
+mongoRole_net:
+  bindIp: 0.0.0.0
+  port: 27017
+
+mongoRole_user:
+- database: another_db
+  name: another_user
+  update_password: on_create
+  password: "change_me"
+  roles: 'readWrite,dbAdmin,userAdmin'
+  state: present
+
+mongoRole_Ansiblemanaged: File managed by Ansible. Please do not modify by hand!
+
+mongoRole_processmanagement:
+  timeZoneInfo: /usr/share/zoneinfo

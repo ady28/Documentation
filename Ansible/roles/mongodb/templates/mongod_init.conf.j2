@@ -1,0 +1,21 @@
+# mongod.conf
+
+# temporary file, for initial setup
+
+security:
+  authorization: disabled
+
+systemLog:
+{{ mongoRole_systemlog | to_nice_yaml(indent=2) | indent(width=2, first=True) }}
+
+storage:
+  dbPath: {{ mongoRole_storage.dbPath }}
+  journal:
+    enabled: true
+
+processManagement:
+  timeZoneInfo: /usr/share/zoneinfo
+
+net:
+  port: {{ mongoRole_net.port }}
+  bindIp: {{ mongoRole_net.bindIp }}

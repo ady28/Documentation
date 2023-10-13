@@ -1,0 +1,179 @@
+---
+- name: exit if distribution is not supported
+  ansible.builtin.fail:
+    msg: "Distribution {{ ansible_facts['distribution'] }} is not supported"
+  when: (ansible_facts['distribution'] not in mongoRole_supportedFedoraDistros) and (ansible_facts['distribution'] not in mongoRole_supportedDebianDistros)
+- name: set an optional environment with proxy vars
+  ansible.builtin.set_fact:
+    proxy_env:
+      http_proxy: "{{ mongoRole_httpProxy }}"
+      https_proxy: "{{ mongoRole_httpsProxy }}"
+  when: mongoRole_useProxy
+- name: Install Fedora prerequisites
+  ansible.builtin.yum: 
+    name: yum-utils
+    state: present
+  when:
+    ansible_facts['distribution'] in mongoRole_supportedFedoraDistros
+- name: Install Debian prerequisites
+  ansible.builtin.apt: 
+    name:
+    - gnupg
+    - python3-dev
+    - python3-pip
+    state: present
+    update_cache: yes
+  when:
+    ansible_facts['distribution'] in mongoRole_supportedDebianDistros
+- name: Add docker repo to Fedora package manager
+  ansible.builtin.get_url:
+    url: https://download.docker.com/linux/centos/docker-ce.repo
+    dest: /etc/yum.repos.d/docer-ce.repo
+  environment: "{{ proxy_env | default(omit) }}"
+  when:
+    ansible_facts['distribution'] in mongoRole_supportedFedoraDistros
+- name: Add Mongo GPG apt Key
+  ansible.builtin.apt_key:
+    url: https://pgp.mongodb.com/server-{{ mongoRole_DBVersion }}.asc
+    state: present
+  when:
+    ansible_facts['distribution'] in mongoRole_supportedDebianDistros
+  environment: "{{ proxy_env | default(omit) }}"
+- name: Add Mongo repo to Debian package manager
+  ansible.builtin.apt_repository:
+    repo: deb https://repo.mongodb.org/apt/ubuntu {{ ansible_distribution_release }}/mongodb-org/{{ mongoRole_DBVersion }} multiverse
+    state: present
+  when:
+    ansible_facts['distribution'] in mongoRole_supportedDebianDistros
+- name: Create mongo group
+  ansible.builtin.group:
+    name: mongodb
+    gid: 28
+    system: true
+- name: Create mongo user
+  ansible.builtin.user:
+    name: mongodb
+    uid: 28
+    system: true
+    group: mongodb
+    comment: 'MongoDB Server'
+    home: "{{ mongoRole_storage.dbPath }}"
+    create_home: false
+    shell: /sbin/nologin
+- name: Install docker Fedora
+  ansible.builtin.yum: 
+    name: "{{ mongoRole_dockerPackages }}"
+    state: present
+  when:
+    ansible_facts['distribution'] in mongoRole_supportedFedoraDistros
+- name: Install Mongo Debian
+  ansible.builtin.apt: 
+    name: "mongodb-{{ mongoRole_DBEdition }}"
+    state: present
+    update_cache: yes
+  when:
+    ansible_facts['distribution'] in mongoRole_supportedDebianDistros
+- name: Create data folder
+  ansible.builtin.file:
+    state: directory
+    path: "{{ mongoRole_storage.dbPath }}"
+    mode: 0755
+    owner: mongodb
+    group: mongodb
+- name: Remove default data folder when set differently
+  ansible.builtin.file:
+    state: absent
+    path: /var/lib/mongodb
+  when: mongoRole_storage.dbPath != '/var/lib/mongodb'
+- name: Remove log folder when set differently
+  ansible.builtin.file:
+    state: absent
+    path: /var/log/mongodb
+  when: >-
+    '/var/log/mongodb' not in mongoRole_systemlog.path or
+    mongoRole_systemlog.destination != 'file'
+- block:
+  - name: Ensure log folder exists
+    ansible.builtin.file:
+      path: "{{ mongoRole_systemlog.path | dirname }}"
+      state: directory
+      owner: mongodb
+      group: mongodb
+      mode: '0775'
+  - name: Stat if log file exist
+    ansible.builtin.stat:
+      path: "{{ mongoRole_systemlog.path }}"
+    register: mongo_log_check
+  - name: Ensure log files exist
+    ansible.builtin.copy:
+      content: ""
+      dest: "{{ mongoRole_systemlog.path }}"
+      force: true
+      group: mongodb
+      owner: mongodb
+      mode: '0755'
+    when: not mongo_log_check.stat.exists
+  when: >-
+    '/var/log/mongodb' not in mongoRole_systemlog.path and
+    mongoRole_systemlog.destination == 'file'
+- name: pymongo install
+  ansible.builtin.pip:
+    name: pymongo
+    executable: pip3
+    version: "{{ mongoRole_pymongoVersion }}"
+  environment: "{{ proxy_env | default(omit) }}"
+- name: Set temporary conf
+  ansible.builtin.template:
+    src: mongod_init.conf.j2
+    dest: /etc/mongod.conf
+    owner: root
+    group: root
+    mode: 0644
+- name: Start mongo
+  ansible.builtin.service:
+    name: mongod
+    state: started
+- name: Create users admin, adminuser and backup
+  community.mongodb.mongodb_user:
+    database: admin
+    name: "{{ item.name }}"
+    password: "{{ item.pass }}"
+    roles: "{{ item.role }}"
+    login_host: 127.0.0.1
+    login_port: "{{ mongoRole_net.port }}"
+  no_log: "{{ mongoRole_noLog }}"
+  loop:
+    - name: admin
+      pass: "{{ mongoRole_adminPass }}"
+      role: root
+    - name: "{{ mongoRole_adminuserName }}"
+      pass: "{{ mongoRole_adminuserPass }}"
+      role: userAdminAnyDatabase
+- name: Set config
+  template:
+    src: mongod.conf.j2
+    dest: /etc/mongod.conf
+    owner: root
+    group: root
+    mode: 0644
+  notify: mongod restart
+- name: Ensure mongod is started and enabled
+  service:
+    name: mongod
+    state: started
+    enabled: true
+- name: Set defined users and databases
+  community.mongodb.mongodb_user:
+    login_host: localhost
+    login_port: "{{ mongoRole_net.port }}"
+    login_database: admin
+    login_user: admin
+    login_password: "{{ mongoRole_adminPass }}"
+    database: "{{ item.database }}"
+    name: "{{ item.name }}"
+    roles: "{{ item.roles | default(omit) }}"
+    password: "{{ item.password }}"
+    update_password: "{{ item.update_password | default('always') }}"
+    state: "{{ item.state | default(present) }}"
+  loop: "{{ mongoRole_user }}"
+  no_log: "{{ mongoRole_noLog }}"

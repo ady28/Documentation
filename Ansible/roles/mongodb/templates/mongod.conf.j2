@@ -1,0 +1,21 @@
+# mongod.conf
+
+{{ mongoRole_Ansiblemanaged | comment }}
+
+# for documentation of all options, see:
+#   http://docs.mongodb.org/manual/reference/configuration-options/
+
+systemLog:
+{{ mongoRole_systemlog | to_nice_yaml(indent=2) | indent(width=2, first=True) }}
+
+storage:
+{{ mongoRole_storage | to_nice_yaml(indent=2) | indent(width=2, first=True) }}
+
+processManagement:
+{{ mongoRole_processmanagement | to_nice_yaml(indent=2) | indent(width=2, first=True) }}
+
+net:
+{{ mongoRole_net | to_nice_yaml(indent=2) | indent(width=2, first=True) }}
+
+security:
+  authorization: enabled
