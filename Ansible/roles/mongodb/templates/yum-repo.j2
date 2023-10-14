@@ -1,0 +1,6 @@
+[mongodb-org-{{ mongoRole_DBVersion }}]
+name=MongoDB Repository
+baseurl=https://repo.mongodb.org/yum/redhat/{{ ansible_distribution_major_version }}/mongodb-org/{{ mongoRole_DBVersion }}/x86_64/
+gpgcheck=1
+enabled=1
+gpgkey=https://www.mongodb.org/static/pgp/server-{{ mongoRole_DBVersion }}.asc
