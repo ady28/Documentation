@@ -41,7 +41,7 @@
   environment: "{{ proxy_env | default(omit) }}"
 - name: Add Mongo repo to Debian package manager
   ansible.builtin.apt_repository:
-    repo: deb https://repo.mongodb.org/apt/ubuntu {{ ansible_distribution_release }}/mongodb-org/{{ mongoRole_DBVersion }} multiverse
+    repo: deb https://repo.mongodb.org/apt/ubuntu {{ ansible_facts['distribution_release'] }}/mongodb-org/{{ mongoRole_DBVersion }} multiverse
     state: present
   when:
     ansible_facts['distribution'] in mongoRole_supportedDebianDistros
